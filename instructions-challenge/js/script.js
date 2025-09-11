@@ -27,7 +27,7 @@ function setup() {
  * One that adapts to any window size.
 */
 function draw() {
-    let radius = sin(frameCount*0.01) * 150 + width/2
+    let radius = sin(frameCount*0.01) * 100 + width/2
     noFill();
     stroke(255,255,255);
     circle(width/2, height/2, radius);
