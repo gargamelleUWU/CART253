@@ -1,6 +1,6 @@
 let currentColor, targetColor;
 let amt = 0;
-let shapeType;
+//let shapeType = 'traingle';
 
 function setup(){
     createCanvas(windowWidth, windowHeight);
@@ -18,7 +18,7 @@ function draw() {
     noStroke();
     ellipse(mouseX, mouseY, 75, 75);
 
-amt += 0.02;
+    amt += 0.02;
 
     if (amt >= 1) {
         currentColor = targetColor;
@@ -34,7 +34,7 @@ function mousePressed() {
     targetColor = color(random(255), random(255), random(255));
     amt = 0;
 }
-
+/*
 function keyPressed() {
     if (key === 'Q' || key === 'q') {
         shapeType = 'ellipse';
@@ -44,3 +44,4 @@ function keyPressed() {
         shapeType = 'triangle';
     }
 } 
+    */
