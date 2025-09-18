@@ -11,12 +11,15 @@ function setup(){
 }
 
 function draw() {
-
+    Z = random(1,1.1);
+    W = random(1, 1.1);
     let blended = lerpColor(currentColor, targetColor, amt);
 
     fill(blended);
     noStroke();
-    ellipse(mouseX, mouseY, 75, 75);
+    let X = map(sin(frameCount*0.025 + PI/Z), 1, -1, 0, width)
+    let Y = map(cos(frameCount*0.003 + PI/W), 1, -1, 0, height)
+    ellipse(X, Y, 75, 75);
 
     amt += 0.02;
 
