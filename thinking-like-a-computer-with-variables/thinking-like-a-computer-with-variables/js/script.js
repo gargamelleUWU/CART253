@@ -37,15 +37,3 @@ function mousePressed() {
     targetColor = color(random(255), random(255), random(255));
     amt = 0;
 }
-
-/*
-function keyPressed() {
-    if (key === 'Q' || key === 'q') {
-        shapeType = 'ellipse';
-    } else if (key === 'W' || key === 'w') {
-        shapeType = 'rect';
-    } else if (key === 'E' || key === 'e') {
-        shapeType = 'triangle';
-    }
-} 
-    */
