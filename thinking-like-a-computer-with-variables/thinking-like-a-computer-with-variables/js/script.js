@@ -17,8 +17,8 @@ function draw() {
 
     fill(blended);
     noStroke();
-    let X = map(sin(frameCount*0.025 + PI/Z), 1, -1, 0, width)
-    let Y = map(cos(frameCount*0.003 + PI/W), 1, -1, 0, height)
+    let X = map(sin(frameCount*0.05 + PI/2), 1, -1, 0, width)
+    let Y = map(cos(frameCount*0.003 + PI/2), 1, -1, 0, height)
     ellipse(X, Y, 75, 75);
 
     amt += 0.02;
