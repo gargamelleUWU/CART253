@@ -1,5 +1,5 @@
 
-    
+    //ADDING RANDOM COMMENT TO SEE IF THIS UPDATES ON MY OTHER COMPUTER!!!!
 /*      let celestial;
         let gravitySize = 300;
     
