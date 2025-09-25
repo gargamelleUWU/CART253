@@ -16,9 +16,11 @@ const target = {
     x: 50,
     y: 300,
     size: 50,
-    fill: {
-        color1: "#a9e201"
-        color2: "#1ff990"
+    fill: "#a9e201",
+    fills: {
+        color1: "#a9e201",
+        color2: "#ff00aeff"
+    }
 };
 
 // setup function
@@ -33,6 +35,7 @@ function draw() {
     drawUser();
     drawPuck();
     detectCollision();
+    targetHit();
 
 }
 
@@ -96,10 +99,13 @@ function detectCollision() {
 }
 
 function targetHit() {
-    let distance = (user.x, user.x, target.x, target.y)
-    if (distance < puck.size) {
-        target.fill = "#000000";
-    }
-
-    
+    let distanceTarget = dist(puck.x, puck.y, target.x, target.y)
+        if (distanceTarget < target.size) {
+            target.fill = target.fills.color2;
+            circle(200,200,50);
+        } else {
+            target.fill = target.fills.color1;
+        }
+    console.log(distanceTarget);
+    console.log(target.size);
 }
