@@ -17,13 +17,13 @@ let gravity = {
     x: undefined,
     y: undefined,
     color: undefined,
-    size: 200
+    size: 300
 };
 
 function setupCelestial() {
     celestial.x = width / 2;
     celestial.y = height / 2;
-    celestial.color = color(255,255,255);
+    celestial.color = color(255,255,0);
     celestial.radius = celestial.size/2;
 }
 
@@ -49,7 +49,6 @@ function setup() {
     setupCelestial();
 }
 
-
 function draw() {
     background(0,0,0);
     setupGravity();
@@ -57,7 +56,6 @@ function draw() {
     drawCelestial();
     pull();
     updateCelestial();
-
 }
 
 function pull() {
@@ -65,7 +63,7 @@ function pull() {
     let totalRadius = (celestial.size + gravity.size)/2;
     let dX = celestial.x - gravity.x;
     let dY = celestial.y - gravity.y;
-    let polarity = keyIsPressed;
+    let polarity = mouseIsPressed;
 
     if (distance < totalRadius && !polarity) {
         let resistance = 150;
@@ -81,16 +79,26 @@ function pull() {
 function updateCelestial() {
     celestial.x += celestial.vX;
     celestial.y += celestial.vY;
-
+ 
     let drag = 0.95;
     celestial.vX *= drag;
     celestial.vY *= drag;
 
     if (celestial.x >= width-(celestial.radius) || celestial.x <= (celestial.radius)) {
-        celestial.vX *= -1;
+        celestial.vX *= -1;                       
     }
     if (celestial.y >= height-(celestial.radius) || celestial.y <= (celestial.radius)) {
         celestial.vY *= -1;
-    }
+    }                             
     console.log(drag, celestial.vX, celestial.vY)
+}
+
+function mouseWheel(event) {
+    if (event.delta > 0) {
+        celestial.size -= 5;
+    } else if (event.delta < 0) {
+        celestial.size += 5;
+    }
+
+    celestial.size = constrain(celestial.size, 20, 200);
 }
