@@ -1,81 +1,84 @@
 let curtain;
 let shyGuy;
+let draggingCurtain = false;
+let draggingShyGuy = false;
 
 function setup() {
-    createCanvas(windowWidth, windowHeight);
-    background(255);
+  createCanvas(windowWidth, windowHeight);
+  background(255);
 
-curtain = {
-        x: 0,
-        y: 0,
-        w: width/10,
-        h: height,
-        color: color(10,10,10,250),
-    }
+  curtain = {
+    x: 0,
+    y: 0,
+    w: width / 10,
+    h: height,
+    color: color(142, 6, 28, 250),
+  };
 
-shyGuy = {
+  shyGuy = {
     x: width / 2,
     y: height / 2,
-    size: 200,
-    color: ("#123f52"),
-    }
-
+    size: 300,
+    color: "#123f52",
+  };
 }
 
 function draw() {
-    background(255);
+  background(255);
 
-    fill(shyGuy.color);
-    noStroke();
-    circle(shyGuy.x, shyGuy.y, shyGuy.size);
+  // draw shyGuy
+  fill(shyGuy.color);
+  noStroke();
+  circle(shyGuy.x, shyGuy.y, shyGuy.size);
 
-    fill(curtain.color);
-    rect(curtain.x, curtain.y, curtain.w, curtain.h);
+  // draw curtain
+  fill(curtain.color);
+  rect(curtain.x, curtain.y, curtain.w, curtain.h);
 
-    // keepPulling();
-    pull();
-    moveGuy();
-   
+  // update positions
+  pull();
 }
 
-// Function to create a curtain that can block our shy little guy
+//setting up the mouse pressed to set one of two boolean values to true.
+//this is to fix the overlap on the previous iteration of the drag mechanic
+function mousePressed() {
+  let radius = shyGuy.size / 2;
+  let distance = dist(mouseX, mouseY, shyGuy.x, shyGuy.y);
+  let hoverShyGuy = distance < radius;
+  let hoverCurtain = mouseX <= curtain.w;
+
+  if (hoverCurtain) {
+    draggingCurtain = true;
+  } else if (hoverShyGuy) {
+    draggingShyGuy = true;
+  }
+}
+
+//reseting the boolean values when the mouse is released
+function mouseReleased() {
+  draggingShyGuy = false;
+  draggingCurtain = false;
+}
+
+//main pull function that 
 function pull() {
-    let pullBackRate = 0.3;
+  let pullBackRate = 0.3;
 
-    let hover = mouseX <= curtain.w;
-    if (hover) {
-        curtain.color = color(25,25,25,250)
-        if (mouseIsPressed) {
-            curtain.w += movedX;
-            pullBackRate = 0;
-        }
-    } else {     curtain.color = color(10,10,10,250) }
-    curtain.w -= pullBackRate;
-    curtain.w = constrain(curtain.w, width/10, width);
+  // curtain movement
+  if (draggingCurtain) {
+    curtain.color = color(160, 6, 28, 250);
+    curtain.w += movedX;
+    pullBackRate = 0;
+  } else {
+    curtain.color = color(142, 6, 28, 250);
+  }
+
+  curtain.w -= pullBackRate;
+  curtain.w = constrain(curtain.w, width / 10, width);
+
+  // shyGuy movement
+  if (draggingShyGuy) {
+    shyGuy.x = mouseX;
+    shyGuy.y = mouseY;
+  }
 }
-
-function moveGuy() {
-    let radius = shyGuy.size / 2;
-    let distance = dist(mouseX, mouseY, shyGuy.x, shyGuy.y);
-    let touching = distance < radius;
-
-    if (touching && mouseIsPressed) {
-        shyGuy.x = mouseX;
-        shyGuy.y = mouseY;
-    }
-}
-
-/*
-function keepPulling() {
-    let radius = shyGuy.size/2;
-    let covered = dist(curtain.w, height/2, shyGuy.x, shyGuy.y)
-    let isCovered = covered < radius;
-    console.log(covered, isCovered);
-
-    if (isCovered && (covered > 90 && covered < 100)) {
-        pullBackRate = 0;
-        curtain.w ++;
-    }
-        */
-
-
