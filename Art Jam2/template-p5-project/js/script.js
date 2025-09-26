@@ -1,138 +1,56 @@
+let curtain;
+let shyGuy;
 
-    //ADDING RANDOM COMMENT TO SEE IF THIS UPDATES ON MY OTHER COMPUTER!!!!
-/*      let celestial;
-        let gravitySize = 300;
-    
-    //Sets up a canvas on which P5 elements can be created
 function setup() {
     createCanvas(windowWidth, windowHeight);
-    background(20,20,20);
+    background(255);
 
-    celestial = {
-        x: width / 2,
-        y: height / 2,
-        size: 10,
-        color: color(255,255,255),
-        vX: 0,
-        vY: 0,
-    };
-}
-
-//draw function where all the good stuff happens!
-function draw() {
-    background(20,20,20);
-
-    fill(255,255,255, 10);
-    noStroke();
-    circle(mouseX, mouseY, gravitySize);
-
-    userGravity();
-
-    updateCelestial();
-    fill(celestial.color);
-    circle(celestial.x, celestial.y, celestial.size);
-}
-
-function userGravity() {
-    let dX = celestial.x - mouseX;
-    let dY = celestial.y - mouseY;
-    let distance = dist(mouseX, mouseY, celestial.x, celestial.y);
-    let totalRadius = (celestial.size + gravitySize) / 2;
-
-    if (distance < totalRadius) {
-        let resistance = 50;
-        if (mouseIsPressed) {
-            celestial.vX += dX / resistance;
-            celestial.vY += dY / resistance;
-        } else {
-            celestial.vX -= dX / resistance;
-            celestial.vY -= dY / resistance;
-        }
+curtain = {
+        x: 0,
+        y: 0,
+        w: width/10,
+        h: height,
+        color: color(10,10,10,250)
     }
+
+shyGuy = {
+    x: width / 2,
+    y: height / 2,
+    size: 200,
+    color: ("#123f52"),
+    }
+
 }
 
-function updateCelestial() {
-    celestial.x += celestial.vX;
-    celestial.y += celestial.vY;
-
-    let drag = 0.97;
-    celestial.vX *= drag;
-    celestial.vY *= drag;
-
-    let radius = celestial.size/2;
-
-    if (celestial.x >= width - radius || celestial.x <= radius)
-        celestial.vX *= -1;
-    if (celestial.y>= height - radius || celestial.y <= radius)
-        celestial.vY *= -1;
-}
-    */
-let celestial;
-        let gravitySize = 300;
-    
-    //Sets up a canvas on which P5 elements can be created
-function setup() {
-    createCanvas(windowWidth, windowHeight);
-    background(20,20,20);
-
-    celestial = {
-        x: width / 2,
-        y: height / 2,
-        size: 10,
-        color: color(255,255,255),
-        vX: 0,
-        vY: 0,
-    };
-}
-
-//draw function where all the good stuff happens!
 function draw() {
-    background(20,20,20);
+    background(255);
 
-    fill(255,255,255, 10);
+    fill(shyGuy.color);
     noStroke();
-    circle(mouseX, mouseY, gravitySize);
+    circle(shyGuy.x, shyGuy.y, shyGuy.size);
 
-    userGravity();
+    fill(curtain.color);
+    rect(curtain.x, curtain.y, curtain.w, curtain.h);
 
-    updateCelestial();
-    fill(celestial.color);
-    circle(celestial.x, celestial.y, celestial.size);
+    pull();
 }
 
-function userGravity() {
-    let dX = celestial.x - mouseX;
-    let dY = celestial.y - mouseY;
-    let distance = dist(mouseX, mouseY, celestial.x, celestial.y);
-    let totalRadius = (celestial.size + gravitySize) / 2;
+// Function to create a curtain that can block our shy little guy
+function pull() {
+    let pullBackRate = 0.2;
 
-    if (distance < totalRadius) {
-        let resistance = 50;
+    hover = mouseX <= curtain.w;
+    if (hover) {
+        fill(50)
         if (mouseIsPressed) {
-            celestial.vX += dX / resistance;
-            celestial.vY += dY / resistance;
-        } else {
-            celestial.vX -= dX / resistance;
-            celestial.vY -= dY / resistance;
+            curtain.w += movedX;
+            pullBackRate = 0;
         }
     }
 
-        angle = atan2(dY, dX);
-    console.log(angle)
+    curtain.w -= pullBackRate;
+    curtain.w = constrain(curtain.w, width/10, width);
 }
 
-function updateCelestial() {
-    celestial.x += celestial.vX;
-    celestial.y += celestial.vY;
 
-    let drag = 0.97;
-    celestial.vX *= drag;
-    celestial.vY *= drag;
 
-    let radius = celestial.size/2;
-
-    if (celestial.x >= width - radius || celestial.x <= radius)
-        celestial.vX *= -1;
-    if (celestial.y>= height - radius || celestial.y <= radius)
-        celestial.vY *= -1;
-}
