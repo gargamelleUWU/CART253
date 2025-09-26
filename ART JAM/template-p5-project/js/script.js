@@ -68,7 +68,7 @@ function updateCelestial() {
 }
     */
 let celestial;
-        let gravitySize = 300;
+let gravitySize = 500;
     
     //Sets up a canvas on which P5 elements can be created
 function setup() {
@@ -116,16 +116,13 @@ function userGravity() {
             celestial.vY -= dY / resistance;
         }
     }
-
-        angle = atan2(dY, dX);
-    console.log(angle)
 }
 
 function updateCelestial() {
     celestial.x += celestial.vX;
     celestial.y += celestial.vY;
 
-    let drag = 0.97;
+    let drag = 0.99999;
     celestial.vX *= drag;
     celestial.vY *= drag;
 
