@@ -68,7 +68,7 @@ function updateCelestial() {
 }
     */
 let celestial;
-        let gravitySize = 500;
+let gravitySize = 500;
     
     //Sets up a canvas on which P5 elements can be created
 function setup() {
