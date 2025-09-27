@@ -2,6 +2,7 @@ let curtain;
 let shyGuy;
 let draggingCurtain = false;
 let draggingShyGuy = false;
+let opactiy = 0;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -12,7 +13,7 @@ function setup() {
     y: 0,
     w: width / 10,
     h: height,
-    color: color(142, 6, 28, 250),
+    color: color(142, 6, 28, 230),
   };
 
   shyGuy = {
@@ -20,26 +21,12 @@ function setup() {
     y: height / 2,
     size: 300,
     color: color(240,240,240),
-
-    leftBrow: {
-
-    },
-    rightBrow: {
-    },
-    leftEye: {
-
-    },
-    rightEye: {
-
-    },
-    mouth: {
-
-    },
-
   };
 }
 
 function draw() {
+let centerX = width/2;
+let centerY = height/2;
   background(255);
 
   // draw shyGuy
@@ -48,15 +35,15 @@ function draw() {
   strokeWeight(4);
   circle(shyGuy.x, shyGuy.y, shyGuy.size);
 
-  curve(shyGuy.x-shyGuy.size/2,shyGuy.y, shyGuy.x-100, shyGuy.y-100, shyGuy.x+100, shyGuy.y+100, shyGuy.x+shyGuy.size/2, shyGuy.y);
+  // update positions
+  pull();
 
   // draw curtain
   fill(curtain.color);
   noStroke();
   rect(curtain.x, curtain.y, curtain.w, curtain.h);
 
-  // update positions
-  pull();
+
 }
 
 //setting up the mouse pressed to set one of two boolean values to true.
@@ -83,14 +70,15 @@ function mouseReleased() {
 //main pull function that 
 function pull() {
   let pullBackRate = 0.3;
+  let radius = shyGuy.size/2;
 
   // curtain movement
   if (draggingCurtain) {
-    curtain.color = color(160, 6, 28, 250);
+    curtain.color = color(160, 6, 28, 230);
     curtain.w += movedX;
     pullBackRate = 0;
   } else {
-    curtain.color = color(142, 6, 28, 250);
+    curtain.color = color(142, 6, 28, 230);
   }
 
   curtain.w -= pullBackRate;
@@ -100,5 +88,38 @@ function pull() {
   if (draggingShyGuy) {
     shyGuy.x = mouseX;
     shyGuy.y = mouseY;
+    let opactiy = 0;
+  }
+
+  if (curtain.w > shyGuy.y + (radius-100)) {
+
+    push()
+    stroke(150);
+    line(shyGuy.x-100, shyGuy.y-50,shyGuy.x-20, shyGuy.y-50);
+    line(shyGuy.x+100, shyGuy.y-50,shyGuy.x+20, shyGuy.y-50);
+    pop()
+
+    fill(20)
+    ellipse(shyGuy.x-50, shyGuy.y-20, 30,50);
+    ellipse(shyGuy.x+50, shyGuy.y-20, 30,50);
+    opactiy = 0;
+  } else {
+    push()
+    stroke(150);
+    line(shyGuy.x-100, shyGuy.y-60,shyGuy.x-20, shyGuy.y-40);
+    line(shyGuy.x+100, shyGuy.y-60,shyGuy.x+20, shyGuy.y-40);
+    pop()
+    
+    stroke(20);
+    line(shyGuy.x-70, shyGuy.y-20,shyGuy.x-20, shyGuy.y-10);
+    line(shyGuy.x+70, shyGuy.y-20,shyGuy.x+20, shyGuy.y-10);
+
+    
+    opactiy++;
+    opactiy = constrain(opactiy,0,180);
+
+    noStroke()
+    fill(222,93,131,opactiy);
+    rect(shyGuy.x-100, shyGuy.y-60, 200, 80);
   }
 }
