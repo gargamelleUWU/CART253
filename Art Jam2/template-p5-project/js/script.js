@@ -1,9 +1,26 @@
+//Global variables
 let curtain;
 let shyGuy;
 let draggingCurtain = false;
 let draggingShyGuy = false;
 let opactiy = 0;
+let lights = false;
+let terminal;
+let pullBackRate = 0.3;
 
+terminal = {
+  x: width * 0.9,
+  y: height *0.05,
+  w: 50,
+  h: 50,
+  c: color(200,0,0),
+  on: false,
+  };
+
+/*
+* Setup function which creates my canvas, defines the attributes of my
+* curtain and my shy guy.
+*/
 function setup() {
   createCanvas(windowWidth, windowHeight);
   background(255);
@@ -24,28 +41,36 @@ function setup() {
   };
 }
 
+/*
+* This is where the magic happens, the draw function actually draws our
+* elements such as the curtain and the shy guy. it also calls the other
+* functions which make the project interactive.
+*/
 function draw() {
 let centerX = width/2;
 let centerY = height/2;
   background(255);
+  lightSwitch();
 
-  // draw shyGuy
+  // Draw ShyGuy
   fill(shyGuy.color);
   stroke(210);
   strokeWeight(4);
   circle(shyGuy.x, shyGuy.y, shyGuy.size);
 
-  // update positions
-  pull();
-  drawFace();
-  // draw curtain
+  pull();     //  Calling pull function
+  drawFace(); //  Calling drawFace function
+
+  // Draw Curtain
   fill(curtain.color);
   noStroke();
   rect(curtain.x, curtain.y, curtain.w, curtain.h);
 }
 
-//setting up the mouse pressed to set one of two boolean values to true.
-//this is to fix the overlap on the previous iteration of the drag mechanic
+/* 
+* Setting up the mouse pressed to set one of two boolean values to true.
+* This is to fix the overlap on the previous iteration of the drag mechanic
+*/
 function mousePressed() {
   let radius = shyGuy.size / 2;
   let distance = dist(mouseX, mouseY, shyGuy.x, shyGuy.y);
@@ -59,18 +84,22 @@ function mousePressed() {
   }
 }
 
-//reseting the boolean values when the mouse is released
+/*
+* reseting the boolean values when the mouse is released
+*/
 function mouseReleased() {
   draggingShyGuy = false;
   draggingCurtain = false;
 }
 
-//main pull function that 
+/*
+* Pull function makes the project interactive.
+* Allows the user to move the ShyGuy and to pull the curtain
+*/
 function pull() {
-  let pullBackRate = 0.3;
+  pullBackRate = 0.3;
   let radius = shyGuy.size/2;
 
-  // curtain movement
   if (draggingCurtain) {
     curtain.color = color(160, 6, 28, 230);
     curtain.w += movedX;
@@ -82,47 +111,16 @@ function pull() {
   curtain.w -= pullBackRate;
   curtain.w = constrain(curtain.w, width / 10, width);
 
-  // shyGuy movement
   if (draggingShyGuy) {
     shyGuy.x = mouseX;
     shyGuy.y = mouseY;
   }
-
-/*
-  if (curtain.w > shyGuy.y + (radius-100)) {
-
-    push()
-    stroke(150);
-    line(shyGuy.x-100, shyGuy.y-50,shyGuy.x-20, shyGuy.y-50);
-    line(shyGuy.x+100, shyGuy.y-50,shyGuy.x+20, shyGuy.y-50);
-    pop()
-
-    fill(20)
-    ellipse(shyGuy.x-50, shyGuy.y-20, 30,50);
-    ellipse(shyGuy.x+50, shyGuy.y-20, 30,50);
-    opactiy = 0;
-  } else {
-    push()
-    stroke(150);
-    line(shyGuy.x-100, shyGuy.y-60,shyGuy.x-20, shyGuy.y-40);
-    line(shyGuy.x+100, shyGuy.y-60,shyGuy.x+20, shyGuy.y-40);
-    pop()
-    
-    stroke(20);
-    line(shyGuy.x-70, shyGuy.y-20,shyGuy.x-20, shyGuy.y-10);
-    line(shyGuy.x+70, shyGuy.y-20,shyGuy.x+20, shyGuy.y-10);
-
-    
-    opactiy++;
-    opactiy = constrain(opactiy,0,180);
-
-    noStroke()
-    fill(222,93,131,opactiy);
-    rect(shyGuy.x-100, shyGuy.y-60, 200, 80);
-  }
-    */
 }
 
+/*
+* drawFace creates the face of the ShyGuy and changes it when he is covered
+* and uncovered. It also makes him blush when the cursor presses on him.
+*/
 function drawFace() {
   stroke(50);
   strokeWeight(5);
@@ -130,83 +128,87 @@ function drawFace() {
 
   let r = shyGuy.size / 2;
 
-  if (curtain.w > shyGuy.x+80) {
-  push();
-  noStroke();
-  fill(0);
-   ellipse(shyGuy.x-45,shyGuy.y-18, 30, 50)
-   ellipse(shyGuy.x+45,shyGuy.y-18, 30, 50)
-   pop();
+  if (curtain.w > shyGuy.x+50) {
 
-   //Left Brow
-   curve(
-    shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,   // control1
-    shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,   // start
-    shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,   // end
-    shyGuy.x + r * 0.2, shyGuy.y - r * -0.1   // control2
+  push();   //Eyes
+    noStroke();
+    fill(0);
+    ellipse(shyGuy.x-45,shyGuy.y-18, 30, 50)
+    ellipse(shyGuy.x+45,shyGuy.y-18, 30, 50)
+  pop();
+
+   curve(  //Left Brow
+    shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,
+    shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
+    shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
+    shyGuy.x + r * 0.2, shyGuy.y - r * -0.1
   );
-
-  //Right Brow
-  curve(
-    shyGuy.x - r * 0.2, shyGuy.y - r * -0.1,   // control1
-    shyGuy.x + r * 0.1, shyGuy.y - r * 0.35,   // start
-    shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,   // end
-    shyGuy.x + r * 0.9, shyGuy.y - r * -0.1    // control2
+  curve(    //Right Brow
+    shyGuy.x - r * 0.2, shyGuy.y - r * -0.1,
+    shyGuy.x + r * 0.1, shyGuy.y - r * 0.35,
+    shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,
+    shyGuy.x + r * 0.9, shyGuy.y - r * -0.1
   );
-
-  //Mouth
-  curve(
+  curve(    //Mouth
     shyGuy.x - r+100, shyGuy.y -10,
     shyGuy.x - r+100, shyGuy.y +30,
     shyGuy.x + r-100, shyGuy.y +30,
     shyGuy.x + r-100, shyGuy.y -10
   )
 } else {
- //Left Brow
-  curve(
-    shyGuy.x - r * 0.9, shyGuy.y - r * 0.95,   // control1
-    shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,   // start
-    shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,   // end
-    shyGuy.x + r * 0.2, shyGuy.y - r * 0.95    // control2
+  curve(   //Left Brow
+    shyGuy.x - r * 0.9, shyGuy.y - r * 0.95,
+    shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
+    shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
+    shyGuy.x + r * 0.2, shyGuy.y - r * 0.95
   );
-
-  //right Brow
-  curve(
-    shyGuy.x - r * 0.2, shyGuy.y - r * 0.95,   // control1
-    shyGuy.x + r * 0.1, shyGuy.y - r * 0.35,   // start
-    shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,   // end
-    shyGuy.x + r * 0.9, shyGuy.y - r * 0.95    // control2
+  curve(    //right Brow
+    shyGuy.x - r * 0.2, shyGuy.y - r * 0.95,
+    shyGuy.x + r * 0.1, shyGuy.y - r * 0.35,
+    shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,
+    shyGuy.x + r * 0.9, shyGuy.y - r * 0.95
   );
-
-  //Left Eye
-  curve(
-    shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,   // control1
-    shyGuy.x - r * 0.45, shyGuy.y - r * 0.15,   // start
-    shyGuy.x - r * 0.15, shyGuy.y - r * 0.15,   // end
-    shyGuy.x + r * 0.2, shyGuy.y - r * -0.1   // control2
+  curve(    //Left Eye
+    shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,
+    shyGuy.x - r * 0.45, shyGuy.y - r * 0.15,
+    shyGuy.x - r * 0.15, shyGuy.y - r * 0.15,
+    shyGuy.x + r * 0.2, shyGuy.y - r * -0.1
   );
-
-  //Right Eye
-  curve(
-    shyGuy.x - r * 0.2, shyGuy.y - r * -0.1,   // control1
-    shyGuy.x + r * 0.15, shyGuy.y - r * 0.15,   // start
-    shyGuy.x + r * 0.45, shyGuy.y - r * 0.15,   // end
-    shyGuy.x + r * 0.9, shyGuy.y - r * -0.1    // control2
+  curve(    //Right Eye
+    shyGuy.x - r * 0.2, shyGuy.y - r * -0.1,
+    shyGuy.x + r * 0.15, shyGuy.y - r * 0.15,
+    shyGuy.x + r * 0.45, shyGuy.y - r * 0.15,
+    shyGuy.x + r * 0.9, shyGuy.y - r * -0.1
   );
-
-  //Mouth
-  curve(
+  curve(    //Mouth
     shyGuy.x - r+100, shyGuy.y +60,
     shyGuy.x - r+100, shyGuy.y +10,
     shyGuy.x + r-100, shyGuy.y +10,
     shyGuy.x + r-100, shyGuy.y +60
   );
-  if (draggingShyGuy) {
-    rect(shyGuy.x-100, shyGuy.y-50, 100,40)
+  if (draggingShyGuy) { //Blush
+    opactiy++;
+    opactiy = constrain(opactiy, 0,200);
+    noStroke();
+    fill(222,93,131,opactiy);
+    rect(shyGuy.x-100, shyGuy.y-50, 200,50);
+  } else {
+      opactiy = 0;
   }
 }
+}
 
-console.log(shyGuy.x, curtain.w);
+function lightSwitch() {
+  fill(terminal.c);
+  stroke(0)
+  rect(terminal.x, terminal.y, terminal.w, terminal.h);
+
+  if (mouseX > terminal.x && mouseX < terminal.x + terminal.w && mouseY > terminal.y && mouseY < terminal.y + terminal.h) {
+    terminal.c = color(0,200,0);
+  } else {
+    terminal.c = color(200,0,0);
+  }
+  console.log(pullBackRate);
 }
 
 
