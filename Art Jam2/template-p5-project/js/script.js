@@ -19,7 +19,23 @@ function setup() {
     x: width / 2,
     y: height / 2,
     size: 300,
-    color: "#123f52",
+    color: color(240,240,240),
+
+    leftBrow: {
+
+    },
+    rightBrow: {
+    },
+    leftEye: {
+
+    },
+    rightEye: {
+
+    },
+    mouth: {
+
+    },
+
   };
 }
 
@@ -28,11 +44,15 @@ function draw() {
 
   // draw shyGuy
   fill(shyGuy.color);
-  noStroke();
+  stroke(210);
+  strokeWeight(4);
   circle(shyGuy.x, shyGuy.y, shyGuy.size);
+
+  curve(shyGuy.x-shyGuy.size/2,shyGuy.y, shyGuy.x-100, shyGuy.y-100, shyGuy.x+100, shyGuy.y+100, shyGuy.x+shyGuy.size/2, shyGuy.y);
 
   // draw curtain
   fill(curtain.color);
+  noStroke();
   rect(curtain.x, curtain.y, curtain.w, curtain.h);
 
   // update positions
