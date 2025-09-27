@@ -156,7 +156,8 @@ function drawFace() {
 
   let r = shyGuy.size / 2;
 
-  if (terminal.on === false) {
+  if (terminal.on === false && curtain.w > shyGuy.x+50) {
+  //Super Happy
     curve(    //Left Eye
       shyGuy.x - r * 0.9, shyGuy.y - r * -0.3,
       shyGuy.x - r * 0.45, shyGuy.y - r * 0.15,
@@ -187,7 +188,35 @@ function drawFace() {
       shyGuy.x + r-100, shyGuy.y +30,
       shyGuy.x + r-100, shyGuy.y -100
     );
-  } else if (terminal.on === true) {
+  } else if (curtain.w > shyGuy.x+50) {
+  //Medium Happy
+    push();   //Eyes
+      noStroke();
+      fill(0);
+      ellipse(shyGuy.x-45,shyGuy.y-18, 30, 50)
+      ellipse(shyGuy.x+45,shyGuy.y-18, 30, 50)
+    pop();
+
+    curve(   //Left Brow
+      shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,
+      shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
+      shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
+      shyGuy.x + r * 0.2, shyGuy.y - r * -0.1
+    );
+    curve(    //Right Brow
+      shyGuy.x - r * 0.2, shyGuy.y - r * -0.1,
+      shyGuy.x + r * 0.1, shyGuy.y - r * 0.35,
+      shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,
+      shyGuy.x + r * 0.9, shyGuy.y - r * -0.1
+    );
+    curve(    //Mouth
+      shyGuy.x - r+100, shyGuy.y -10,
+      shyGuy.x - r+100, shyGuy.y +30,
+      shyGuy.x + r-100, shyGuy.y +30,
+      shyGuy.x + r-100, shyGuy.y -10
+    )
+  } else if (terminal.on === false) {
+    //Medium Happy
     push();   //Eyes
       noStroke();
       fill(0);
@@ -214,6 +243,7 @@ function drawFace() {
       shyGuy.x + r-100, shyGuy.y -10
     )
   } else {
+  //Upset
     curve(    //Left Brow
       shyGuy.x - r * 0.9, shyGuy.y - r * 0.95,
       shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
