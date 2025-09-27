@@ -5,17 +5,15 @@ let draggingCurtain = false;
 let draggingShyGuy = false;
 let opactiy = 0;
 let lights = false;
-let terminal;
-let pullBackRate = 0.3;
-
-terminal = {
-  x: width * 0.9,
-  y: height *0.05,
-  w: 50,
+let terminal = {
+  x: 100,
+  y: 100,
+  w: 100,
   h: 50,
-  c: color(200,0,0),
-  on: false,
-  };
+  c: null,
+  on: true,
+};
+let pullBackRate = 0.3;
 
 /*
 * Setup function which creates my canvas, defines the attributes of my
@@ -39,6 +37,15 @@ function setup() {
     size: 300,
     color: color(240,240,240),
   };
+
+  terminal = {
+    x: width * 0.9,
+    y: height *0.05,
+    w: 50,
+    h: 50,
+    c: color(200,0,0),
+    on: true,
+  };
 }
 
 /*
@@ -50,7 +57,6 @@ function draw() {
 let centerX = width/2;
 let centerY = height/2;
   background(255);
-  lightSwitch();
 
   // Draw ShyGuy
   fill(shyGuy.color);
@@ -65,6 +71,8 @@ let centerY = height/2;
   fill(curtain.color);
   noStroke();
   rect(curtain.x, curtain.y, curtain.w, curtain.h);
+  flipLight();
+  lightSwitch();
 }
 
 /* 
@@ -82,6 +90,12 @@ function mousePressed() {
   } else if (hoverShyGuy) {
     draggingShyGuy = true;
   }
+
+  if (mouseX > terminal.x && mouseX < terminal.x + terminal.w 
+      && mouseY > terminal.y && mouseY < terminal.y + terminal.h) {
+    terminal.on = !terminal.on
+  } 
+  console.log(terminal.on);
 }
 
 /*
@@ -202,13 +216,19 @@ function lightSwitch() {
   fill(terminal.c);
   stroke(0)
   rect(terminal.x, terminal.y, terminal.w, terminal.h);
+}
 
-  if (mouseX > terminal.x && mouseX < terminal.x + terminal.w && mouseY > terminal.y && mouseY < terminal.y + terminal.h) {
-    terminal.c = color(0,200,0);
-  } else {
-    terminal.c = color(200,0,0);
+function flipLight() {
+  if (terminal.on === false) {
+    push()
+    fill(0, 0, 0, 240);
+    rect(0,0,width,height);
+
+    erase();
+    circle(mouseX, mouseY, 200);
+    noErase();
+    pop()
   }
-  console.log(pullBackRate);
 }
 
 
