@@ -4,7 +4,6 @@ let shyGuy;
 let draggingCurtain = false;
 let draggingShyGuy = false;
 let opactiy = 0;
-let lights = false;
 let terminal = {
   x: 100,
   y: 100,
@@ -22,6 +21,7 @@ let pullBackRate = 0.3;
 function setup() {
   createCanvas(windowWidth, windowHeight);
   background(255);
+  blackout = createGraphics(width, height);
 
   curtain = {
     x: 0,
@@ -114,20 +114,22 @@ function pull() {
   pullBackRate = 0.3;
   let radius = shyGuy.size/2;
 
-  if (draggingCurtain) {
-    curtain.color = color(160, 6, 28, 230);
-    curtain.w += movedX;
-    pullBackRate = 0;
-  } else {
-    curtain.color = color(142, 6, 28, 230);
-  }
+  if (terminal.on === true) {
+    if (draggingCurtain) {
+      curtain.color = color(160, 6, 28, 230);
+      curtain.w += movedX;
+      pullBackRate = 0;
+    } else {
+      curtain.color = color(142, 6, 28, 230);
+    }
 
-  curtain.w -= pullBackRate;
-  curtain.w = constrain(curtain.w, width / 10, width);
+    curtain.w -= pullBackRate;
+    curtain.w = constrain(curtain.w, width / 10, width * 0.87);
 
-  if (draggingShyGuy) {
-    shyGuy.x = mouseX;
-    shyGuy.y = mouseY;
+    if (draggingShyGuy) {
+      shyGuy.x = mouseX;
+      shyGuy.y = mouseY;
+    }
   }
 }
 
@@ -151,7 +153,7 @@ function drawFace() {
     ellipse(shyGuy.x+45,shyGuy.y-18, 30, 50)
   pop();
 
-   curve(  //Left Brow
+   curve(   //Left Brow
     shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,
     shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
     shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
@@ -170,7 +172,7 @@ function drawFace() {
     shyGuy.x + r-100, shyGuy.y -10
   )
 } else {
-  curve(   //Left Brow
+  curve(    //Left Brow
     shyGuy.x - r * 0.9, shyGuy.y - r * 0.95,
     shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
     shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
@@ -200,7 +202,7 @@ function drawFace() {
     shyGuy.x + r-100, shyGuy.y +10,
     shyGuy.x + r-100, shyGuy.y +60
   );
-  if (draggingShyGuy) { //Blush
+  if (draggingShyGuy) {   //Blush
     opactiy++;
     opactiy = constrain(opactiy, 0,200);
     noStroke();
@@ -219,15 +221,19 @@ function lightSwitch() {
 }
 
 function flipLight() {
+    blackout.clear()
   if (terminal.on === false) {
-    push()
-    fill(0, 0, 0, 240);
-    rect(0,0,width,height);
+    curtain.w -= pullBackRate;
+    curtain.w = constrain(curtain.w, width / 10, width * 0.87);
 
-    erase();
-    circle(mouseX, mouseY, 200);
-    noErase();
-    pop()
+    blackout.fill(0,0,0,240);
+    blackout.rect(0,0, width, height);
+
+    blackout.erase();
+    blackout.circle(mouseX, mouseY, 250);
+    blackout.noErase();
+
+    image(blackout, 0 ,0);
   }
 }
 
