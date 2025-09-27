@@ -157,124 +157,132 @@ function drawFace() {
   let r = shyGuy.size / 2;
 
   if (terminal.on === false && curtain.w > shyGuy.x+50) {
-  //Super Happy
+  //  Lights off and Covered
+  //  Super Happy
     curve(    //Left Eye
       shyGuy.x - r * 0.9, shyGuy.y - r * -0.3,
       shyGuy.x - r * 0.45, shyGuy.y - r * 0.15,
       shyGuy.x - r * 0.15, shyGuy.y - r * 0.15,
       shyGuy.x + r * 0.2, shyGuy.y - r * -0.3
     );
-    curve(    //Right Eye
+    curve(    //  Right Eye
       shyGuy.x - r * 0.2, shyGuy.y - r * -0.3,
       shyGuy.x + r * 0.15, shyGuy.y - r * 0.15,
       shyGuy.x + r * 0.45, shyGuy.y - r * 0.15,
       shyGuy.x + r * 0.9, shyGuy.y - r * -0.3
     );
-    curve(   //Left Brow
+    curve(   // Left Brow
       shyGuy.x - r * 0.9, shyGuy.y - r * -1,
       shyGuy.x - r * 0.6, shyGuy.y - r * 0.3,
       shyGuy.x - r * 0.1, shyGuy.y - r * 0.3,
       shyGuy.x + r * 0.2, shyGuy.y - r * -1
     );
-    curve(    //Right Brow
+    curve(    //  Right Brow
       shyGuy.x - r * 0.2, shyGuy.y - r * -1,
       shyGuy.x + r * 0.1, shyGuy.y - r * 0.3,
       shyGuy.x + r * 0.6, shyGuy.y - r * 0.3,
       shyGuy.x + r * 0.9, shyGuy.y - r * -1
     );
-    curve(    //Mouth
+    curve(    //  Mouth
       shyGuy.x - r+100, shyGuy.y -100,
       shyGuy.x - r+100, shyGuy.y +30,
       shyGuy.x + r-100, shyGuy.y +30,
       shyGuy.x + r-100, shyGuy.y -100
     );
   } else if (curtain.w > shyGuy.x+50) {
-  //Medium Happy
+    //  Only Covered
+    //  Medium Happy
     push();   //Eyes
       noStroke();
       fill(0);
-      ellipse(shyGuy.x-45,shyGuy.y-18, 30, 50)
-      ellipse(shyGuy.x+45,shyGuy.y-18, 30, 50)
+      ellipse(shyGuy.x+45,shyGuy.y-18, 30, 50)  //  right eye
     pop();
-
-    curve(   //Left Brow
+    curve(    //  Left Eye
       shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,
-      shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
-      shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
+      shyGuy.x - r * 0.45, shyGuy.y - r * 0.15,
+      shyGuy.x - r * 0.15, shyGuy.y - r * 0.15,
       shyGuy.x + r * 0.2, shyGuy.y - r * -0.1
     );
-    curve(    //Right Brow
+    curve(    //  Left Brow
+      shyGuy.x - r * 0.9, shyGuy.y - r * 0.95,
+      shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
+      shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
+      shyGuy.x + r * 0.2, shyGuy.y - r * 0.95
+    );
+    curve(    //  Right Brow
       shyGuy.x - r * 0.2, shyGuy.y - r * -0.1,
       shyGuy.x + r * 0.1, shyGuy.y - r * 0.35,
       shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,
       shyGuy.x + r * 0.9, shyGuy.y - r * -0.1
     );
-    curve(    //Mouth
-      shyGuy.x - r+100, shyGuy.y -10,
+    curve(    //  Mouth
+      shyGuy.x - r+100, shyGuy.y +10,
       shyGuy.x - r+100, shyGuy.y +30,
       shyGuy.x + r-100, shyGuy.y +30,
-      shyGuy.x + r-100, shyGuy.y -10
+      shyGuy.x + r-100, shyGuy.y +10
     )
   } else if (terminal.on === false) {
-    //Medium Happy
-    push();   //Eyes
+    //  Only in Dark
+    //  Medium Happy
+    push();   //  Eyes
       noStroke();
       fill(0);
       ellipse(shyGuy.x-45,shyGuy.y-18, 30, 50)
       ellipse(shyGuy.x+45,shyGuy.y-18, 30, 50)
     pop();
 
-    curve(   //Left Brow
+    curve(   // Left Brow
       shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,
       shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
       shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
       shyGuy.x + r * 0.2, shyGuy.y - r * -0.1
     );
-    curve(    //Right Brow
+    curve(    //  Right Brow
       shyGuy.x - r * 0.2, shyGuy.y - r * -0.1,
       shyGuy.x + r * 0.1, shyGuy.y - r * 0.35,
       shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,
       shyGuy.x + r * 0.9, shyGuy.y - r * -0.1
     );
-    curve(    //Mouth
+    curve(    //  Mouth
       shyGuy.x - r+100, shyGuy.y -10,
       shyGuy.x - r+100, shyGuy.y +30,
       shyGuy.x + r-100, shyGuy.y +30,
       shyGuy.x + r-100, shyGuy.y -10
     )
   } else {
-  //Upset
-    curve(    //Left Brow
+    // Nothing
+    // Upset
+    curve(    //  Left Brow
       shyGuy.x - r * 0.9, shyGuy.y - r * 0.95,
       shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
       shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
       shyGuy.x + r * 0.2, shyGuy.y - r * 0.95
     );
-    curve(    //right Brow
+    curve(    //  right Brow
       shyGuy.x - r * 0.2, shyGuy.y - r * 0.95,
       shyGuy.x + r * 0.1, shyGuy.y - r * 0.35,
       shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,
       shyGuy.x + r * 0.9, shyGuy.y - r * 0.95
     );
-    curve(    //Left Eye
+    curve(    //  Left Eye
       shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,
       shyGuy.x - r * 0.45, shyGuy.y - r * 0.15,
       shyGuy.x - r * 0.15, shyGuy.y - r * 0.15,
       shyGuy.x + r * 0.2, shyGuy.y - r * -0.1
     );
-    curve(    //Right Eye
+    curve(    //  Right Eye
       shyGuy.x - r * 0.2, shyGuy.y - r * -0.1,
       shyGuy.x + r * 0.15, shyGuy.y - r * 0.15,
       shyGuy.x + r * 0.45, shyGuy.y - r * 0.15,
       shyGuy.x + r * 0.9, shyGuy.y - r * -0.1
     );
-    curve(    //Mouth
+    curve(    //  Mouth
       shyGuy.x - r+100, shyGuy.y +60,
       shyGuy.x - r+100, shyGuy.y +10,
       shyGuy.x + r-100, shyGuy.y +10,
       shyGuy.x + r-100, shyGuy.y +60
     );
-    if (draggingShyGuy) {   //Blush
+    if (draggingShyGuy) {   //  Blush
       opactiy++;
       opactiy = constrain(opactiy, 0,200);
       noStroke();
