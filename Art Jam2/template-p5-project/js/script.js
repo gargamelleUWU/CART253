@@ -129,6 +129,18 @@ function pull() {
     if (draggingShyGuy) {
       shyGuy.x = mouseX;
       shyGuy.y = mouseY;
+      if (shyGuy.x <= radius) {
+        shyGuy.x = radius;
+      }
+      if (shyGuy.x >= width-radius) {
+        shyGuy.x = width-radius;
+      }
+      if (shyGuy.y <= radius) {
+        shyGuy.y = radius;
+      }
+      if (shyGuy.y >= height-radius) {
+        shyGuy.y = height-radius;
+      }
     }
   }
 }
@@ -144,74 +156,105 @@ function drawFace() {
 
   let r = shyGuy.size / 2;
 
-  if (curtain.w > shyGuy.x+50) {
+  if (terminal.on === false) {
+    curve(    //Left Eye
+      shyGuy.x - r * 0.9, shyGuy.y - r * -0.3,
+      shyGuy.x - r * 0.45, shyGuy.y - r * 0.15,
+      shyGuy.x - r * 0.15, shyGuy.y - r * 0.15,
+      shyGuy.x + r * 0.2, shyGuy.y - r * -0.3
+    );
+    curve(    //Right Eye
+      shyGuy.x - r * 0.2, shyGuy.y - r * -0.3,
+      shyGuy.x + r * 0.15, shyGuy.y - r * 0.15,
+      shyGuy.x + r * 0.45, shyGuy.y - r * 0.15,
+      shyGuy.x + r * 0.9, shyGuy.y - r * -0.3
+    );
+    curve(   //Left Brow
+      shyGuy.x - r * 0.9, shyGuy.y - r * -1,
+      shyGuy.x - r * 0.6, shyGuy.y - r * 0.3,
+      shyGuy.x - r * 0.1, shyGuy.y - r * 0.3,
+      shyGuy.x + r * 0.2, shyGuy.y - r * -1
+    );
+    curve(    //Right Brow
+      shyGuy.x - r * 0.2, shyGuy.y - r * -1,
+      shyGuy.x + r * 0.1, shyGuy.y - r * 0.3,
+      shyGuy.x + r * 0.6, shyGuy.y - r * 0.3,
+      shyGuy.x + r * 0.9, shyGuy.y - r * -1
+    );
+    curve(    //Mouth
+      shyGuy.x - r+100, shyGuy.y -100,
+      shyGuy.x - r+100, shyGuy.y +30,
+      shyGuy.x + r-100, shyGuy.y +30,
+      shyGuy.x + r-100, shyGuy.y -100
+    );
+  } else if (terminal.on === true) {
+    push();   //Eyes
+      noStroke();
+      fill(0);
+      ellipse(shyGuy.x-45,shyGuy.y-18, 30, 50)
+      ellipse(shyGuy.x+45,shyGuy.y-18, 30, 50)
+    pop();
 
-  push();   //Eyes
-    noStroke();
-    fill(0);
-    ellipse(shyGuy.x-45,shyGuy.y-18, 30, 50)
-    ellipse(shyGuy.x+45,shyGuy.y-18, 30, 50)
-  pop();
-
-   curve(   //Left Brow
-    shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,
-    shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
-    shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
-    shyGuy.x + r * 0.2, shyGuy.y - r * -0.1
-  );
-  curve(    //Right Brow
-    shyGuy.x - r * 0.2, shyGuy.y - r * -0.1,
-    shyGuy.x + r * 0.1, shyGuy.y - r * 0.35,
-    shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,
-    shyGuy.x + r * 0.9, shyGuy.y - r * -0.1
-  );
-  curve(    //Mouth
-    shyGuy.x - r+100, shyGuy.y -10,
-    shyGuy.x - r+100, shyGuy.y +30,
-    shyGuy.x + r-100, shyGuy.y +30,
-    shyGuy.x + r-100, shyGuy.y -10
-  )
-} else {
-  curve(    //Left Brow
-    shyGuy.x - r * 0.9, shyGuy.y - r * 0.95,
-    shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
-    shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
-    shyGuy.x + r * 0.2, shyGuy.y - r * 0.95
-  );
-  curve(    //right Brow
-    shyGuy.x - r * 0.2, shyGuy.y - r * 0.95,
-    shyGuy.x + r * 0.1, shyGuy.y - r * 0.35,
-    shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,
-    shyGuy.x + r * 0.9, shyGuy.y - r * 0.95
-  );
-  curve(    //Left Eye
-    shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,
-    shyGuy.x - r * 0.45, shyGuy.y - r * 0.15,
-    shyGuy.x - r * 0.15, shyGuy.y - r * 0.15,
-    shyGuy.x + r * 0.2, shyGuy.y - r * -0.1
-  );
-  curve(    //Right Eye
-    shyGuy.x - r * 0.2, shyGuy.y - r * -0.1,
-    shyGuy.x + r * 0.15, shyGuy.y - r * 0.15,
-    shyGuy.x + r * 0.45, shyGuy.y - r * 0.15,
-    shyGuy.x + r * 0.9, shyGuy.y - r * -0.1
-  );
-  curve(    //Mouth
-    shyGuy.x - r+100, shyGuy.y +60,
-    shyGuy.x - r+100, shyGuy.y +10,
-    shyGuy.x + r-100, shyGuy.y +10,
-    shyGuy.x + r-100, shyGuy.y +60
-  );
-  if (draggingShyGuy) {   //Blush
-    opactiy++;
-    opactiy = constrain(opactiy, 0,200);
-    noStroke();
-    fill(222,93,131,opactiy);
-    rect(shyGuy.x-100, shyGuy.y-50, 200,50);
+    curve(   //Left Brow
+      shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,
+      shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
+      shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
+      shyGuy.x + r * 0.2, shyGuy.y - r * -0.1
+    );
+    curve(    //Right Brow
+      shyGuy.x - r * 0.2, shyGuy.y - r * -0.1,
+      shyGuy.x + r * 0.1, shyGuy.y - r * 0.35,
+      shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,
+      shyGuy.x + r * 0.9, shyGuy.y - r * -0.1
+    );
+    curve(    //Mouth
+      shyGuy.x - r+100, shyGuy.y -10,
+      shyGuy.x - r+100, shyGuy.y +30,
+      shyGuy.x + r-100, shyGuy.y +30,
+      shyGuy.x + r-100, shyGuy.y -10
+    )
   } else {
+    curve(    //Left Brow
+      shyGuy.x - r * 0.9, shyGuy.y - r * 0.95,
+      shyGuy.x - r * 0.6, shyGuy.y - r * 0.35,
+      shyGuy.x - r * 0.1, shyGuy.y - r * 0.35,
+      shyGuy.x + r * 0.2, shyGuy.y - r * 0.95
+    );
+    curve(    //right Brow
+      shyGuy.x - r * 0.2, shyGuy.y - r * 0.95,
+      shyGuy.x + r * 0.1, shyGuy.y - r * 0.35,
+      shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,
+      shyGuy.x + r * 0.9, shyGuy.y - r * 0.95
+    );
+    curve(    //Left Eye
+      shyGuy.x - r * 0.9, shyGuy.y - r * -0.1,
+      shyGuy.x - r * 0.45, shyGuy.y - r * 0.15,
+      shyGuy.x - r * 0.15, shyGuy.y - r * 0.15,
+      shyGuy.x + r * 0.2, shyGuy.y - r * -0.1
+    );
+    curve(    //Right Eye
+      shyGuy.x - r * 0.2, shyGuy.y - r * -0.1,
+      shyGuy.x + r * 0.15, shyGuy.y - r * 0.15,
+      shyGuy.x + r * 0.45, shyGuy.y - r * 0.15,
+      shyGuy.x + r * 0.9, shyGuy.y - r * -0.1
+    );
+    curve(    //Mouth
+      shyGuy.x - r+100, shyGuy.y +60,
+      shyGuy.x - r+100, shyGuy.y +10,
+      shyGuy.x + r-100, shyGuy.y +10,
+      shyGuy.x + r-100, shyGuy.y +60
+    );
+    if (draggingShyGuy) {   //Blush
+      opactiy++;
+      opactiy = constrain(opactiy, 0,200);
+      noStroke();
+      fill(222,93,131,opactiy);
+      rect(shyGuy.x-100, shyGuy.y-50, 200,50);
+    } else {
       opactiy = 0;
+    }
   }
-}
+  console.log(terminal.on, curtain.w, shyGuy.x+50);
 }
 
 function lightSwitch() {
@@ -236,5 +279,6 @@ function flipLight() {
     image(blackout, 0 ,0);
   }
 }
+
 
 
