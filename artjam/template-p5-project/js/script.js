@@ -8,7 +8,7 @@
 * comfortable 
 */
 
-//Global variables which can be used and seen by other functions in the program 
+//Global variables which can be used and seen by other functions in the program
 let curtain; 
 let shyGuy;
 let draggingCurtain = false;
