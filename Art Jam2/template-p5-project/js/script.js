@@ -8,21 +8,23 @@
 * comfortable 
 */
 
-//Global variables which can be used by 
-let curtain;
+//Global variables which can be used and seen by other functions in the program 
+let curtain; 
 let shyGuy;
 let draggingCurtain = false;
 let draggingShyGuy = false;
 let opactiy = 0;
-let terminal = {
+let sky = 0;
+let terminal = {  //Initializing Terminal object (light switch)
   x: 100,
   y: 100,
   w: 100,
   h: 50,
   c: null,
   on: true,
+  stroke: (0),
 };
-let pullBackRate = 0.3;
+let pullBackRate = 0.5; //the rate at which my curtain pulls back
 
 /*
 * Setup function which creates my canvas, defines the attributes of my
@@ -33,7 +35,7 @@ function setup() {
   background(255);
   blackout = createGraphics(width, height);
 
-  curtain = {
+  curtain = { //Curtain object (the curtain that can be dragged over the ShyGuy)
     x: 0,
     y: 0,
     w: width / 10,
@@ -41,20 +43,23 @@ function setup() {
     color: color(142, 6, 28, 230),
   };
 
-  shyGuy = {
+  shyGuy = {  //ShyGuy object (the main little guy that is very uncomfortable because he is so shy)
     x: width / 2,
     y: height / 2,
     size: 300,
-    color: color(240,240,240),
+    color: color(240),
+    strokeColor: color(150),
+    faceColor: color(60),
   };
 
-  terminal = {
+  terminal = {  //Setting proper values for the Terminal Object
     x: width * 0.9,
     y: height *0.05,
     w: 50,
     h: 50,
-    c: color(200,0,0),
+    c: color(150,0,0),
     on: true,
+    stroke: (0),
   };
 }
 
@@ -66,11 +71,11 @@ function setup() {
 function draw() {
 let centerX = width/2;
 let centerY = height/2;
-  background(255);
+  background(sky);
 
   // Draw ShyGuy
   fill(shyGuy.color);
-  stroke(210);
+  stroke(shyGuy.strokeColor);
   strokeWeight(4);
   circle(shyGuy.x, shyGuy.y, shyGuy.size);
 
@@ -83,11 +88,13 @@ let centerY = height/2;
   rect(curtain.x, curtain.y, curtain.w, curtain.h);
   flipLight();
   lightSwitch();
+  showInteract();
 }
 
 /* 
 * Setting up the mouse pressed to set one of two boolean values to true.
-* This is to fix the overlap on the previous iteration of the drag mechanic
+* This is to fix the overlap on the previous iteration of the drag mechanic.
+* When I dragged the Curtain over the shyguy or vice versa, the other element would get scooped
 */
 function mousePressed() {
   let radius = shyGuy.size / 2;
@@ -130,11 +137,8 @@ function pull() {
 
   if (terminal.on === true) {
     if (draggingCurtain) {
-      curtain.color = color(160, 6, 28, 230);
       curtain.w += movedX;
       pullBackRate = 0;
-    } else {
-      curtain.color = color(142, 6, 28, 230);
     }
 
     curtain.w -= pullBackRate;
@@ -164,7 +168,7 @@ function pull() {
 * and uncovered. It also makes him blush when the cursor presses on him.
 */
 function drawFace() {
-  stroke(50);
+  stroke(shyGuy.faceColor);
   strokeWeight(5);
   noFill();
 
@@ -305,7 +309,7 @@ function drawFace() {
       fill(222,93,131,opactiy);
       rect(shyGuy.x-100, shyGuy.y-50, 200,50);
     } else {
-      opactiy--;;
+      opactiy=0;
     }
   }
   console.log(terminal.on, curtain.w, shyGuy.x+50);
@@ -313,13 +317,14 @@ function drawFace() {
 
 function lightSwitch() {
   fill(terminal.c);
-  stroke(0)
+  stroke(terminal.stroke)
   rect(terminal.x, terminal.y, terminal.w, terminal.h);
 }
 
 function flipLight() {
     blackout.clear()
   if (terminal.on === false) {
+    sky = color(46,68,130);
     curtain.w -= pullBackRate;
     curtain.w = constrain(curtain.w, width / 10, width * 0.87);
 
@@ -331,11 +336,41 @@ function flipLight() {
     blackout.noErase();
 
     image(blackout, 0 ,0);
+  } else if (terminal.on === true) {
+    sky = color(200, 230,240);
   }
 }
 
-function drawBackground() {
-  rect()
+function showInteract() {
+  let radius = shyGuy.size / 2;
+  let distance = dist(mouseX, mouseY, shyGuy.x, shyGuy.y);
+  let hoverShyGuy = distance < radius;
+  let hoverCurtain = mouseX <= curtain.w;
+
+  if (hoverCurtain && !mouseIsPressed && terminal.on) {
+    curtain.color = color(255, 6, 28, 230);
+  } else {
+    curtain.color = color(142, 6, 28, 230);
+  }
+
+  if (hoverShyGuy && !mouseIsPressed && terminal.on) {
+    shyGuy.color = color(255,255,255);
+    shyGuy.strokeColor = color(220);
+    shyGuy.faceColor = color(120);
+  } else {
+    shyGuy.color = color(240,240,240);
+    shyGuy.strokeColor = color(150);
+    shyGuy.faceColor = color(60);
+  }
+
+  if (mouseX > terminal.x && mouseX < terminal.x + terminal.w 
+      && mouseY > terminal.y && mouseY < terminal.y + terminal.h) {
+        terminal.c = color(250,0,0);
+        terminal.stroke = color(50);
+      } else {
+        terminal.c = color(150,0,0);
+        terminal.stroke = color(0);
+      }
 }
 
 
