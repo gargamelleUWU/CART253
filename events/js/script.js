@@ -81,7 +81,6 @@ function mouseWheel() {
     lose()
 }
 
-
 window.addEventListener("online", () => lose());
 window.addEventListener("offline", () => lose());
 document.addEventListener("visibilitychange", () => {
