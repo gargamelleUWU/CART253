@@ -171,8 +171,11 @@ function drawFace() {
   stroke(shyGuy.faceColor);
   strokeWeight(5);
   noFill();
-
   let r = shyGuy.size / 2;
+
+/*
+ * The following bit of code simply draws the face of the ShyGuy in different emotions
+*/
 
   if (terminal.on === false && curtain.w > shyGuy.x+50) {
   //  Lights off and Covered
