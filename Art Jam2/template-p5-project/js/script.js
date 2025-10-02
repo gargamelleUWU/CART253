@@ -1,4 +1,14 @@
-//Global variables
+/*
+* Art Jam Assignment
+* Felix Dionne ID: 40316928
+* This is my take on a self portrait, definitely not standard
+* but I had alot of fun making this one.
+* I incorporated some interactive elements, such as a curtain,
+* and a light switch which can help our Shy Guy feel far more
+* comfortable 
+*/
+
+//Global variables which can be used by 
 let curtain;
 let shyGuy;
 let draggingCurtain = false;
@@ -109,6 +119,10 @@ function mouseReleased() {
 /*
 * Pull function makes the project interactive.
 * Allows the user to move the ShyGuy and to pull the curtain
+* There are many additional conditions within this function to
+* ensure the program works as intended. Making sure the ShyGuy
+* and curtain don't get dragged at the same time, making sure
+* the ShyGuy or curtain can't be moved when the lights are out
 */
 function pull() {
   pullBackRate = 0.3;
@@ -215,12 +229,8 @@ function drawFace() {
       shyGuy.x + r * 0.6, shyGuy.y - r * 0.35,
       shyGuy.x + r * 0.9, shyGuy.y - r * -0.1
     );
-    curve(    //  Mouth
-      shyGuy.x - r+100, shyGuy.y +10,
-      shyGuy.x - r+100, shyGuy.y +30,
-      shyGuy.x + r-100, shyGuy.y +30,
-      shyGuy.x + r-100, shyGuy.y +10
-    )
+    //mouth
+    ellipse(shyGuy.x, shyGuy.y+20,40,30)
   } else if (terminal.on === false) {
     //  Only in Dark
     //  Medium Happy
@@ -282,14 +292,20 @@ function drawFace() {
       shyGuy.x + r-100, shyGuy.y +10,
       shyGuy.x + r-100, shyGuy.y +60
     );
-    if (draggingShyGuy) {   //  Blush
+     if (draggingShyGuy) {   //  Blush
+    //   for (let i = 0; i <200; i++) {  //This is me trying to add a feathered edge to the stupid blush. ARGh
+    //     noStroke();
+    //     fill(222,93,131, 2)
+    //     ellipse(shyGuy.x, shyGuy.y-100, 200-(i), 50-(i/4));
+    //   }
+    // }
       opactiy++;
       opactiy = constrain(opactiy, 0,200);
       noStroke();
       fill(222,93,131,opactiy);
       rect(shyGuy.x-100, shyGuy.y-50, 200,50);
     } else {
-      opactiy = 0;
+      opactiy--;;
     }
   }
   console.log(terminal.on, curtain.w, shyGuy.x+50);
@@ -318,5 +334,8 @@ function flipLight() {
   }
 }
 
+function drawBackground() {
+  rect()
+}
 
 
