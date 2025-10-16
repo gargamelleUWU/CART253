@@ -19,14 +19,14 @@
 const frog = {
     // The frog's body has a position and size
     body: {
-        x: 320,
-        y: 520,
+        x: 375,
+        y: 700,
         size: 150
     },
     // The frog's tongue has a position, size, speed, and state
     tongue: {
         x: undefined,
-        y: 480,
+        y: 700,
         size: 20,
         speed: 20,
         // Determines how the tongue moves each frame
@@ -47,7 +47,7 @@ const fly = {
  * Creates the canvas and initializes the fly
  */
 function setup() {
-    createCanvas(640, 480);
+    createCanvas(750, 700);
 
     // Give the fly its first random position
     resetFly();
@@ -150,8 +150,9 @@ function drawFrog() {
 
     // Draw the frog's body
     push();
-    fill("#00ff00");
-    noStroke();
+    fill("#20c392ff");
+    stroke("#044628ff");
+    strokeWeight(3);
     ellipse(frog.body.x, frog.body.y, frog.body.size);
     pop();
 }

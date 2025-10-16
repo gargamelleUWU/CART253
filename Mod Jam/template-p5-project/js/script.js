@@ -20,10 +20,17 @@ function setup() {
 }
 
 let frog = {
-x: 0,
-y: screen.height,
-size: 100,
-color: ("#1dae6fff"),
+    x: 0,
+    y: screen.height,
+    size: 100,
+    color: ("#1dae6fff"),
+    tongue: {
+        X: 0,
+        Y: screen.height,
+        Speed: 1,
+        state: 'idle',
+    }
+
 }
 
 function draw() {
@@ -35,9 +42,10 @@ background("#FF0033");
 }
 
 function gameScreen() {
-background("#c093a4ff");
+background("#94bce1ff");
 drawFrog();
 moveFrog();
+shootTongue();
 fly();
 }
 
@@ -81,11 +89,34 @@ function fly() {
 
 function changeState() {
 startScreen();
-if (gameState === 1) {
+    if (gameState === 1) {
     gameScreen();
+    }
+
+    if (gameState === 2) {
+    endScreen();
+    }   
 }
 
-if (gameState === 2) {
-    endScreen();
+function shootTongue() {
+    push(); 
+    stroke("#FF00FF");
+    strokeWeight(10);
+    line(frog.x, (frog.y+50), frog.x, frog.tongue.Y-50);
+    pop();
+
+    if (frog.tongue.state === "shoot") {
+        frog.tongue.y -= 5
+    if (frog.tongue.y <=0) {
+        frog.tongue.y += 5;
+    }
+    if (frog.tongue.y >= screen.height-50) {
+        frog.tongue.state = idle;
+    }
+    }
 }
+
+function mousePressed() {
+    if (frog.tongue.state === "idle");
+        frog.tongue.state = "shoot";
 }
