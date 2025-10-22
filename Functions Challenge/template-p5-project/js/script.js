@@ -9,18 +9,30 @@
 "use strict";
 
 
-let isStopped = false;
-
 // Our ball
 const ball = {
     x: 300,
     y: 20,
     width: 10,
     height: 10,
+    isStopped: false,
     velocity: {
         x: 0,
         y: 8,
         previousY: 8,
+    }
+};
+
+const ball2 = {
+    x: 280,
+    y: 50,
+    width: 10,
+    height: 10,
+    isStopped: false,
+    velocity: {
+        x: 0,
+        y: 6,
+        previousY: 6,
     }
 };
 
@@ -57,16 +69,24 @@ function setup() {
  * Move and display the ball and paddle
 */
 function draw() {
-    background("#87ceeb");
-    ballFreeze();
+    background("#2a6f8aff");
+    ballFreeze(ball);
+    ballFreeze(ball2);
 
     movePaddle(paddle);
     moveBall(ball);
+    moveBall(ball2);
 
+    containBounce(ball);
+    containBounce(ball2);
     handleBounce(ball, paddle);
+    handleBounce(ball, paddle2);
+    handleBounce(ball2, paddle);
+    handleBounce(ball2, paddle2);
 
     drawPaddle(paddle);
     drawBall(ball);
+    drawBall(ball2);
     trackMouse();
 }
 
@@ -90,6 +110,14 @@ ball.x += ball.velocity.x;
  * Bounces the provided ball off the provided paddle
  */
 function handleBounce(ball, paddle) {
+    if (checkOverlap(paddle, ball)) {
+        ball.velocity.y *=-1
+        ball.velocity.previousY = ball.velocity.y;
+        ball.velocity.x = mouse.velocity.x;
+    }
+}
+
+function containBounce(ball) {
     if (ball.y < 0 || ball.y > 300) {
         ball.velocity.y *= -1;
         ball.velocity.previousY = ball.velocity.y;
@@ -98,19 +126,6 @@ function handleBounce(ball, paddle) {
     if (ball.x < 0 || ball.x > 600) {
         ball.velocity.x *= -1;
     }
-
-    if (checkOverlap(paddle, ball)) {
-        ball.velocity.y *=-1
-        ball.velocity.previousY = ball.velocity.y;
-        ball.velocity.x = mouse.velocity.x;
-    }
-
-    if (checkOverlap(paddle2, ball)) {
-        ball.velocity.y *=-1
-        ball.velocity.previousY = ball.velocity.y;
-        ball.velocity.x = mouse.velocity.x;
-    }
-
 }
 
 /**
@@ -151,16 +166,17 @@ function checkOverlap(rectA, rectB) {
           rectA.y - rectA.height/2 < rectB.y + rectB.height/2);
 }
 
-function ballFreeze() {
-    if (isStopped === true) {
+function ballFreeze(ball) {
+    if (ball.isStopped === true) {
         ball.velocity.y = 0;
         ball.velocity.x = 0;
-    } else if(isStopped === false)
+    } else if(ball.isStopped === false)
         ball.velocity.y = ball.velocity.previousY;
 }
 
 function mousePressed () {
-    isStopped = !isStopped;
+    ball.isStopped = !ball.isStopped;
+    ball2.isStopped = !ball2.isStopped;
 }
 
 function trackMouse() {
