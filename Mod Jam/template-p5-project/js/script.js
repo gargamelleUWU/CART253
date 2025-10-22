@@ -7,8 +7,8 @@
 
 "use strict";
 
+let score = 0;
 let gameState;
-
 let screen = {
     width: 750,
     height: 700,
@@ -25,12 +25,21 @@ let frog = {
     size: 100,
     color: ("#1dae6fff"),
     tongue: {
-        X: 0,
-        Y: screen.height,
-        Speed: 1,
+        x: 0,
+        y: screen.height,
+        speed: 30,
         state: 'idle',
     }
 
+}
+
+let fly = {
+    radius: 100,
+    x: 0,
+    y: 0,
+    size: 20,
+    color: ("#3e3434ff"),
+    color2: ("#230b0bff"),
 }
 
 function draw() {
@@ -46,7 +55,8 @@ background("#94bce1ff");
 drawFrog();
 moveFrog();
 shootTongue();
-fly();
+drawFly();
+showScore();
 }
 
 function endScreen() {
@@ -58,28 +68,22 @@ function keyPressed() {
 }
 
 function drawFrog() {
+    frog.tongue.x = mouseX;
     push();
     fill(frog.color);
     circle(frog.x, frog.y, frog.size);
     noStroke();
     pop();
+    console.log(frog.tongue.state);
 }
 
 function moveFrog() {
 frog.x = mouseX;
 }
 
-function fly() {
-    let radius = 100;
-
-    let fly = {
-        x: screen.width/2 + radius * sin(frameCount/100),
-        y: screen.height/2 + radius * cos(frameCount/100),
-        size: 20,
-        color: ("#3e3434ff"),
-        color2: ("#230b0bff"),
-    }
-
+function drawFly() {
+    fly.x = screen.width/2 + fly.radius * sin(frameCount/100),
+    fly.y = screen.height/2 + fly.radius * cos(frameCount/100),
     push();
     fill(fly.color);
     stroke(fly.color2);
@@ -102,21 +106,39 @@ function shootTongue() {
     push(); 
     stroke("#FF00FF");
     strokeWeight(10);
-    line(frog.x, (frog.y+50), frog.x, frog.tongue.Y-50);
+    line(frog.x, (frog.y), frog.x, frog.tongue.y);
     pop();
 
     if (frog.tongue.state === "shoot") {
-        frog.tongue.y -= 5
-    if (frog.tongue.y <=0) {
-        frog.tongue.y += 5;
+        frog.tongue.y -= frog.tongue.speed;
     }
-    if (frog.tongue.y >= screen.height-50) {
-        frog.tongue.state = idle;
+
+    if (frog.tongue.y < 0) {
+        frog.tongue.state = "retract";
     }
+
+    if (frog.tongue.state === "retract") {
+        frog.tongue.y += frog.tongue.speed;
+    }
+
+    if (frog.tongue.y > windowHeight) {
+        frog.tongue.state = "idle";
+    }
+
+    let eatFly = dist(fly.x, fly.y, frog.tongue.x, frog.tongue.y)
+    if (eatFly <= fly.size) {
+        frog.tongue.state = "retract";
+        score ++;
     }
 }
 
 function mousePressed() {
-    if (frog.tongue.state === "idle");
+    if (frog.tongue.state === "idle") {
         frog.tongue.state = "shoot";
+    }
 }
+
+function showScore() {
+    text(score, 650, 50);
+}
+
