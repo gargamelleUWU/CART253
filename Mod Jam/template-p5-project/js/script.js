@@ -99,7 +99,7 @@ function drawTutorial() {
 function drawEndScreen() {
     background("#000000");
     push();
-    fill("#00FFFF");
+    fill("#00FFFE");
     circle(100, 100, 100);
     pop();
 }
