@@ -16,14 +16,15 @@
 "use strict";
 let gameState = "start";
 let score = 0;
+let eaten = null;
 
 // Our frog
 const frog = {
     // The frog's body has a position and size
     body: {
         x: 320,
-        y: 520,
-        size: 150
+        y: 450,
+        size: 75
     },
     // The frog's tongue has a position, size, speed, and state
     tongue: {
@@ -56,7 +57,7 @@ function setup() {
 }
 
 function draw() {
-    console.log(score);
+    console.log(score, eaten);
     controlState();
 }
 
@@ -71,6 +72,10 @@ function moveFly() {
     if (fly.x > width) {
         resetFly();
     }
+}
+
+function flyFly() {
+    fly.y = fly.y 
 }
 
 /**
@@ -180,7 +185,7 @@ function checkTongueFlyOverlap() {
     // Get distance from tongue to fly
     const d = dist(frog.tongue.x, frog.tongue.y, fly.x, fly.y);
     // Check if it's an overlap
-    const eaten = (d < frog.tongue.size/2 + fly.size/2);
+    eaten = (d < frog.tongue.size/2 + fly.size/2);
     if (eaten) {
         score ++;
         // Reset the fly
@@ -207,6 +212,7 @@ function startScreen() {
 function gameScreen() {
         background("#87ceeb");
         moveFly();
+        flyFly();
         drawFly();
         moveFrog();
         moveTongue();
