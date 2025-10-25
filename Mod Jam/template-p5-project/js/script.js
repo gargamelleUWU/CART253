@@ -19,6 +19,11 @@ let tongueLaunch;
 let eatFly;
 let soundtrack;
 
+//visual variables
+let flyFlap;
+let flyNoFlap;
+let currentFly;
+
 "use strict";
 const missLimit = 5;
 let gameState = "start";
@@ -72,7 +77,8 @@ const frog = {
 const fly = {
     x: 0,
     y: 200, // Will be random
-    size: 10,
+    size: 30,
+    size2: 20,
     speed: 3,
     move: {
         y: 250,
@@ -92,8 +98,14 @@ function setup() {
 
 function preload() {
     tongueLaunch = loadSound("assets/sounds/TongueOut1.wav");
+    tongueLaunch.setVolume(1.5);
     eatFly = loadSound("assets/sounds/FlyEat1.wav");
+    eatFly.setVolume(1.5);
     soundtrack = loadSound("assets/sounds/FrogVibes.mp3");
+    soundtrack.setVolume(0.2);
+
+    flyFlap = loadImage("assets/images/Fly1.png");
+    flyNoFlap = loadImage("assets/images/Fly2.png");
 }
 
 function draw() {
@@ -116,13 +128,21 @@ function moveFly() {
 /**
  * Draws the fly as a black circle
  */
+
 function drawFly() {
+    changeFly();
     push();
-    noStroke();
-    fill("#000000");
-    ellipse(fly.x, fly.move.y, fly.size);
-    pop();
+    imageMode(CENTER);
+
+    if (flyFlap && flyNoFlap) {
+        image(currentFly, fly.x, fly.move.y, fly.size, fly.size2)
+    } else {
+        noStroke();
+        fill("#000000");
+        ellipse(fly.x, fly.move.y, fly.size);
+    }
 }
+
 /**
  * Draws the tutorial screen
  */
@@ -301,9 +321,9 @@ function controlState() {
     if (gameState === "start") {
         startScreen();
         if (keyIsDown(32)) {
+            soundtrack.loop();
             gameState = "play";
         }
-        soundtrack.play();
     } else if (gameState === "play") {
         gameScreen();
         if (missedFlies === missLimit) {
@@ -399,4 +419,14 @@ function comboTracker() {
     } else if (combo === 0) {
         frog.tongue.size = 20;
     }
+}
+
+function changeFly() {
+    let cycle = (frameCount % 60)
+    if (cycle <= 30) {
+        currentFly = flyFlap;
+    } else if (cycle >= 30) {
+        currentFly = flyNoFlap;
+    }
+    console.log(cycle)
 }
