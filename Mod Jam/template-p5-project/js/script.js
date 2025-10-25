@@ -19,6 +19,7 @@ let gameState = "start";
 let score = 0;
 let eaten = null;
 let missedFlies = 0;
+let combo = 0;
 
 let marks = [];
 
@@ -176,6 +177,7 @@ function moveTongue() {
         // The tongue bounces back if it hits the top
         if (frog.tongue.y <= 0) {
             missedFlies++;
+            combo = 0;
 
             let newMarkX = markSettings.startX + (missedFlies - 1) * markSettings.distance;
             let newMark = {
@@ -232,6 +234,7 @@ function checkTongueFlyOverlap() {
     eaten = (d < frog.tongue.size / 2 + fly.size / 2);
     if (eaten) {
         score++;
+        combo++;
         // Reset the fly
         resetFly();
         // Bring back the tongue
@@ -265,6 +268,7 @@ function gameScreen() {
     displayScore();
     updateHunger();
     checkHunger();
+    comboTracker();
     drawHunger();
     drawMarks();
     debug();
@@ -304,7 +308,7 @@ function displayScore() {
 }
 
 function debug() {
-    console.log(hunger.current, hunger.isHungry, frog.tongue.speed);
+    console.log(hunger.current, hunger.isHungry, frog.tongue.speed, combo);
 }
 
 function updateHunger() {
@@ -370,5 +374,15 @@ function drawMarks() {
         fill(markSettings.color);
         circle(currentMark.x, currentMark.y, markSettings.width);
         pop();
+    }
+}
+
+function comboTracker() {
+    if (combo >= 3 && combo <= 20) {
+        frog.tongue.size = 35;
+    } else if (combo >= 21 && combo <= 50) {
+        frog.tongue.size = 50;
+    } else if (combo === 0) {
+        frog.tongue.size = 20;
     }
 }
