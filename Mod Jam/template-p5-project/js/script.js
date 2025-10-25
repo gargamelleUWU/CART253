@@ -60,7 +60,7 @@ const frog = {
     // The frog's body has a position and size
     body: {
         x: 320,
-        y: 580,
+        y: 565,
         size: 75,
     },
     // The frog's tongue has a position, size, speed, and state
@@ -126,7 +126,7 @@ function moveFly() {
     // Move the fly
     fly.x += fly.speed;
     // Handle the fly going off the canvas
-    if (fly.x > width) {
+    if (fly.x > width || fly.x < 0) {
         resetFly();
     }
 }
@@ -180,7 +180,7 @@ function resetFly() {
     if (fly.spawn < 1) {
         fly.x = 0;
         fly.speed = 3;
-    } else if (fly.spawn > 1) {
+    } else {
         fly.speed = -3;
         fly.x = width - 1;
 
