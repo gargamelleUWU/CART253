@@ -60,13 +60,13 @@ const frog = {
     // The frog's body has a position and size
     body: {
         x: 320,
-        y: 565,
+        y: 600,
         size: 75,
     },
     // The frog's tongue has a position, size, speed, and state
     tongue: {
         x: undefined,
-        y: 580,
+        y: 560,
         size: 20,
         speed: 20,
         // Determines how the tongue moves each frame
@@ -94,7 +94,7 @@ const fly = {
  * Creates the canvas and initializes the fly
  */
 function setup() {
-    createCanvas(650, 600);
+    createCanvas(700, 650);
     // Give the fly its first random position
     resetFly();
 }
@@ -176,7 +176,7 @@ function drawEndScreen() {
  */
 function resetFly() {
     switchFly();
-    fly.y = random(80, 450);
+    fly.y = random(150, 500);
     if (fly.spawn < 1) {
         fly.x = 0;
         fly.speed = 3;
@@ -190,7 +190,7 @@ function resetFly() {
 
 function resetTongue() {
     frog.tongue.x = frog.body.x;
-    frog.tongue.y = frog.body.y;
+    frog.tongue.y = 560;
 }
 
 function flyWave() {
@@ -222,7 +222,7 @@ function moveTongue() {
     else if (frog.tongue.state === "outbound") {
         frog.tongue.y += -frog.tongue.speed;
         // The tongue bounces back if it hits the top
-        if (frog.tongue.y <= 0) {
+        if (frog.tongue.y <= 75) {
             missedFlies++;
             combo = 0;
 
@@ -239,7 +239,7 @@ function moveTongue() {
     else if (frog.tongue.state === "inbound") {
         frog.tongue.y += frog.tongue.speed;
         // The tongue stops if it hits the bottom
-        if (frog.tongue.y >= height) {
+        if (frog.tongue.y >= height - 100) {
             frog.tongue.state = "idle";
         }
     }
@@ -288,6 +288,7 @@ function checkTongueFlyOverlap() {
     eaten = (d < frog.tongue.size / 2 + fly.size / 2);
     if (eaten) {
         score++;
+        frog.body.size++;
         eatFly.play();
         combo++;
         // Reset the fly
@@ -314,6 +315,7 @@ function startScreen() {
 
 function gameScreen() {
     background("#87ceeb");
+    displayScore();
     moveFly();
     drawFly();
     moveFrog();
@@ -322,11 +324,9 @@ function gameScreen() {
     moveTongue();
     drawFrog();
     checkTongueFlyOverlap();
-    displayScore();
     updateHunger();
     checkHunger();
     comboTracker();
-    drawHunger();
     drawMarks();
     debug();
 }
@@ -335,6 +335,7 @@ function endScreen() {
     missedFlies = 0;
     score = 0;
     marks = [];
+    frog.body.size = 75;
     resetFly();
     resetTongue();
     resetHunger();
@@ -362,6 +363,8 @@ function controlState() {
 }
 
 function displayScore() {
+    drawHUD();
+    drawHunger();
     text("Score: " + score, 580, 40);
     text("Combo: " + combo, 500, 40);
 }
@@ -385,7 +388,6 @@ function updateHunger() {
     if (hunger.current >= hunger.max) {
         hunger.current = hunger.max;
         frog.tongue.speed = 20;
-        frog.body.size++;
     }
 
     if (eaten) {
@@ -438,7 +440,7 @@ function drawMarks() {
 }
 
 function comboTracker() {
-    if (combo >= 3 && combo <= 20) {
+    if (combo >= 10 && combo <= 20) {
         frog.tongue.size = 35;
     } else if (combo >= 21 && combo <= 50) {
         frog.tongue.size = 50;
@@ -465,4 +467,11 @@ function Lilypad() {
 
 function switchFly() {
     fly.spawn = random(0, 2);
+}
+
+function drawHUD() {
+    push();
+    fill("#308f48ff")
+    rect(0, 0, width, 50);
+    pop();
 }
