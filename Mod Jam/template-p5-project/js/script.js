@@ -23,6 +23,8 @@ let soundtrack;
 let flyFlap;
 let flyNoFlap;
 let currentFly;
+let Hanez;
+let lilypad;
 
 "use strict";
 const missLimit = 5;
@@ -59,7 +61,7 @@ const frog = {
     body: {
         x: 320,
         y: 580,
-        size: 75
+        size: 75,
     },
     // The frog's tongue has a position, size, speed, and state
     tongue: {
@@ -106,6 +108,9 @@ function preload() {
 
     flyFlap = loadImage("assets/images/Fly1.png");
     flyNoFlap = loadImage("assets/images/Fly2.png");
+
+    Hanez = loadImage("assets/images/Hanez.png");
+    lilypad = loadImage("assets/images/Lilypad.png");
 }
 
 function draw() {
@@ -141,6 +146,7 @@ function drawFly() {
         fill("#000000");
         ellipse(fly.x, fly.move.y, fly.size);
     }
+    pop();
 }
 
 /**
@@ -249,9 +255,16 @@ function drawFrog() {
 
     // Draw the frog's body
     push();
-    fill("#20c392ff");
-    stroke("#044628ff");
-    ellipse(frog.body.x, frog.body.y, frog.body.size);
+    imageMode(CENTER);
+    if (Hanez) {
+        image(Hanez, frog.body.x, frog.body.y, frog.body.size, frog.body.size);
+    } else {
+        push();
+        fill("#20c392ff");
+        stroke("#044628ff");
+        ellipse(frog.body.x, frog.body.y, frog.body.size);
+        pop();
+    }
     pop();
 }
 
@@ -294,6 +307,7 @@ function gameScreen() {
     moveFly();
     drawFly();
     moveFrog();
+    Lilypad();
     flyWave();
     moveTongue();
     drawFrog();
@@ -339,6 +353,7 @@ function controlState() {
 
 function displayScore() {
     text("Score: " + score, 580, 40);
+    text("Combo: " + combo, 500, 40);
 }
 
 function debug() {
@@ -429,4 +444,11 @@ function changeFly() {
         currentFly = flyNoFlap;
     }
     console.log(cycle)
+}
+
+function Lilypad() {
+    push();
+    imageMode(CENTER);
+    image(lilypad, frog.body.x, frog.body.y, 125, 125);
+    pop();
 }
