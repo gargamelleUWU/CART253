@@ -20,6 +20,16 @@ let score = 0;
 let eaten = null;
 let missedFlies = 0;
 
+const hunger = {
+    current: 50,
+    max: 100,
+    min: 0,
+    replenishAmount: 20,
+    depleteRate: 1,
+    depleteInterval: 10,
+    isHungry: false,
+}
+
 // Our frog
 const frog = {
     // The frog's body has a position and size
@@ -64,7 +74,6 @@ function setup() {
 }
 
 function draw() {
-    console.log(score, fly.move.y);
     controlState();
 }
 
@@ -232,6 +241,7 @@ function gameScreen() {
         drawFrog();
         checkTongueFlyOverlap();
         displayScore(); 
+        updateHunger();
         debug();
 }
 
@@ -266,5 +276,26 @@ function displayScore() {
 }
 
 function debug() {
-    console.log(missedFlies);
+    console.log(hunger.current);
+}
+
+function drawHungerBar() {
+
+}
+
+function updateHunger() {
+    if (frameCount % hunger.depleteInterval === 0) {
+        hunger.current -= hunger.depleteRate;
+    }
+
+    if (hunger.current <= hunger.min) {
+        hunger.current = hunger.min;
+        hunger.isSlowed = true;
+    } else {
+        hunger.isSlowed - false;
+    }
+
+    if (eaten) {
+        hunger.current +=  hunger.replenishAmount;
+    }
 }
