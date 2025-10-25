@@ -14,9 +14,11 @@
  */
 
 "use strict";
+const missLimit = 5;
 let gameState = "start";
 let score = 0;
 let eaten = null;
+let missedFlies = 0;
 
 // Our frog
 const frog = {
@@ -37,21 +39,18 @@ const frog = {
     }
 };
 
-const ball = {
-    x: 250,
-    y: 250,
-    size: 50,
-    speed: 10,
-}
-
 // Our fly
 // Has a position, size, and speed of horizontal movement
 const fly = {
     x: 0,
     y: 200, // Will be random
     size: 10,
-    speed: 3
-
+    speed: 3,
+    move: {
+    y: 250,
+    range: 100,
+    speed: 10,
+    }
 };
 
 /**
@@ -65,7 +64,7 @@ function setup() {
 }
 
 function draw() {
-    console.log(score, ball.y);
+    console.log(score, fly.move.y);
     controlState();
 }
 
@@ -89,7 +88,7 @@ function drawFly() {
     push();
     noStroke();
     fill("#000000");
-    ellipse(fly.x, ball.y, fly.size);
+    ellipse(fly.x, fly.move.y, fly.size);
     pop();
 }
 /**
@@ -118,11 +117,16 @@ function drawEndScreen() {
  */
 function resetFly() {
     fly.x = 0;
-    fly.y = random(80, 500);
+    fly.y = random(80, 450);
 }
 
-function moveBall() {
-    ball.y = fly.y + 100*sin(frameCount/10);
+function resetTongue() {
+    frog.tongue.x = frog.body.x;
+    frog.tongue.y = frog.body.y;
+}
+
+function flyWave() {
+    fly.move.y = fly.y + fly.move.range*sin(frameCount/fly.move.speed);
 }
 
 /**
@@ -147,6 +151,7 @@ function moveTongue() {
         frog.tongue.y += -frog.tongue.speed;
         // The tongue bounces back if it hits the top
         if (frog.tongue.y <= 0) {
+            missedFlies ++;
             frog.tongue.state = "inbound";
         }
     }
@@ -191,7 +196,7 @@ function drawFrog() {
  */
 function checkTongueFlyOverlap() {
     // Get distance from tongue to fly
-    const d = dist(frog.tongue.x, frog.tongue.y, fly.x, ball.y);
+    const d = dist(frog.tongue.x, frog.tongue.y, fly.x, fly.move.y);
     // Check if it's an overlap
     eaten = (d < frog.tongue.size/2 + fly.size/2);
     if (eaten) {
@@ -222,13 +227,18 @@ function gameScreen() {
         moveFly();
         drawFly();
         moveFrog();
-        moveBall();
+        flyWave();
         moveTongue();
         drawFrog();
         checkTongueFlyOverlap();
+        displayScore(); 
+        debug();
 }
 
 function endScreen() {
+        missedFlies = 0;
+        resetFly();
+        resetTongue();
         drawEndScreen();
 }
 
@@ -240,7 +250,7 @@ function controlState() {
         }
     } else if (gameState === "play") {
         gameScreen();
-        if (keyIsDown(DOWN_ARROW)) {
+        if (missedFlies === missLimit) {
             gameState = "end";
         }
     } else if (gameState === "end") {
@@ -252,5 +262,9 @@ function controlState() {
 }
 
 function displayScore() {
-    text(score,)
+    text("Score: "+ score, 580, 40);
+}
+
+function debug() {
+    console.log(missedFlies);
 }
