@@ -20,8 +20,15 @@ let score = 0;
 let eaten = null;
 let missedFlies = 0;
 
-const mark = {
-    
+let marks = [];
+
+let markSettings = {
+    startX: 300,
+    y: 30,
+    width: 10,
+    distance: 20,
+    color: ("#FF0000"),
+
 }
 
 const hunger = {
@@ -61,9 +68,9 @@ const fly = {
     size: 10,
     speed: 3,
     move: {
-    y: 250,
-    range: 100,
-    speed: 10,
+        y: 250,
+        range: 100,
+        speed: 10,
     }
 };
 
@@ -139,7 +146,11 @@ function resetTongue() {
 }
 
 function flyWave() {
-    fly.move.y = fly.y + fly.move.range*sin(frameCount/fly.move.speed);
+    fly.move.y = fly.y + fly.move.range * sin(frameCount / fly.move.speed);
+}
+
+function flyRandomWave() {
+
 }
 
 /**
@@ -164,7 +175,14 @@ function moveTongue() {
         frog.tongue.y += -frog.tongue.speed;
         // The tongue bounces back if it hits the top
         if (frog.tongue.y <= 0) {
-            missedFlies ++;
+            missedFlies++;
+
+            let newMarkX = markSettings.startX + (missedFlies - 1) * markSettings.distance;
+            let newMark = {
+                x: newMarkX,
+                y: markSettings.y,
+            }
+            marks.push(newMark);
             frog.tongue.state = "inbound";
         }
     }
@@ -211,9 +229,9 @@ function checkTongueFlyOverlap() {
     // Get distance from tongue to fly
     const d = dist(frog.tongue.x, frog.tongue.y, fly.x, fly.move.y);
     // Check if it's an overlap
-    eaten = (d < frog.tongue.size/2 + fly.size/2);
+    eaten = (d < frog.tongue.size / 2 + fly.size / 2);
     if (eaten) {
-        score ++;
+        score++;
         // Reset the fly
         resetFly();
         // Bring back the tongue
@@ -231,39 +249,42 @@ function mousePressed() {
 }
 
 function startScreen() {
-    background(0,0,0);
+    background(0, 0, 0);
     drawTutorial();
 }
 
 function gameScreen() {
-        background("#87ceeb");
-        moveFly();
-        drawFly();
-        moveFrog();
-        flyWave();
-        moveTongue();
-        drawFrog();
-        checkTongueFlyOverlap();
-        displayScore(); 
-        updateHunger();
-        checkHunger();
-        drawHunger();
-        debug();
+    background("#87ceeb");
+    moveFly();
+    drawFly();
+    moveFrog();
+    flyWave();
+    moveTongue();
+    drawFrog();
+    checkTongueFlyOverlap();
+    displayScore();
+    updateHunger();
+    checkHunger();
+    drawHunger();
+    drawMarks();
+    debug();
 }
 
 function endScreen() {
-        missedFlies = 0;
-        resetFly();
-        resetTongue();
-        resetHunger();
-        drawEndScreen();
+    missedFlies = 0;
+    score = 0;
+    marks = [];
+    resetFly();
+    resetTongue();
+    resetHunger();
+    drawEndScreen();
 }
 
 function controlState() {
     if (gameState === "start") {
         startScreen();
         if (keyIsDown(32)) {
-            gameState  = "play";
+            gameState = "play";
         }
     } else if (gameState === "play") {
         gameScreen();
@@ -279,7 +300,7 @@ function controlState() {
 }
 
 function displayScore() {
-    text("Score: "+ score, 580, 40);
+    text("Score: " + score, 580, 40);
 }
 
 function debug() {
@@ -304,7 +325,7 @@ function updateHunger() {
     }
 
     if (eaten) {
-        hunger.current +=  hunger.replenishAmount;
+        hunger.current += hunger.replenishAmount;
     }
 }
 
@@ -320,19 +341,19 @@ function resetHunger() {
     hunger.current = 50;
     hunger.isHungry = false;
     frog.tongue.speed = 20;
-} 
+}
 
 function drawHunger() {
     push()
 
     fill(100);
     noStroke();
-    rect(20,20,200,20);
+    rect(20, 20, 200, 20);
 
-    let barWidth = map(hunger.current, hunger.min, hunger.max, 0,200);
+    let barWidth = map(hunger.current, hunger.min, hunger.max, 0, 200);
 
-    fill(80,200,80);
-    rect(20,20, barWidth, 20);
+    fill(80, 200, 80);
+    rect(20, 20, barWidth, 20);
 
     fill(255);
     textAlign(LEFT, CENTER);
@@ -343,8 +364,11 @@ function drawHunger() {
 }
 
 function drawMarks() {
-    fill("#FF0000")
-    if (missedFlies = 1) {
-
+    for (let i = 0; i < marks.length; i++) {
+        let currentMark = marks[i];
+        push();
+        fill(markSettings.color);
+        circle(currentMark.x, currentMark.y, markSettings.width);
+        pop();
     }
 }
