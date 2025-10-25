@@ -20,6 +20,10 @@ let score = 0;
 let eaten = null;
 let missedFlies = 0;
 
+const mark = {
+    
+}
+
 const hunger = {
     current: 50,
     max: 100,
@@ -242,6 +246,8 @@ function gameScreen() {
         checkTongueFlyOverlap();
         displayScore(); 
         updateHunger();
+        checkHunger();
+        drawHunger();
         debug();
 }
 
@@ -249,6 +255,7 @@ function endScreen() {
         missedFlies = 0;
         resetFly();
         resetTongue();
+        resetHunger();
         drawEndScreen();
 }
 
@@ -276,11 +283,7 @@ function displayScore() {
 }
 
 function debug() {
-    console.log(hunger.current);
-}
-
-function drawHungerBar() {
-
+    console.log(hunger.current, hunger.isHungry, frog.tongue.speed);
 }
 
 function updateHunger() {
@@ -290,12 +293,58 @@ function updateHunger() {
 
     if (hunger.current <= hunger.min) {
         hunger.current = hunger.min;
-        hunger.isSlowed = true;
+        hunger.isHungry = true;
     } else {
-        hunger.isSlowed - false;
+        hunger.isHungry = false;
+    }
+
+    if (hunger.current >= hunger.max) {
+        hunger.current = hunger.max;
+        frog.tongue.speed = 20;
     }
 
     if (eaten) {
         hunger.current +=  hunger.replenishAmount;
+    }
+}
+
+function checkHunger() {
+    if (hunger.isHungry === true) {
+        frog.tongue.speed = 10;
+    } else if (hunger.isHungry === false) {
+        frog.tongue.speed = 20;
+    }
+}
+
+function resetHunger() {
+    hunger.current = 50;
+    hunger.isHungry = false;
+    frog.tongue.speed = 20;
+} 
+
+function drawHunger() {
+    push()
+
+    fill(100);
+    noStroke();
+    rect(20,20,200,20);
+
+    let barWidth = map(hunger.current, hunger.min, hunger.max, 0,200);
+
+    fill(80,200,80);
+    rect(20,20, barWidth, 20);
+
+    fill(255);
+    textAlign(LEFT, CENTER);
+    textSize(14);
+    text("Hunger", 230, 30);
+
+    pop()
+}
+
+function drawMarks() {
+    fill("#FF0000")
+    if (missedFlies = 1) {
+
     }
 }
