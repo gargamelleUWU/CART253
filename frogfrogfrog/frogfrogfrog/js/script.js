@@ -54,10 +54,9 @@ function setup() {
 }
 
 function draw() {
-    background("#87ceeb");
+    background("#00FFFE");
     moveFly();
     drawFly();
-    moveFrog();
     moveTongue();
     drawFrog();
     checkTongueFlyOverlap();
@@ -98,9 +97,6 @@ function resetFly() {
 /**
  * Moves the frog to the mouse position on x
  */
-function moveFrog() {
-    frog.body.x = mouseX;
-}
 
 /**
  * Handles moving the tongue based on its state

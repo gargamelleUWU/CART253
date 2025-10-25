@@ -23,19 +23,26 @@ const frog = {
     // The frog's body has a position and size
     body: {
         x: 320,
-        y: 450,
+        y: 580,
         size: 75
     },
     // The frog's tongue has a position, size, speed, and state
     tongue: {
         x: undefined,
-        y: 480,
+        y: 580,
         size: 20,
         speed: 20,
         // Determines how the tongue moves each frame
         state: "idle" // State can be: idle, outbound, inbound
     }
 };
+
+const ball = {
+    x: 250,
+    y: 250,
+    size: 50,
+    speed: 10,
+}
 
 // Our fly
 // Has a position, size, and speed of horizontal movement
@@ -44,20 +51,21 @@ const fly = {
     y: 200, // Will be random
     size: 10,
     speed: 3
+
 };
 
 /**
  * Creates the canvas and initializes the fly
  */
 function setup() {
-    createCanvas(640, 480);
+    createCanvas(650, 600);
 
     // Give the fly its first random position
     resetFly();
 }
 
 function draw() {
-    console.log(score, eaten);
+    console.log(score, ball.y);
     controlState();
 }
 
@@ -74,10 +82,6 @@ function moveFly() {
     }
 }
 
-function flyFly() {
-    fly.y = fly.y 
-}
-
 /**
  * Draws the fly as a black circle
  */
@@ -85,7 +89,7 @@ function drawFly() {
     push();
     noStroke();
     fill("#000000");
-    ellipse(fly.x, fly.y, fly.size);
+    ellipse(fly.x, ball.y, fly.size);
     pop();
 }
 /**
@@ -114,7 +118,11 @@ function drawEndScreen() {
  */
 function resetFly() {
     fly.x = 0;
-    fly.y = random(0, 300);
+    fly.y = random(80, 500);
+}
+
+function moveBall() {
+    ball.y = fly.y + 100*sin(frameCount/10);
 }
 
 /**
@@ -172,8 +180,8 @@ function drawFrog() {
 
     // Draw the frog's body
     push();
-    fill("#00ff00");
-    noStroke();
+    fill("#20c392ff");
+    stroke("#044628ff");
     ellipse(frog.body.x, frog.body.y, frog.body.size);
     pop();
 }
@@ -183,7 +191,7 @@ function drawFrog() {
  */
 function checkTongueFlyOverlap() {
     // Get distance from tongue to fly
-    const d = dist(frog.tongue.x, frog.tongue.y, fly.x, fly.y);
+    const d = dist(frog.tongue.x, frog.tongue.y, fly.x, ball.y);
     // Check if it's an overlap
     eaten = (d < frog.tongue.size/2 + fly.size/2);
     if (eaten) {
@@ -212,9 +220,9 @@ function startScreen() {
 function gameScreen() {
         background("#87ceeb");
         moveFly();
-        flyFly();
         drawFly();
         moveFrog();
+        moveBall();
         moveTongue();
         drawFrog();
         checkTongueFlyOverlap();
@@ -241,4 +249,8 @@ function controlState() {
             gameState = "play";
         }
     }
+}
+
+function displayScore() {
+    text(score,)
 }
