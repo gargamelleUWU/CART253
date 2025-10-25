@@ -385,6 +385,7 @@ function updateHunger() {
     if (hunger.current >= hunger.max) {
         hunger.current = hunger.max;
         frog.tongue.speed = 20;
+        frog.body.size++;
     }
 
     if (eaten) {
