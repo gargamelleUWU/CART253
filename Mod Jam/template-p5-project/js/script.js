@@ -18,6 +18,7 @@
 let tongueLaunch;
 let eatFly;
 let soundtrack;
+let mistake;
 
 //visual variables
 let flyFlap;
@@ -106,6 +107,8 @@ function preload() {
     eatFly.setVolume(1.5);
     soundtrack = loadSound("assets/sounds/FrogVibes.mp3");
     soundtrack.setVolume(0.2);
+    mistake = loadSound("assets/sounds/Mistake.wav");
+    mistake.setVolume(1.5);
 
     flyFlap = loadImage("assets/images/Fly1.png");
     flyNoFlap = loadImage("assets/images/Fly2.png");
@@ -179,9 +182,9 @@ function resetFly() {
     fly.y = random(150, 500);
     if (fly.spawn < 1) {
         fly.x = 0;
-        fly.speed = 3;
+        fly.speed = random(2, 5);
     } else {
-        fly.speed = -3;
+        fly.speed = random(-2, -5);
         fly.x = width - 1;
 
     }
@@ -224,6 +227,7 @@ function moveTongue() {
         // The tongue bounces back if it hits the top
         if (frog.tongue.y <= 75) {
             missedFlies++;
+            mistake.play();
             combo = 0;
 
             let newMarkX = markSettings.startX + (missedFlies - 1) * markSettings.distance;
@@ -365,8 +369,11 @@ function controlState() {
 function displayScore() {
     drawHUD();
     drawHunger();
+    push();
+    textFont('Impact');
     text("Score: " + score, 580, 40);
     text("Combo: " + combo, 500, 40);
+    pop();
 }
 
 function debug() {
@@ -422,6 +429,7 @@ function drawHunger() {
     rect(20, 20, barWidth, 20);
 
     fill(255);
+    textFont('Impact');
     textAlign(LEFT, CENTER);
     textSize(14);
     text("Hunger", 230, 30);
@@ -467,6 +475,8 @@ function Lilypad() {
 
 function switchFly() {
     fly.spawn = random(0, 2);
+    fly.move.range = random(20, 100);
+    fly.move.speed = random(5, 25);
 }
 
 function drawHUD() {
