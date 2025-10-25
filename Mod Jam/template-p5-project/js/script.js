@@ -13,6 +13,12 @@
  * https://p5js.org/
  */
 
+
+//Sounds Variables
+let tongueLaunch;
+let eatFly;
+let soundtrack;
+
 "use strict";
 const missLimit = 5;
 let gameState = "start";
@@ -80,9 +86,14 @@ const fly = {
  */
 function setup() {
     createCanvas(650, 600);
-
     // Give the fly its first random position
     resetFly();
+}
+
+function preload() {
+    tongueLaunch = loadSound("assets/sounds/TongueOut1.wav");
+    eatFly = loadSound("assets/sounds/FlyEat1.wav");
+    soundtrack = loadSound("assets/sounds/FrogVibes.mp3");
 }
 
 function draw() {
@@ -234,6 +245,7 @@ function checkTongueFlyOverlap() {
     eaten = (d < frog.tongue.size / 2 + fly.size / 2);
     if (eaten) {
         score++;
+        eatFly.play();
         combo++;
         // Reset the fly
         resetFly();
@@ -246,8 +258,9 @@ function checkTongueFlyOverlap() {
  * Launch the tongue on click (if it's not launched yet)
  */
 function mousePressed() {
-    if (frog.tongue.state === "idle") {
+    if (gameState === "play" && frog.tongue.state === "idle") {
         frog.tongue.state = "outbound";
+        tongueLaunch.play();
     }
 }
 
@@ -290,6 +303,7 @@ function controlState() {
         if (keyIsDown(32)) {
             gameState = "play";
         }
+        soundtrack.play();
     } else if (gameState === "play") {
         gameScreen();
         if (missedFlies === missLimit) {
