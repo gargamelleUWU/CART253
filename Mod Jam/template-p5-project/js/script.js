@@ -82,6 +82,7 @@ const fly = {
     size: 30,
     size2: 20,
     speed: 3,
+    spawn: 1,
     move: {
         y: 250,
         range: 100,
@@ -174,8 +175,17 @@ function drawEndScreen() {
  * Resets the fly to the left with a random y
  */
 function resetFly() {
-    fly.x = 0;
+    switchFly();
     fly.y = random(80, 450);
+    if (fly.spawn < 1) {
+        fly.x = 0;
+        fly.speed = 3;
+    } else if (fly.spawn > 1) {
+        fly.speed = -3;
+        fly.x = width - 1;
+
+    }
+
 }
 
 function resetTongue() {
@@ -357,7 +367,7 @@ function displayScore() {
 }
 
 function debug() {
-    console.log(hunger.current, hunger.isHungry, frog.tongue.speed, combo);
+    console.log(fly.spawn, width, windowWidth);
 }
 
 function updateHunger() {
@@ -443,7 +453,6 @@ function changeFly() {
     } else if (cycle >= 30) {
         currentFly = flyNoFlap;
     }
-    console.log(cycle)
 }
 
 function Lilypad() {
@@ -451,4 +460,8 @@ function Lilypad() {
     imageMode(CENTER);
     image(lilypad, frog.body.x, frog.body.y, 125, 125);
     pop();
+}
+
+function switchFly() {
+    fly.spawn = random(0, 2);
 }
