@@ -26,6 +26,10 @@ let flyNoFlap;
 let currentFly;
 let Hanez;
 let lilypad;
+let water1;
+let water2;
+let water3;
+let currentBackground;
 
 "use strict";
 const missLimit = 5;
@@ -42,8 +46,7 @@ let markSettings = {
     y: 30,
     width: 10,
     distance: 20,
-    color: ("#FF0000"),
-
+    color: ("#f03737ff"),
 }
 
 const hunger = {
@@ -115,6 +118,10 @@ function preload() {
 
     Hanez = loadImage("assets/images/Hanez.png");
     lilypad = loadImage("assets/images/Lilypad.png");
+
+    water1 = loadImage("assets/images/water1.png");
+    water2 = loadImage("assets/images/water2.png");
+    water3 = loadImage("assets/images/water3.png");
 }
 
 function draw() {
@@ -158,8 +165,20 @@ function drawFly() {
  */
 function drawTutorial() {
     push();
-    fill("#FF00FF");
-    circle(100, 100, 100);
+    background("#87ceeb");
+    fill("#605a7cff");
+    textAlign(CENTER);
+    textFont('impact');
+    textSize(30);
+    text("Weclome to Fly Frog", width / 2, 100);
+    textSize(15);
+    text("Hanez is a hungry little frog", width / 2, 150);
+    text("He needs to eat as many flies as he can", width / 2, 200)
+    text("Move Hanez left and right with the Mouse", width / 2, 250);
+    text("Launch his tongue by left clicking", width / 2, 300);
+    text("Don't miss more than 4 flies", width / 2, 350);
+    textSize(30);
+    text("Press SPACE BAR to play!", width / 2, 400);
     pop();
 }
 
@@ -167,10 +186,17 @@ function drawTutorial() {
  * Draws the endscreen
  */
 function drawEndScreen() {
-    background("#000000");
+    background("#87ceeb");
     push();
-    fill("#00FFFE");
-    circle(100, 100, 100);
+    fill("#605a7cff");
+    stroke("#312d46ff")
+    strokeWeight(5);
+    textAlign(CENTER);
+    textFont('impact');
+    textSize(30);
+    text("Oh no, Hanez has fallen in the water", width / 2, 100);
+    text("Don't let Hanez' tongue hit the rocks", width / 2, 150);
+    text("Press SPACE BAR to play again!", width / 2, 400)
     pop();
 }
 
@@ -255,14 +281,14 @@ function moveTongue() {
 function drawFrog() {
     // Draw the tongue tip
     push();
-    fill("#ff0000");
+    fill("#f03737ff");
     noStroke();
     ellipse(frog.tongue.x, frog.tongue.y, frog.tongue.size);
     pop();
 
     // Draw the rest of the tongue
     push();
-    stroke("#ff0000");
+    stroke("#f03737ff");
     strokeWeight(frog.tongue.size);
     line(frog.tongue.x, frog.tongue.y, frog.body.x, frog.body.y);
     pop();
@@ -313,12 +339,12 @@ function mousePressed() {
 }
 
 function startScreen() {
-    background(0, 0, 0);
     drawTutorial();
 }
 
 function gameScreen() {
-    background("#87ceeb");
+    animateWater();
+    setBackground();
     displayScore();
     moveFly();
     drawFly();
@@ -328,8 +354,8 @@ function gameScreen() {
     moveTongue();
     drawFrog();
     checkTongueFlyOverlap();
-    updateHunger();
     checkHunger();
+    updateHunger();
     comboTracker();
     drawMarks();
     debug();
@@ -371,8 +397,9 @@ function displayScore() {
     drawHunger();
     push();
     textFont('Impact');
-    text("Score: " + score, 580, 40);
-    text("Combo: " + combo, 500, 40);
+    textSize(20);
+    text("Score: " + score, 600, 35);
+    text("Combo: " + combo, 500, 35);
     pop();
 }
 
@@ -392,13 +419,13 @@ function updateHunger() {
         hunger.isHungry = false;
     }
 
+    if (eaten) {
+        hunger.current += hunger.replenishAmount;
+    }
+
     if (hunger.current >= hunger.max) {
         hunger.current = hunger.max;
         frog.tongue.speed = 20;
-    }
-
-    if (eaten) {
-        hunger.current += hunger.replenishAmount;
     }
 }
 
@@ -418,14 +445,13 @@ function resetHunger() {
 
 function drawHunger() {
     push()
-
     fill(100);
     noStroke();
     rect(20, 20, 200, 20);
 
     let barWidth = map(hunger.current, hunger.min, hunger.max, 0, 200);
 
-    fill(80, 200, 80);
+    fill("#e8f347ff");
     rect(20, 20, barWidth, 20);
 
     fill(255);
@@ -484,4 +510,22 @@ function drawHUD() {
     fill("#308f48ff")
     rect(0, 0, width, 50);
     pop();
+}
+
+function animateWater() {
+    let cycle = (frameCount % 120);
+    if (cycle >= 0 && cycle < 30) {
+        currentBackground = water1;
+    } else if (cycle >= 30 && cycle < 60) {
+        currentBackground = water2;
+    } else if (cycle >= 60 && cycle < 90) {
+        currentBackground = water3;
+    } else if (cycle >= 90 && cycle <= 120) {
+        currentBackground = water2;
+    }
+}
+
+function setBackground() {
+    imageMode(CENTER)
+    image(currentBackground, width / 2, height / 2, 700, 650);
 }
