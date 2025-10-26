@@ -30,6 +30,10 @@ let water1;
 let water2;
 let water3;
 let currentBackground;
+let thorns1;
+let thorns2;
+let thorns3;
+let currentThorns
 
 "use strict";
 const missLimit = 5;
@@ -122,6 +126,10 @@ function preload() {
     water1 = loadImage("assets/images/water1.png");
     water2 = loadImage("assets/images/water2.png");
     water3 = loadImage("assets/images/water3.png");
+
+    thorns1 = loadImage("assets/images/thorns1.png");
+    thorns2 = loadImage("assets/images/thorns2.png");
+    thorns3 = loadImage("assets/images/thorns3.png");
 }
 
 function draw() {
@@ -516,16 +524,21 @@ function animateWater() {
     let cycle = (frameCount % 120);
     if (cycle >= 0 && cycle < 30) {
         currentBackground = water1;
+        currentThorns = thorns1;
     } else if (cycle >= 30 && cycle < 60) {
         currentBackground = water2;
+        currentThorns = thorns2;
     } else if (cycle >= 60 && cycle < 90) {
         currentBackground = water3;
+        currentThorns = thorns3;
     } else if (cycle >= 90 && cycle <= 120) {
         currentBackground = water2;
+        currentThorns = thorns2;
     }
 }
 
 function setBackground() {
     imageMode(CENTER)
-    image(currentBackground, width / 2, height / 2, 700, 650);
+    image(currentBackground, width / 2, height / 2, width, height);
+    image(currentThorns, width / 2, 62, width, 40);
 }
