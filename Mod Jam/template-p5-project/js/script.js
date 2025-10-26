@@ -19,6 +19,9 @@ let tongueLaunch;
 let eatFly;
 let soundtrack;
 let mistake;
+let splash;
+let waterFilter;
+let rise;
 
 //visual variables
 let flyFlap;
@@ -46,8 +49,8 @@ let combo = 0;
 let marks = [];
 
 let markSettings = {
-    startX: 300,
-    y: 30,
+    startX: 400,
+    y: 27,
     width: 10,
     distance: 20,
     color: ("#f03737ff"),
@@ -58,7 +61,7 @@ const hunger = {
     max: 100,
     min: 0,
     replenishAmount: 20,
-    depleteRate: 1,
+    depleteRate: 2,
     depleteInterval: 10,
     isHungry: false,
 }
@@ -105,6 +108,7 @@ function setup() {
     createCanvas(700, 650);
     // Give the fly its first random position
     resetFly();
+    waterFilter = new p5.LowPass();
 }
 
 function preload() {
@@ -116,6 +120,10 @@ function preload() {
     soundtrack.setVolume(0.2);
     mistake = loadSound("assets/sounds/Mistake.wav");
     mistake.setVolume(1.5);
+    splash = loadSound("assets/sounds/Splash.wav");
+    splash.setVolume(1.5);
+    rise = loadSound("assets/sounds/Rise.wav");
+    rise.setVolume(1.5);
 
     flyFlap = loadImage("assets/images/Fly1.png");
     flyNoFlap = loadImage("assets/images/Fly2.png");
@@ -177,16 +185,20 @@ function drawTutorial() {
     fill("#605a7cff");
     textAlign(CENTER);
     textFont('impact');
-    textSize(30);
-    text("Weclome to Fly Frog", width / 2, 100);
+    textSize(45);
+    text("Weclome to Fly Frog", width / 2, 150);
     textSize(15);
-    text("Hanez is a hungry little frog", width / 2, 150);
-    text("He needs to eat as many flies as he can", width / 2, 200)
-    text("Move Hanez left and right with the Mouse", width / 2, 250);
-    text("Launch his tongue by left clicking", width / 2, 300);
-    text("Don't miss more than 4 flies", width / 2, 350);
-    textSize(30);
-    text("Press SPACE BAR to play!", width / 2, 400);
+    text("Hanez is a hungry little frog", width / 2, 250);
+    text("He needs to eat as many flies as he can", width / 2, 270);
+    text("Move Hanez left and right with the Mouse", width / 2, 290);
+    text("Launch his tongue by left clicking", width / 2, 310);
+    text("Make sure not to hit the thorns", width / 2, 330);
+    text("Hanez gets very hungry very quickly", width / 2, 350);
+    text("Keep him well fed or he'll become sluggish", width / 2, 370);
+    text("Eating enough flies without touching the thorns is", width / 2, 390);
+    text("sure to get Hanez fired up to eat even more flies", width / 2, 410);
+    textSize(45);
+    text("Press SPACE BAR to play!", width / 2, 550);
     pop();
 }
 
@@ -194,17 +206,22 @@ function drawTutorial() {
  * Draws the endscreen
  */
 function drawEndScreen() {
-    background("#87ceeb");
     push();
+    background("#87ceeb");
     fill("#605a7cff");
-    stroke("#312d46ff")
-    strokeWeight(5);
     textAlign(CENTER);
     textFont('impact');
-    textSize(30);
-    text("Oh no, Hanez has fallen in the water", width / 2, 100);
-    text("Don't let Hanez' tongue hit the rocks", width / 2, 150);
-    text("Press SPACE BAR to play again!", width / 2, 400)
+    textSize(40);
+    text("Oh No! Hanez has hallen in the water!!!", width / 2, 150);
+    textSize(15);
+    text("Be careful not to hit the thorns", width / 2, 280);
+    text("Hanez's tongue is perfect for eating flies", width / 2, 300);
+    text("But it doesn't do great against thorny vines", width / 2, 320);
+    text("There's nothing wrong with letting a fly or two get away", width / 2, 340);
+    text("Be patient, and strike the flies with precision", width / 2, 360);
+    text("Hanez is still hungry", width / 2, 380)
+    textSize(45);
+    text("Press SPACE BAR to play again!", width / 2, 550);
     pop();
 }
 
@@ -261,7 +278,11 @@ function moveTongue() {
         // The tongue bounces back if it hits the top
         if (frog.tongue.y <= 75) {
             missedFlies++;
-            mistake.play();
+            if (missedFlies != 5) {
+                mistake.play();
+            } else {
+                splash.play();
+            }
             combo = 0;
 
             let newMarkX = markSettings.startX + (missedFlies - 1) * markSettings.distance;
@@ -390,11 +411,14 @@ function controlState() {
     } else if (gameState === "play") {
         gameScreen();
         if (missedFlies === missLimit) {
+            applyWaterFilter();
             gameState = "end";
         }
     } else if (gameState === "end") {
         endScreen();
         if (keyIsDown(32)) {
+            rise.play();
+            removeWaterFilter();
             gameState = "play";
         }
     }
@@ -465,7 +489,7 @@ function drawHunger() {
     fill(255);
     textFont('Impact');
     textAlign(LEFT, CENTER);
-    textSize(14);
+    textSize(20);
     text("Hunger", 230, 30);
 
     pop()
@@ -541,4 +565,15 @@ function setBackground() {
     imageMode(CENTER)
     image(currentBackground, width / 2, height / 2, width, height);
     image(currentThorns, width / 2, 62, width, 40);
+}
+
+function applyWaterFilter() {
+    soundtrack.disconnect();
+    soundtrack.connect(waterFilter);
+    waterFilter.set(400, 4);
+}
+
+function removeWaterFilter() {
+    soundtrack.disconnect();
+    soundtrack.connect();
 }
