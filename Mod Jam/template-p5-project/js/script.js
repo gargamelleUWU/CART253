@@ -1,6 +1,6 @@
 /**
- * Frogfrogfrog
- * Pippin Barr
+ * Fly Frog
+ * Felix Dionne
  * 
  * A game of catching flies with your frog-tongue
  * 
@@ -14,7 +14,8 @@
  */
 
 
-//Sounds Variables
+// Sound variables.
+// These variables are used through out the program to play certain sound effects.
 let tongueLaunch;
 let eatFly;
 let soundtrack;
@@ -23,7 +24,8 @@ let splash;
 let waterFilter;
 let rise;
 
-//visual variables
+// Cisual variables.
+// These variables are assigned visual elements that I uploaded to the assets folder
 let flyFlap;
 let flyNoFlap;
 let currentFly;
@@ -38,6 +40,7 @@ let thorns2;
 let thorns3;
 let currentThorns
 
+// Some miscellaneous global variables that are used in multiple functions within the program
 "use strict";
 const missLimit = 5;
 let gameState = "start";
@@ -46,8 +49,10 @@ let eaten = null;
 let missedFlies = 0;
 let combo = 0;
 
+// An array which holds mark objects that signify how many 'mistakes' the player has made.
 let marks = [];
 
+// The mark object settings which are used to draw the elements on the Game Interface.
 let markSettings = {
     startX: 400,
     y: 27,
@@ -56,6 +61,9 @@ let markSettings = {
     color: ("#f03737ff"),
 }
 
+// The relevent values of the hunger mechanic.
+// The initial value, the min, the max, the rate at which hunger depletes over time, 
+// the hunger Hanez gets back when he eats a fly, a boolean that dictates if Hanez is hungry
 const hunger = {
     current: 50,
     max: 100,
@@ -111,7 +119,9 @@ function setup() {
     waterFilter = new p5.LowPass();
 }
 
+// Loading in all the assets I used, such as sounds, music and images
 function preload() {
+    // All the sound effects and music and setting the volumes
     tongueLaunch = loadSound("assets/sounds/TongueOut1.wav");
     tongueLaunch.setVolume(1.5);
     eatFly = loadSound("assets/sounds/FlyEat1.wav");
@@ -125,21 +135,27 @@ function preload() {
     rise = loadSound("assets/sounds/Rise.wav");
     rise.setVolume(1.5);
 
+    // The two frames of animation for the fly
     flyFlap = loadImage("assets/images/Fly1.png");
     flyNoFlap = loadImage("assets/images/Fly2.png");
 
+    // Our main man Hanez and his trusty lilypad
     Hanez = loadImage("assets/images/Hanez.png");
     lilypad = loadImage("assets/images/Lilypad.png");
 
+    // The frames of animation for the water
     water1 = loadImage("assets/images/water1.png");
     water2 = loadImage("assets/images/water2.png");
     water3 = loadImage("assets/images/water3.png");
 
+    // The frames of animation for the thorns
     thorns1 = loadImage("assets/images/thorns1.png");
     thorns2 = loadImage("assets/images/thorns2.png");
     thorns3 = loadImage("assets/images/thorns3.png");
 }
 
+// Our main draw function. There are alot of nested functions hence why draw only has a single on.
+// Feels pretty good to have the entire project run with only a single function in the draw function!
 function draw() {
     controlState();
 }
@@ -166,8 +182,10 @@ function drawFly() {
     push();
     imageMode(CENTER);
 
+    // Checking that two animation frames are loaded, if so uses those images to animate the fly.
     if (flyFlap && flyNoFlap) {
         image(currentFly, fly.x, fly.move.y, fly.size, fly.size2)
+        // A backup fly in case the frames are not loaded
     } else {
         noStroke();
         fill("#000000");
@@ -226,7 +244,7 @@ function drawEndScreen() {
 }
 
 /**
- * Resets the fly to the left with a random y
+ * Resets the fly to the left or the right with a random y
  */
 function resetFly() {
     switchFly();
@@ -242,17 +260,15 @@ function resetFly() {
 
 }
 
+// Resets the tongue in between game states
 function resetTongue() {
     frog.tongue.x = frog.body.x;
     frog.tongue.y = 560;
 }
 
+// This adds the wave motion to the flies path
 function flyWave() {
     fly.move.y = fly.y + fly.move.range * sin(frameCount / fly.move.speed);
-}
-
-function flyRandomWave() {
-
 }
 
 /**
@@ -275,7 +291,8 @@ function moveTongue() {
     // If the tongue is outbound, it moves up
     else if (frog.tongue.state === "outbound") {
         frog.tongue.y += -frog.tongue.speed;
-        // The tongue bounces back if it hits the top
+        // The tongue bounces back if it hits the top considering the Heads up Display
+        // Also increased the value of missed flies and plays the 'mistake' and 'splash' sound effects
         if (frog.tongue.y <= 75) {
             missedFlies++;
             if (missedFlies != 5) {
@@ -283,8 +300,10 @@ function moveTongue() {
             } else {
                 splash.play();
             }
+            // Resets Hanez's combo if he misses a fly and hits the thorns instead
             combo = 0;
 
+            // Drawing the indicators reflecting how many times Hanez has missed a fly
             let newMarkX = markSettings.startX + (missedFlies - 1) * markSettings.distance;
             let newMark = {
                 x: newMarkX,
@@ -325,8 +344,10 @@ function drawFrog() {
     // Draw the frog's body
     push();
     imageMode(CENTER);
+    // Checks that the image for Hanez is loaded, if so it uses it
     if (Hanez) {
         image(Hanez, frog.body.x, frog.body.y, frog.body.size, frog.body.size);
+        // Alternate form for Hanez if the png is not found
     } else {
         push();
         fill("#20c392ff");
@@ -345,6 +366,9 @@ function checkTongueFlyOverlap() {
     const d = dist(frog.tongue.x, frog.tongue.y, fly.x, fly.move.y);
     // Check if it's an overlap
     eaten = (d < frog.tongue.size / 2 + fly.size / 2);
+    // Increases the score and also Hanez's size just a little bit when a fly is eaten
+    // Additionally, plays the 'eatFly' sound effect and increased Hanez's combo
+    // The size increase has no gameplat value, I just thought it was cute and fun
     if (eaten) {
         score++;
         frog.body.size++;
@@ -363,30 +387,41 @@ function checkTongueFlyOverlap() {
 function mousePressed() {
     if (gameState === "play" && frog.tongue.state === "idle") {
         frog.tongue.state = "outbound";
+        // Plays the tongue sound effect
         tongueLaunch.play();
     }
 }
 
+// This function could be skipped, but it makes my brain happy to have all three 'Screen' functions
 function startScreen() {
     drawTutorial();
 }
 
+// This is where the magic happens
+// Just about every other function within the program is used here to make the game
+// We start by animating the water and loading some elements
 function gameScreen() {
-    animateWater();
-    setBackground();
-    displayScore();
-    moveFly();
-    drawFly();
     moveFrog();
-    Lilypad();
-    flyWave();
     moveTongue();
-    drawFrog();
+    moveFly();
+
     checkTongueFlyOverlap();
-    checkHunger();
+    flyWave();
+
     updateHunger();
+    checkHunger();
     comboTracker();
+    animateWater();
+
+    drawBackground();
+    drawFly();
+    drawLilypad();
+    drawFrog();
+
+    displayScore();
     drawMarks();
+
+    // function used to console.log variables during development
     debug();
 }
 
@@ -524,7 +559,7 @@ function changeFly() {
     }
 }
 
-function Lilypad() {
+function drawLilypad() {
     push();
     imageMode(CENTER);
     image(lilypad, frog.body.x, frog.body.y, 125, 125);
@@ -561,7 +596,7 @@ function animateWater() {
     }
 }
 
-function setBackground() {
+function drawBackground() {
     imageMode(CENTER)
     image(currentBackground, width / 2, height / 2, width, height);
     image(currentThorns, width / 2, 62, width, 40);
