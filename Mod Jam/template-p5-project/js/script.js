@@ -230,7 +230,7 @@ function drawEndScreen() {
     textAlign(CENTER);
     textFont('impact');
     textSize(40);
-    text("Oh No! Hanez has hallen in the water!!!", width / 2, 150);
+    text("Oh No! Hanez has fallen in the water!!!", width / 2, 150);
     textSize(15);
     text("Be careful not to hit the thorns", width / 2, 280);
     text("Hanez's tongue is perfect for eating flies", width / 2, 300);
@@ -399,25 +399,31 @@ function startScreen() {
 
 // This is where the magic happens
 // Just about every other function within the program is used here to make the game
-// We start by animating the water and loading some elements
 function gameScreen() {
+    // Movement functions that move Hanez, the tongue and the fly
     moveFrog();
     moveTongue();
     moveFly();
 
+    // Checking for colision between Hanez's tongue and the current fly
     checkTongueFlyOverlap();
+    // Moving fly with sin wave
     flyWave();
 
+    // Upadating values such as hunger and combo
     updateHunger();
     checkHunger();
     comboTracker();
+    // animating the water and the throns
     animateWater();
 
+    // Drawing the gameplay elements
     drawBackground();
     drawFly();
     drawLilypad();
     drawFrog();
 
+    // Drawing the Heads up Display elements
     displayScore();
     drawMarks();
 
