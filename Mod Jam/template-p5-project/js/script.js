@@ -368,10 +368,8 @@ function checkTongueFlyOverlap() {
     eaten = (d < frog.tongue.size / 2 + fly.size / 2);
     // Increases the score and also Hanez's size just a little bit when a fly is eaten
     // Additionally, plays the 'eatFly' sound effect and increased Hanez's combo
-    // The size increase has no gameplat value, I just thought it was cute and fun
     if (eaten) {
         score++;
-        frog.body.size++;
         eatFly.play();
         combo++;
         // Reset the fly
@@ -504,8 +502,8 @@ function updateHunger() {
 
 function checkHunger() {
     if (hunger.isHungry === true) {
-        frog.tongue.speed = 10;
-    } else if (hunger.isHungry === false) {
+        frog.tongue.speed = 5;
+    } else {
         frog.tongue.speed = 20;
     }
 }
@@ -547,9 +545,9 @@ function drawMarks() {
 }
 
 function comboTracker() {
-    if (combo >= 10 && combo <= 20) {
+    if (combo >= 20 && combo <= 49) {
         frog.tongue.size = 35;
-    } else if (combo >= 21 && combo <= 50) {
+    } else if (combo > 49) {
         frog.tongue.size = 50;
     } else if (combo === 0) {
         frog.tongue.size = 20;
