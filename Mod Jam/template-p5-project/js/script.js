@@ -13,7 +13,6 @@
  * https://p5js.org/
  */
 
-
 // Sound variables.
 // These variables are used through out the program to play certain sound effects.
 let tongueLaunch;
@@ -248,8 +247,6 @@ function drawTutorial() {
     text("Keep him well fed or he'll become sluggish", width / 2, 370);
     text("Eating enough flies without touching the thorns is", width / 2, 390);
     text("sure to get Hanez fired up to eat even more flies", width / 2, 410);
-    textSize(45);
-    text("Press SPACE BAR to play!", width / 2, 550);
     pop();
 }
 
@@ -270,10 +267,12 @@ function drawEndScreen() {
     text("But it doesn't do great against thorny vines", width / 2, 320);
     text("There's nothing wrong with letting a fly or two get away", width / 2, 340);
     text("Be patient, and strike the flies with precision", width / 2, 360);
-    text("Hanez is still hungry", width / 2, 380)
+    text("Hanez is still hungry", width / 2, 380);
     textSize(45);
     text("Press SPACE BAR to play again!", width / 2, 550);
     pop();
+
+    back();
 }
 
 /**
@@ -431,11 +430,18 @@ function mousePressed() {
         }
     }
 
+    if (gameState === "select" || gameState === "end") {
+        if (mouseX > 15 && mouseX < 70 && mouseY > 20 && mouseY < 60) {
+            gameState = "start";
+        }
+    }
 
 }
 
 // This function could be skipped, but it makes my brain happy to have all three 'Screen' functions
 function startScreen() {
+    selectButton.color = ("#1487a3ff");
+    selectButton.color2 = ("#0b4553ff");
     drawTutorial();
 
     moveFrog();
@@ -450,7 +456,8 @@ function startScreen() {
 }
 
 function selectScreen() {
-    moveTongue();
+    frog.tongue.x = frog.body.x;
+    frog.tongue.y = 200;
     detectTongue();
     tongueButtonOverlay();
 
@@ -518,13 +525,16 @@ function controlState() {
     if (gameState === "start") {
         startScreen();
         if (selectButton.state === "play") {
-            soundtrack.loop();
+            if (!soundtrack.isPlaying()) {
+                soundtrack.loop();
+            }
             gameState = "play";
             resetTongue();
         } else if (selectButton.state === "select") {
             gameState = "select";
             resetTongue();
         }
+
     } else if (gameState === "select") {
         selectScreen();
     } else if (gameState === "play") {
@@ -671,7 +681,7 @@ function switchFly() {
 // Function that draws the underlying bar for the HUD
 function drawHUD() {
     push();
-    fill("#308f48ff")
+    fill("#308f48ff");
     rect(0, 0, width, 50);
     pop();
 }
@@ -880,4 +890,12 @@ function back() {
     textSize(14);
     text("BACK", 35, 45);
     pop();
+
+    if (mouseX > 15 && mouseX < 70 && mouseY > 20 && mouseY < 60) {
+        selectButton.color = ("#43c0dfff");
+        selectButton.color2 = ("#338296ff");
+    } else {
+        selectButton.color = ("#1487a3ff");
+        selectButton.color2 = ("#0b4553ff");
+    }
 }
