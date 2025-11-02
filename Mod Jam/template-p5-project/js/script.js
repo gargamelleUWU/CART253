@@ -120,7 +120,8 @@ const fly = {
 const selectButton = {
     width: 290,
     height: 20,
-    color: ("#12829eff"),
+    color: ("#1487a3ff"),
+    color2: ("#0b4553ff"),
     state: "null",
 }
 
@@ -417,7 +418,20 @@ function mousePressed() {
         if ((mouseX > (550 - yellowSize / 2) && mouseX < (550 + yellowSize / 2)) && (mouseY > (400 - yellowSize / 2) && mouseY < (400 + yellowSize / 2))) {
             Hanez = frogYellow;
         }
+
+
+        if (mouseX > (350 - tong1Size / 2) && mouseX < (350 + tong1Size / 2) && mouseY > (60 - tong1Size / 2) && mouseY < (60 + tong1Size / 2)) {
+            frog.tongue.color = ("#f03737ff");
+        }
+        if (mouseX > (450 - tong2Size / 2) && mouseX < (450 + tong2Size / 2) && mouseY > (60 - tong2Size / 2) && mouseY < (60 + tong2Size / 2)) {
+            frog.tongue.color = ("#f153c7ff");
+        }
+        if (mouseX > (550 - tong3Size / 2) && mouseX < (550 + tong3Size / 2) && mouseY > (60 - tong3Size / 2) && mouseY < (60 + tong3Size / 2)) {
+            frog.tongue.color = ("#ff7a0eff");
+        }
     }
+
+
 }
 
 // This function could be skipped, but it makes my brain happy to have all three 'Screen' functions
@@ -443,6 +457,7 @@ function selectScreen() {
     drawFrogScreen();
     tongueColors();
     drawLilypad();
+    back();
     drawFrog();
 
 
@@ -832,9 +847,37 @@ function tongueColors() {
 
     pop();
 
-    if (mouseX > (350 - tong1Size) && mouseX < (350 + tong1Size)) {
+    if (mouseX > (350 - tong1Size / 2) && mouseX < (350 + tong1Size / 2) && mouseY > (60 - tong1Size / 2) && mouseY < (60 + tong1Size / 2)) {
         tong1Size = 75;
     } else {
         tong1Size = 50;
     }
+
+    if (mouseX > (450 - tong2Size / 2) && mouseX < (450 + tong2Size / 2) && mouseY > (60 - tong2Size / 2) && mouseY < (60 + tong2Size / 2)) {
+        tong2Size = 75;
+    } else {
+        tong2Size = 50;
+    }
+
+    if (mouseX > (550 - tong3Size / 2) && mouseX < (550 + tong3Size / 2) && mouseY > (60 - tong3Size / 2) && mouseY < (60 + tong3Size / 2)) {
+        tong3Size = 75;
+    } else {
+        tong3Size = 50;
+    }
+}
+
+function back() {
+    push();
+    noStroke();
+    fill(selectButton.color);
+    rect(30, 30, 40, 20);
+    triangle(15, 40, 30, 20, 30, 60);
+    pop();
+
+    push();
+    fill(selectButton.color2);
+    textFont('impact');
+    textSize(14);
+    text("BACK", 35, 45);
+    pop();
 }
