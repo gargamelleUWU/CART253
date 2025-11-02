@@ -109,6 +109,15 @@ const fly = {
     }
 };
 
+const playButton = {
+    x: 0,
+    y: 0,
+    width: 200,
+    height: 50,
+    color: ("#e41c1cff"),
+
+}
+
 /**
  * Creates the canvas and initializes the fly
  */
@@ -291,27 +300,6 @@ function moveTongue() {
     // If the tongue is outbound, it moves up
     else if (frog.tongue.state === "outbound") {
         frog.tongue.y += -frog.tongue.speed;
-        // The tongue bounces back if it hits the top considering the Heads up Display
-        // Also increased the value of missed flies and plays the 'mistake' and 'splash' sound effects
-        if (frog.tongue.y <= 75) {
-            missedFlies++;
-            if (missedFlies != 5) {
-                mistake.play();
-            } else {
-                splash.play();
-            }
-            // Resets Hanez's combo if he misses a fly and hits the thorns instead
-            combo = 0;
-
-            // Drawing the indicators reflecting how many times Hanez has missed a fly
-            let newMarkX = markSettings.startX + (missedFlies - 1) * markSettings.distance;
-            let newMark = {
-                x: newMarkX,
-                y: markSettings.y,
-            }
-            marks.push(newMark);
-            frog.tongue.state = "inbound";
-        }
     }
     // If the tongue is inbound, it moves down
     else if (frog.tongue.state === "inbound") {
@@ -320,6 +308,12 @@ function moveTongue() {
         if (frog.tongue.y >= height - 100) {
             frog.tongue.state = "idle";
         }
+    }
+}
+
+function detectTongue() {
+    if (frog.tongue.y === 0) {
+        frog.tongue.state = "inbound";
     }
 }
 
@@ -383,7 +377,7 @@ function checkTongueFlyOverlap() {
  * Launch the tongue on click (if it's not launched yet)
  */
 function mousePressed() {
-    if (gameState === "play" && frog.tongue.state === "idle") {
+    if (frog.tongue.state === "idle") {
         frog.tongue.state = "outbound";
         // Plays the tongue sound effect
         tongueLaunch.play();
@@ -393,6 +387,17 @@ function mousePressed() {
 // This function could be skipped, but it makes my brain happy to have all three 'Screen' functions
 function startScreen() {
     drawTutorial();
+
+    moveFrog();
+    moveTongue();
+    detectTongue();
+    tongueButtonOverlay();
+
+    drawLilypad();
+    drawFrog();
+    drawPlayButton();
+
+    debug();
 }
 
 // This is where the magic happens
@@ -401,6 +406,7 @@ function gameScreen() {
     // Movement functions that move Hanez, the tongue and the fly
     moveFrog();
     moveTongue();
+    missedFlyCounter();
     moveFly();
 
     // Checking for colision between Hanez's tongue and the current fly
@@ -429,6 +435,8 @@ function gameScreen() {
     debug();
 }
 
+// Function which draws the resets many of Hanez's variables so that he's ready for the next game.
+// Calls other functions which reset of aspects of the game
 function endScreen() {
     missedFlies = 0;
     score = 0;
@@ -440,12 +448,15 @@ function endScreen() {
     drawEndScreen();
 }
 
+// The main function which controls the state the game is in
+// The game can be in the 'start, play, or end' state.
 function controlState() {
     if (gameState === "start") {
         startScreen();
         if (keyIsDown(32)) {
             soundtrack.loop();
             gameState = "play";
+            resetTongue();
         }
     } else if (gameState === "play") {
         gameScreen();
@@ -463,6 +474,7 @@ function controlState() {
     }
 }
 
+// Function displays the HUD elements for the game, such as score, combo, hunger, mistakes
 function displayScore() {
     drawHUD();
     drawHunger();
@@ -474,10 +486,13 @@ function displayScore() {
     pop();
 }
 
+// Debug function used during development to check certain variables with console.log
 function debug() {
-    console.log(fly.spawn, width, windowWidth);
+
 }
 
+// Function that controls Hanez's hunger during the play state
+// delpletes the hunger over time, refills the hunger when Hanez eats a fly, and prevents the hunger from going outside the designated range
 function updateHunger() {
     if (frameCount % hunger.depleteInterval === 0) {
         hunger.current -= hunger.depleteRate;
@@ -500,6 +515,7 @@ function updateHunger() {
     }
 }
 
+// Checks the hunger and slows down the tongue speed if hunger is depleted
 function checkHunger() {
     if (hunger.isHungry === true) {
         frog.tongue.speed = 5;
@@ -508,12 +524,14 @@ function checkHunger() {
     }
 }
 
+// Function to reset the hunger on a new game
 function resetHunger() {
     hunger.current = 50;
     hunger.isHungry = false;
     frog.tongue.speed = 20;
 }
 
+// Function that draws the hunger bar in the HUD
 function drawHunger() {
     push()
     fill(100);
@@ -534,6 +552,7 @@ function drawHunger() {
     pop()
 }
 
+// Function that draws the mistake marks in the HUD
 function drawMarks() {
     for (let i = 0; i < marks.length; i++) {
         let currentMark = marks[i];
@@ -544,6 +563,7 @@ function drawMarks() {
     }
 }
 
+// Function that tracks the value of 'combo' and give Hanez a nice buff when the combo is high enough
 function comboTracker() {
     if (combo >= 20 && combo <= 49) {
         frog.tongue.size = 35;
@@ -554,6 +574,7 @@ function comboTracker() {
     }
 }
 
+// Function that animates the flies
 function changeFly() {
     let cycle = (frameCount % 60)
     if (cycle <= 30) {
@@ -563,6 +584,7 @@ function changeFly() {
     }
 }
 
+// Function that draws the Lilypad which protects little Hanez from the water below
 function drawLilypad() {
     push();
     imageMode(CENTER);
@@ -570,12 +592,14 @@ function drawLilypad() {
     pop();
 }
 
+// Function that allows flies to spawn from either side of the screen
 function switchFly() {
     fly.spawn = random(0, 2);
     fly.move.range = random(20, 100);
     fly.move.speed = random(5, 25);
 }
 
+// Function that draws the underlying bar for the HUD
 function drawHUD() {
     push();
     fill("#308f48ff")
@@ -583,6 +607,7 @@ function drawHUD() {
     pop();
 }
 
+// Function that animates the water and thorns
 function animateWater() {
     let cycle = (frameCount % 120);
     if (cycle >= 0 && cycle < 30) {
@@ -600,19 +625,67 @@ function animateWater() {
     }
 }
 
+// Function which sets the loaded assets as the background and thorns
 function drawBackground() {
     imageMode(CENTER)
     image(currentBackground, width / 2, height / 2, width, height);
     image(currentThorns, width / 2, 62, width, 40);
 }
 
+// Function that applies the underwater filter to the music
 function applyWaterFilter() {
     soundtrack.disconnect();
     soundtrack.connect(waterFilter);
     waterFilter.set(400, 4);
 }
 
+// Function that removes the underwater filter from the music
 function removeWaterFilter() {
     soundtrack.disconnect();
     soundtrack.connect();
+}
+
+// Function that draws the play/play again button
+function drawPlayButton() {
+    playButton.x = width / 2;
+    playButton.y = height / 2;
+
+    push();
+    fill(playButton.color);
+    rectMode(CENTER);
+    rect(playButton.x, playButton.y, playButton.width, playButton.height);
+    pop();
+}
+
+function missedFlyCounter() {
+    // The tongue bounces back if it hits the top considering the Heads up Display
+    // Also increased the value of missed flies and plays the 'mistake' and 'splash' sound effects
+    if (frog.tongue.y <= 75) {
+        missedFlies++;
+        if (missedFlies != 5) {
+            mistake.play();
+        } else {
+            splash.play();
+        }
+        // Resets Hanez's combo if he misses a fly and hits the thorns instead
+        combo = 0;
+
+        // Drawing the indicators reflecting how many times Hanez has missed a fly
+        let newMarkX = markSettings.startX + (missedFlies - 1) * markSettings.distance;
+        let newMark = {
+            x: newMarkX,
+            y: markSettings.y,
+        }
+        marks.push(newMark);
+        frog.tongue.state = "inbound";
+    }
+}
+
+function tongueButtonOverlay() {
+    let check = false;
+    if (frog.tongue.y === 0 && (frog.tongue.x > 100 && frog.tongue.x < 300)) {
+        check = true;
+
+    }
+    console.log(check)
 }
