@@ -109,13 +109,11 @@ const fly = {
     }
 };
 
-const playButton = {
-    x: 0,
-    y: 0,
-    width: 200,
-    height: 50,
-    color: ("#e41c1cff"),
-
+const selectButton = {
+    width: 290,
+    height: 20,
+    color: ("#12829eff"),
+    state: "null",
 }
 
 /**
@@ -387,6 +385,7 @@ function mousePressed() {
 // This function could be skipped, but it makes my brain happy to have all three 'Screen' functions
 function startScreen() {
     drawTutorial();
+    selectScreen();
 
     moveFrog();
     moveTongue();
@@ -395,7 +394,6 @@ function startScreen() {
 
     drawLilypad();
     drawFrog();
-    drawPlayButton();
 
     debug();
 }
@@ -453,7 +451,7 @@ function endScreen() {
 function controlState() {
     if (gameState === "start") {
         startScreen();
-        if (keyIsDown(32)) {
+        if (selectButton.state === "play") {
             soundtrack.loop();
             gameState = "play";
             resetTongue();
@@ -645,18 +643,6 @@ function removeWaterFilter() {
     soundtrack.connect();
 }
 
-// Function that draws the play/play again button
-function drawPlayButton() {
-    playButton.x = width / 2;
-    playButton.y = height / 2;
-
-    push();
-    fill(playButton.color);
-    rectMode(CENTER);
-    rect(playButton.x, playButton.y, playButton.width, playButton.height);
-    pop();
-}
-
 function missedFlyCounter() {
     // The tongue bounces back if it hits the top considering the Heads up Display
     // Also increased the value of missed flies and plays the 'mistake' and 'splash' sound effects
@@ -682,10 +668,30 @@ function missedFlyCounter() {
 }
 
 function tongueButtonOverlay() {
-    let check = false;
-    if (frog.tongue.y === 0 && (frog.tongue.x > 100 && frog.tongue.x < 300)) {
-        check = true;
+    selectButton.state = "null";
+    if (frog.tongue.y === 0) {
+        if (frog.tongue.x > 50 && frog.tongue.x < 340) {
+            selectButton.state = "play";
+        } else if (frog.tongue.x > 360 && frog.tongue.x < 650) {
+            selectButton.state = "select";
+        }
 
     }
-    console.log(check)
+    console.log(frog.tongue.x);
+}
+
+function selectScreen() {
+    push();
+    fill(selectButton.color);
+    noStroke();
+    rect(50, 0, selectButton.width, selectButton.height);
+    rect(360, 0, selectButton.width, selectButton.height);
+
+
+    textFont('impact');
+    textSize(45);
+    text("PLAY", 160, 60);
+    text("SELECT", 440, 60);
+    pop();
+
 }
