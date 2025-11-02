@@ -48,6 +48,13 @@ let score = 0;
 let eaten = null;
 let missedFlies = 0;
 let combo = 0;
+let blueSize = 100;
+let redSize = 100;
+let greenSize = 100;
+let yellowSize = 100;
+let tong1Size = 50;
+let tong2Size = 50;
+let tong3Size = 50;
 
 // An array which holds mark objects that signify how many 'mistakes' the player has made.
 let marks = [];
@@ -89,7 +96,8 @@ const frog = {
         size: 20,
         speed: 20,
         // Determines how the tongue moves each frame
-        state: "idle" // State can be: idle, outbound, inbound
+        state: "idle", // State can be: idle, outbound, inbound
+        color: ("#f03737ff"),
     }
 };
 
@@ -124,6 +132,7 @@ function setup() {
     // Give the fly its first random position
     resetFly();
     waterFilter = new p5.LowPass();
+    Hanez = frogBlue;
 }
 
 // Loading in all the assets I used, such as sounds, music and images
@@ -147,8 +156,11 @@ function preload() {
     flyNoFlap = loadImage("assets/images/Fly2.png");
 
     // Our main man Hanez and his trusty lilypad
-    Hanez = loadImage("assets/images/Hanez.png");
     lilypad = loadImage("assets/images/Lilypad.png");
+    frogBlue = loadImage("assets/images/HanezB.png");
+    frogGreen = loadImage("assets/images/HanezG.png");
+    frogRed = loadImage("assets/images/HanezR.png");
+    frogYellow = loadImage("assets/images/HanezY.png");
 
     // The frames of animation for the water
     water1 = loadImage("assets/images/water1.png");
@@ -205,8 +217,21 @@ function drawFly() {
  * Draws the tutorial screen
  */
 function drawTutorial() {
-    push();
     background("#87ceeb");
+
+    push();
+    fill(selectButton.color);
+    noStroke();
+    rect(50, 0, selectButton.width, selectButton.height);
+    rect(360, 0, selectButton.width, selectButton.height);
+
+    textFont('impact');
+    textSize(45);
+    text("PLAY", 160, 60);
+    text("SELECT", 440, 60);
+    pop();
+
+    push();
     fill("#605a7cff");
     textAlign(CENTER);
     textFont('impact');
@@ -264,7 +289,6 @@ function resetFly() {
         fly.x = width - 1;
 
     }
-
 }
 
 // Resets the tongue in between game states
@@ -321,14 +345,14 @@ function detectTongue() {
 function drawFrog() {
     // Draw the tongue tip
     push();
-    fill("#f03737ff");
+    fill(frog.tongue.color);
     noStroke();
     ellipse(frog.tongue.x, frog.tongue.y, frog.tongue.size);
     pop();
 
     // Draw the rest of the tongue
     push();
-    stroke("#f03737ff");
+    stroke(frog.tongue.color);
     strokeWeight(frog.tongue.size);
     line(frog.tongue.x, frog.tongue.y, frog.body.x, frog.body.y);
     pop();
@@ -380,12 +404,25 @@ function mousePressed() {
         // Plays the tongue sound effect
         tongueLaunch.play();
     }
+
+    if (gameState === "select") {
+        if ((mouseX > (350 - blueSize / 2) && mouseX < (350 + blueSize / 2)) && (mouseY > (200 - blueSize / 2) && mouseY < (200 + blueSize / 2)))
+            Hanez = frogBlue;
+        if ((mouseX > (550 - redSize / 2) && mouseX < (550 + redSize / 2)) && (mouseY > (200 - redSize / 2) && mouseY < (200 + redSize / 2))) {
+            Hanez = frogRed;
+        }
+        if ((mouseX > (350 - greenSize / 2) && mouseX < (350 + greenSize / 2)) && (mouseY > (400 - greenSize / 2) && mouseY < (400 + greenSize / 2))) {
+            Hanez = frogGreen;
+        }
+        if ((mouseX > (550 - yellowSize / 2) && mouseX < (550 + yellowSize / 2)) && (mouseY > (400 - yellowSize / 2) && mouseY < (400 + yellowSize / 2))) {
+            Hanez = frogYellow;
+        }
+    }
 }
 
 // This function could be skipped, but it makes my brain happy to have all three 'Screen' functions
 function startScreen() {
     drawTutorial();
-    selectScreen();
 
     moveFrog();
     moveTongue();
@@ -394,6 +431,20 @@ function startScreen() {
 
     drawLilypad();
     drawFrog();
+
+    debug();
+}
+
+function selectScreen() {
+    moveTongue();
+    detectTongue();
+    tongueButtonOverlay();
+
+    drawFrogScreen();
+    tongueColors();
+    drawLilypad();
+    drawFrog();
+
 
     debug();
 }
@@ -455,7 +506,12 @@ function controlState() {
             soundtrack.loop();
             gameState = "play";
             resetTongue();
+        } else if (selectButton.state === "select") {
+            gameState = "select";
+            resetTongue();
         }
+    } else if (gameState === "select") {
+        selectScreen();
     } else if (gameState === "play") {
         gameScreen();
         if (missedFlies === missLimit) {
@@ -486,7 +542,7 @@ function displayScore() {
 
 // Debug function used during development to check certain variables with console.log
 function debug() {
-
+    console.log(mouseX, mouseY);
 }
 
 // Function that controls Hanez's hunger during the play state
@@ -675,23 +731,110 @@ function tongueButtonOverlay() {
         } else if (frog.tongue.x > 360 && frog.tongue.x < 650) {
             selectButton.state = "select";
         }
-
     }
-    console.log(frog.tongue.x);
 }
 
-function selectScreen() {
+
+
+function drawFrogScreen() {
+    background("#87ceeb");
+    frog.body.x = 100;
+    frog.body.y = 550;
+
     push();
-    fill(selectButton.color);
+    imageMode(CENTER);
+    // Checks that the image for Hanez is loaded, if so it uses it
+    if (frogBlue) {
+        image(frogBlue, 350, 200, blueSize, blueSize);
+        // Alternate form for Hanez if the png is not found
+    } else {
+        push();
+        fill("#20c392ff");
+        stroke("#044628ff");
+        ellipse(frog.body.x, frog.body.y, frog.body.size);
+        pop();
+    }
+
+    if (frogRed) {
+        image(frogRed, 550, 200, redSize, redSize);
+        // Alternate form for Hanez if the png is not found
+    } else {
+        push();
+        fill("#20c392ff");
+        stroke("#044628ff");
+        ellipse(frog.body.x, frog.body.y, frog.body.size);
+        pop();
+    }
+
+    if (frogGreen) {
+        image(frogGreen, 350, 400, greenSize, greenSize);
+        // Alternate form for Hanez if the png is not found
+    } else {
+        push();
+        fill("#20c392ff");
+        stroke("#044628ff");
+        ellipse(frog.body.x, frog.body.y, frog.body.size);
+        pop();
+    }
+
+    if (frogYellow) {
+        image(frogYellow, 550, 400, yellowSize, yellowSize);
+        // Alternate form for Hanez if the png is not found
+    } else {
+        push();
+        fill("#20c392ff");
+        stroke("#044628ff");
+        ellipse(frog.body.x, frog.body.y, frog.body.size);
+        pop();
+    }
+    pop();
+    // Hover effect for blue frog
+    if ((mouseX > (350 - blueSize / 2) && mouseX < (350 + blueSize / 2)) && (mouseY > (200 - blueSize / 2) && mouseY < (200 + blueSize / 2))) {
+        blueSize = 125;
+    } else {
+        blueSize = 100;
+    }
+    // Hover effect for red frog
+    if ((mouseX > (550 - redSize / 2) && mouseX < (550 + redSize / 2)) && (mouseY > (200 - redSize / 2) && mouseY < (200 + redSize / 2))) {
+        redSize = 125;
+    } else {
+        redSize = 100;
+    }
+    // Hover effect for green frog
+    if ((mouseX > (350 - greenSize / 2) && mouseX < (350 + greenSize / 2)) && (mouseY > (400 - greenSize / 2) && mouseY < (400 + greenSize / 2))) {
+        greenSize = 125;
+    } else {
+        greenSize = 100;
+    }
+    // Hover effect for yellow frog
+    if ((mouseX > (550 - yellowSize / 2) && mouseX < (550 + yellowSize / 2)) && (mouseY > (400 - yellowSize / 2) && mouseY < (400 + yellowSize / 2))) {
+        yellowSize = 125;
+    } else {
+        yellowSize = 100;
+    }
+}
+
+function tongueColors() {
+    push();
+
+    rectMode(CENTER)
     noStroke();
-    rect(50, 0, selectButton.width, selectButton.height);
-    rect(360, 0, selectButton.width, selectButton.height);
+    fill("#f03737ff");
+    rect(350, 60, tong1Size, tong1Size);
 
+    noStroke();
+    fill("#f153c7ff");
+    rect(450, 60, tong2Size, tong2Size);
 
-    textFont('impact');
-    textSize(45);
-    text("PLAY", 160, 60);
-    text("SELECT", 440, 60);
+    noStroke();
+    fill("#ff7a0eff");
+    rect(550, 60, tong3Size, tong3Size);
+
     pop();
 
+    if (mouseX > (350 - tong1Size) && mouseX < (350 + tong1Size)) {
+        tong1Size = 75;
+    } else {
+        tong1Size = 50;
+    }
 }
