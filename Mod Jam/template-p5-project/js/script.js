@@ -78,6 +78,7 @@ const hunger = {
     depleteRate: 2,
     depleteInterval: 10,
     isHungry: false,
+    color: ("#25b8e4ff"),
 }
 
 // Our frog
@@ -116,6 +117,7 @@ const fly = {
     }
 };
 
+// Parameters used for the select and back buttons (mostly the colors)
 const selectButton = {
     width: 290,
     height: 20,
@@ -124,14 +126,14 @@ const selectButton = {
     state: "null",
 }
 
-/**
- * Creates the canvas and initializes the fly
- */
+// Creates the canvas and initializes the fly
 function setup() {
     createCanvas(700, 650);
     // Give the fly its first random position
     resetFly();
+    // Water filter for the music
     waterFilter = new p5.LowPass();
+    // The variable containing the current color of Hanez
     Hanez = frogBlue;
 }
 
@@ -177,6 +179,7 @@ function preload() {
 // Feels pretty good to have the entire project run with only a single function in the draw function!
 function draw() {
     controlState();
+    debug();
 }
 
 /**
@@ -192,10 +195,7 @@ function moveFly() {
     }
 }
 
-/**
- * Draws the fly as a black circle
- */
-
+// Draws the fly as a black circle
 function drawFly() {
     changeFly();
     push();
@@ -213,14 +213,12 @@ function drawFly() {
     pop();
 }
 
-/**
- * Draws the tutorial screen
- */
+// Draws the tutorial screen
 function drawTutorial() {
     background("#87ceeb");
 
     push();
-    fill(selectButton.color);
+    fill(selectButton.color2);
     noStroke();
     rect(50, 0, selectButton.width, selectButton.height);
     rect(360, 0, selectButton.width, selectButton.height);
@@ -232,11 +230,11 @@ function drawTutorial() {
     pop();
 
     push();
-    fill("#605a7cff");
+    fill("#0b4553ff");
     textAlign(CENTER);
     textFont('impact');
     textSize(45);
-    text("Weclome to Fly Frog", width / 2, 150);
+    text("Weclome to Fly Frog", width / 2, 200);
     textSize(15);
     text("Hanez is a hungry little frog", width / 2, 250);
     text("He needs to eat as many flies as he can", width / 2, 270);
@@ -250,13 +248,11 @@ function drawTutorial() {
     pop();
 }
 
-/**
- * Draws the endscreen
- */
+// Draws the endscreen
 function drawEndScreen() {
     push();
     background("#87ceeb");
-    fill("#605a7cff");
+    fill("#0b4553ff");
     textAlign(CENTER);
     textFont('impact');
     textSize(40);
@@ -275,9 +271,7 @@ function drawEndScreen() {
     back();
 }
 
-/**
- * Resets the fly to the left or the right with a random y
- */
+// Resets the fly to the left or the right with a random y
 function resetFly() {
     switchFly();
     fly.y = random(150, 500);
@@ -302,16 +296,13 @@ function flyWave() {
     fly.move.y = fly.y + fly.move.range * sin(frameCount / fly.move.speed);
 }
 
-/**
- * Moves the frog to the mouse position on x
- */
+// Moves the frog to the mouse position on x
 function moveFrog() {
     frog.body.x = mouseX;
+    frog.body.y = 600;
 }
 
-/**
- * Handles moving the tongue based on its state
- */
+// Handles moving the tongue based on its state
 function moveTongue() {
     // Tongue matches the frog's x
     frog.tongue.x = frog.body.x;
@@ -339,9 +330,7 @@ function detectTongue() {
     }
 }
 
-/**
- * Displays the tongue (tip and line connection) and the frog (body)
- */
+// Displays the tongue (tip and line connection) and the frog (body)
 function drawFrog() {
     // Draw the tongue tip
     push();
@@ -374,9 +363,7 @@ function drawFrog() {
     pop();
 }
 
-/**
- * Handles the tongue overlapping the fly
- */
+// Handles the tongue overlapping the fly
 function checkTongueFlyOverlap() {
     // Get distance from tongue to fly
     const d = dist(frog.tongue.x, frog.tongue.y, fly.x, fly.move.y);
@@ -395,9 +382,7 @@ function checkTongueFlyOverlap() {
     }
 }
 
-/**
- * Launch the tongue on click (if it's not launched yet)
- */
+// Launch the tongue on click (if it's not launched yet)
 function mousePressed() {
     if (frog.tongue.state === "idle") {
         frog.tongue.state = "outbound";
@@ -406,18 +391,22 @@ function mousePressed() {
     }
 
     if (gameState === "select") {
-        if ((mouseX > (350 - blueSize / 2) && mouseX < (350 + blueSize / 2)) && (mouseY > (200 - blueSize / 2) && mouseY < (200 + blueSize / 2)))
+        if ((mouseX > (350 - blueSize / 2) && mouseX < (350 + blueSize / 2)) && (mouseY > (200 - blueSize / 2) && mouseY < (200 + blueSize / 2))) {
             Hanez = frogBlue;
+            hunger.color = ("#25b8e4ff");
+        }
         if ((mouseX > (550 - redSize / 2) && mouseX < (550 + redSize / 2)) && (mouseY > (200 - redSize / 2) && mouseY < (200 + redSize / 2))) {
             Hanez = frogRed;
+            hunger.color = ("#db1c1cff");
         }
         if ((mouseX > (350 - greenSize / 2) && mouseX < (350 + greenSize / 2)) && (mouseY > (400 - greenSize / 2) && mouseY < (400 + greenSize / 2))) {
             Hanez = frogGreen;
+            hunger.color = ("#38a725ff");
         }
         if ((mouseX > (550 - yellowSize / 2) && mouseX < (550 + yellowSize / 2)) && (mouseY > (400 - yellowSize / 2) && mouseY < (400 + yellowSize / 2))) {
             Hanez = frogYellow;
+            hunger.color = ("#edf50dff");
         }
-
 
         if (mouseX > (350 - tong1Size / 2) && mouseX < (350 + tong1Size / 2) && mouseY > (60 - tong1Size / 2) && mouseY < (60 + tong1Size / 2)) {
             frog.tongue.color = ("#f03737ff");
@@ -426,16 +415,16 @@ function mousePressed() {
             frog.tongue.color = ("#f153c7ff");
         }
         if (mouseX > (550 - tong3Size / 2) && mouseX < (550 + tong3Size / 2) && mouseY > (60 - tong3Size / 2) && mouseY < (60 + tong3Size / 2)) {
-            frog.tongue.color = ("#ff7a0eff");
+            frog.tongue.color = ("#6890ffff");
         }
     }
 
     if (gameState === "select" || gameState === "end") {
         if (mouseX > 15 && mouseX < 70 && mouseY > 20 && mouseY < 60) {
             gameState = "start";
+            removeWaterFilter();
         }
     }
-
 }
 
 // This function could be skipped, but it makes my brain happy to have all three 'Screen' functions
@@ -451,13 +440,10 @@ function startScreen() {
 
     drawLilypad();
     drawFrog();
-
-    debug();
 }
 
 function selectScreen() {
     frog.tongue.x = frog.body.x;
-    frog.tongue.y = 200;
     detectTongue();
     tongueButtonOverlay();
 
@@ -466,14 +452,12 @@ function selectScreen() {
     drawLilypad();
     back();
     drawFrog();
-
-
-    debug();
 }
 
 // This is where the magic happens
 // Just about every other function within the program is used here to make the game
 function gameScreen() {
+
     // Movement functions that move Hanez, the tongue and the fly
     moveFrog();
     moveTongue();
@@ -567,7 +551,7 @@ function displayScore() {
 
 // Debug function used during development to check certain variables with console.log
 function debug() {
-    console.log(mouseX, mouseY);
+    console.log(frog.tongue.x, frog.tongue.y);
 }
 
 // Function that controls Hanez's hunger during the play state
@@ -619,7 +603,7 @@ function drawHunger() {
 
     let barWidth = map(hunger.current, hunger.min, hunger.max, 0, 200);
 
-    fill("#e8f347ff");
+    fill(hunger.color);
     rect(20, 20, barWidth, 20);
 
     fill(255);
@@ -753,18 +737,21 @@ function tongueButtonOverlay() {
     if (frog.tongue.y === 0) {
         if (frog.tongue.x > 50 && frog.tongue.x < 340) {
             selectButton.state = "play";
+            resetTongue();
         } else if (frog.tongue.x > 360 && frog.tongue.x < 650) {
             selectButton.state = "select";
+            resetTongue();
         }
     }
 }
-
-
 
 function drawFrogScreen() {
     background("#87ceeb");
     frog.body.x = 100;
     frog.body.y = 550;
+
+    text("Select Tongue Color: ", 200, 60);
+    text("Select Frog Color:", 200, 160,);
 
     push();
     imageMode(CENTER);
@@ -813,6 +800,7 @@ function drawFrogScreen() {
         pop();
     }
     pop();
+
     // Hover effect for blue frog
     if ((mouseX > (350 - blueSize / 2) && mouseX < (350 + blueSize / 2)) && (mouseY > (200 - blueSize / 2) && mouseY < (200 + blueSize / 2))) {
         blueSize = 125;
@@ -841,7 +829,6 @@ function drawFrogScreen() {
 
 function tongueColors() {
     push();
-
     rectMode(CENTER)
     noStroke();
     fill("#f03737ff");
@@ -852,9 +839,8 @@ function tongueColors() {
     rect(450, 60, tong2Size, tong2Size);
 
     noStroke();
-    fill("#ff7a0eff");
+    fill("#6890ffff");
     rect(550, 60, tong3Size, tong3Size);
-
     pop();
 
     if (mouseX > (350 - tong1Size / 2) && mouseX < (350 + tong1Size / 2) && mouseY > (60 - tong1Size / 2) && mouseY < (60 + tong1Size / 2)) {
