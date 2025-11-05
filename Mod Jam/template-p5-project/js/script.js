@@ -7,7 +7,9 @@
  * Instructions:
  * - Move the frog with your mouse
  * - Click to launch the tongue
- * - Catch flies
+ * - Catch as many flies as you can in a row
+ * - Don't touch the thorns
+ * - Choose your favourite color
  * 
  * Made with p5
  * https://p5js.org/
@@ -258,17 +260,17 @@ function drawTutorial() {
     textAlign(CENTER);
     textFont('impact');
     textSize(45);
-    text("Weclome to Fly Frog", width / 2, 200);
+    text("Welcome to Fly Frog", width / 2, 200);
     textSize(15);
     text("Hanez is a hungry little frog", width / 2, 250);
     text("He needs to eat as many flies as he can", width / 2, 270);
     text("Move Hanez left and right with the Mouse", width / 2, 290);
     text("Launch his tongue by left clicking", width / 2, 310);
-    text("Make sure not to hit the thorns", width / 2, 330);
+    text("Make sure not to hit the thorns.", width / 2, 330);
     text("Hanez gets very hungry very quickly", width / 2, 350);
     text("Keep him well fed or he'll become sluggish", width / 2, 370);
     text("Eating enough flies without touching the thorns is", width / 2, 390);
-    text("sure to get Hanez fired up to eat even more flies", width / 2, 410);
+    text("sure to get Hanez fired up to eat even more flies!", width / 2, 410);
     pop();
 }
 /*
@@ -281,7 +283,7 @@ function drawEndScreen() {
     textAlign(CENTER);
     textFont('impact');
     textSize(40);
-    text("Oh No! Hanez has fallen in the water!!!", width / 2, 150);
+    text("Oh No! Hanez has fallen in the water!", width / 2, 150);
     textSize(15);
     text("Be careful not to hit the thorns", width / 2, 280);
     text("Hanez's tongue is perfect for eating flies", width / 2, 300);
