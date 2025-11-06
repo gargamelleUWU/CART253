@@ -7,14 +7,18 @@
  * Instructions:
  * - Move the frog with your mouse
  * - Click to launch the tongue
- * - Catch flies
+ * - Catch as many flies as you can in a row
+ * - Don't touch the thorns
+ * - Choose your favourite color
  * 
  * Made with p5
  * https://p5js.org/
  */
 
-// Sound variables.
-// These variables are used through out the program to play certain sound effects.
+/*
+* Sound variables.
+* These variables are used through out the program to play certain sound effects.
+*/
 let tongueLaunch;
 let eatFly;
 let soundtrack;
@@ -23,8 +27,10 @@ let splash;
 let waterFilter;
 let rise;
 
-// Cisual variables.
-// These variables are assigned visual elements that I uploaded to the assets folder
+/*
+* Cisual variables.
+* These variables are assigned visual elements that I uploaded to the assets folder
+*/
 let flyFlap;
 let flyNoFlap;
 let currentFly;
@@ -39,7 +45,9 @@ let thorns2;
 let thorns3;
 let currentThorns
 
-// Some miscellaneous global variables that are used in multiple functions within the program
+/*
+* Some miscellaneous global variables that are used in multiple functions within the program
+*/
 "use strict";
 const missLimit = 5;
 let gameState = "start";
@@ -55,10 +63,14 @@ let tong1Size = 50;
 let tong2Size = 50;
 let tong3Size = 50;
 
-// An array which holds mark objects that signify how many 'mistakes' the player has made.
+/*
+* An array which holds mark objects that signify how many 'mistakes' the player has made.
+*/
 let marks = [];
 
-// The mark object settings which are used to draw the elements on the Game Interface.
+/*
+* The mark object settings which are used to draw the elements on the Game Interface.
+*/
 let markSettings = {
     startX: 400,
     y: 27,
@@ -67,9 +79,11 @@ let markSettings = {
     color: ("#f03737ff"),
 }
 
-// The relevent values of the hunger mechanic.
-// The initial value, the min, the max, the rate at which hunger depletes over time, 
-// the hunger Hanez gets back when he eats a fly, a boolean that dictates if Hanez is hungry
+/*
+* The relevent values of the hunger mechanic.
+* The initial value, the min, the max, the rate at which hunger depletes over time, 
+* the hunger Hanez gets back when he eats a fly, a boolean that dictates if Hanez is hungry
+*/
 const hunger = {
     current: 50,
     max: 100,
@@ -78,9 +92,12 @@ const hunger = {
     depleteRate: 2,
     depleteInterval: 10,
     isHungry: false,
+    color: ("#25b8e4ff"),
 }
 
-// Our frog
+/*
+* Our frog
+*/
 const frog = {
     // The frog's body has a position and size
     body: {
@@ -100,8 +117,10 @@ const frog = {
     }
 };
 
-// Our fly
-// Has a position, size, and speed of horizontal movement
+/*
+* Our fly
+* Has a position, size, and speed of horizontal movement
+*/
 const fly = {
     x: 0,
     y: 200, // Will be random
@@ -116,6 +135,9 @@ const fly = {
     }
 };
 
+/*
+* Parameters used for the select and back buttons (mostly the colors)
+*/
 const selectButton = {
     width: 290,
     height: 20,
@@ -123,19 +145,21 @@ const selectButton = {
     color2: ("#0b4553ff"),
     state: "null",
 }
-
-/**
- * Creates the canvas and initializes the fly
- */
+/*
+* Creates the canvas and initializes the fly
+*/
 function setup() {
     createCanvas(700, 650);
     // Give the fly its first random position
     resetFly();
+    // Water filter for the music
     waterFilter = new p5.LowPass();
+    // The variable containing the current color of Hanez
     Hanez = frogBlue;
 }
-
-// Loading in all the assets I used, such as sounds, music and images
+/*
+* Loading in all the assets I used, such as sounds, music and images
+*/
 function preload() {
     // All the sound effects and music and setting the volumes
     tongueLaunch = loadSound("assets/sounds/TongueOut1.wav");
@@ -173,10 +197,13 @@ function preload() {
     thorns3 = loadImage("assets/images/thorns3.png");
 }
 
-// Our main draw function. There are alot of nested functions hence why draw only has a single on.
-// Feels pretty good to have the entire project run with only a single function in the draw function!
+/*
+* Our main draw function. There are alot of nested functions hence why draw only has a single on.
+* Feels pretty good to have the entire project run with only a single function in the draw function!
+*/
 function draw() {
     controlState();
+    debug();
 }
 
 /**
@@ -191,11 +218,9 @@ function moveFly() {
         resetFly();
     }
 }
-
-/**
- * Draws the fly as a black circle
- */
-
+/*
+* Draws the fly as a black circle
+*/
 function drawFly() {
     changeFly();
     push();
@@ -212,15 +237,14 @@ function drawFly() {
     }
     pop();
 }
-
-/**
- * Draws the tutorial screen
- */
+/*
+* Draws the tutorial screen
+*/
 function drawTutorial() {
     background("#87ceeb");
 
     push();
-    fill(selectButton.color);
+    fill(selectButton.color2);
     noStroke();
     rect(50, 0, selectButton.width, selectButton.height);
     rect(360, 0, selectButton.width, selectButton.height);
@@ -232,35 +256,34 @@ function drawTutorial() {
     pop();
 
     push();
-    fill("#605a7cff");
+    fill("#0b4553ff");
     textAlign(CENTER);
     textFont('impact');
     textSize(45);
-    text("Weclome to Fly Frog", width / 2, 150);
+    text("Welcome to Fly Frog", width / 2, 200);
     textSize(15);
     text("Hanez is a hungry little frog", width / 2, 250);
     text("He needs to eat as many flies as he can", width / 2, 270);
     text("Move Hanez left and right with the Mouse", width / 2, 290);
     text("Launch his tongue by left clicking", width / 2, 310);
-    text("Make sure not to hit the thorns", width / 2, 330);
+    text("Make sure not to hit the thorns.", width / 2, 330);
     text("Hanez gets very hungry very quickly", width / 2, 350);
     text("Keep him well fed or he'll become sluggish", width / 2, 370);
     text("Eating enough flies without touching the thorns is", width / 2, 390);
-    text("sure to get Hanez fired up to eat even more flies", width / 2, 410);
+    text("sure to get Hanez fired up to eat even more flies!", width / 2, 410);
     pop();
 }
-
-/**
- * Draws the endscreen
- */
+/*
+* Draws the endscreen
+*/
 function drawEndScreen() {
     push();
     background("#87ceeb");
-    fill("#605a7cff");
+    fill("#0b4553ff");
     textAlign(CENTER);
     textFont('impact');
     textSize(40);
-    text("Oh No! Hanez has fallen in the water!!!", width / 2, 150);
+    text("Oh No! Hanez has fallen in the water!", width / 2, 150);
     textSize(15);
     text("Be careful not to hit the thorns", width / 2, 280);
     text("Hanez's tongue is perfect for eating flies", width / 2, 300);
@@ -275,9 +298,9 @@ function drawEndScreen() {
     back();
 }
 
-/**
- * Resets the fly to the left or the right with a random y
- */
+/*
+* Resets the fly to the left or the right with a random y
+*/
 function resetFly() {
     switchFly();
     fly.y = random(150, 500);
@@ -291,27 +314,31 @@ function resetFly() {
     }
 }
 
-// Resets the tongue in between game states
+/*
+* Resets the tongue in between game states
+*/
 function resetTongue() {
     frog.tongue.x = frog.body.x;
     frog.tongue.y = 560;
 }
-
-// This adds the wave motion to the flies path
+/*
+* This adds the wave motion to the flies path
+*/
 function flyWave() {
     fly.move.y = fly.y + fly.move.range * sin(frameCount / fly.move.speed);
 }
 
-/**
- * Moves the frog to the mouse position on x
- */
+/*
+* Moves the frog to the mouse position on x
+*/
 function moveFrog() {
     frog.body.x = mouseX;
+    frog.body.y = 600;
 }
 
-/**
- * Handles moving the tongue based on its state
- */
+/*
+* Handles moving the tongue based on its state
+*/
 function moveTongue() {
     // Tongue matches the frog's x
     frog.tongue.x = frog.body.x;
@@ -339,9 +366,9 @@ function detectTongue() {
     }
 }
 
-/**
- * Displays the tongue (tip and line connection) and the frog (body)
- */
+/*
+* Displays the tongue (tip and line connection) and the frog (body)
+*/
 function drawFrog() {
     // Draw the tongue tip
     push();
@@ -374,9 +401,9 @@ function drawFrog() {
     pop();
 }
 
-/**
- * Handles the tongue overlapping the fly
- */
+/*
+* Handles the tongue overlapping the fly
+*/
 function checkTongueFlyOverlap() {
     // Get distance from tongue to fly
     const d = dist(frog.tongue.x, frog.tongue.y, fly.x, fly.move.y);
@@ -395,9 +422,9 @@ function checkTongueFlyOverlap() {
     }
 }
 
-/**
- * Launch the tongue on click (if it's not launched yet)
- */
+/*
+* Launch the tongue on click (if it's not launched yet)
+*/
 function mousePressed() {
     if (frog.tongue.state === "idle") {
         frog.tongue.state = "outbound";
@@ -406,18 +433,22 @@ function mousePressed() {
     }
 
     if (gameState === "select") {
-        if ((mouseX > (350 - blueSize / 2) && mouseX < (350 + blueSize / 2)) && (mouseY > (200 - blueSize / 2) && mouseY < (200 + blueSize / 2)))
+        if ((mouseX > (350 - blueSize / 2) && mouseX < (350 + blueSize / 2)) && (mouseY > (200 - blueSize / 2) && mouseY < (200 + blueSize / 2))) {
             Hanez = frogBlue;
+            hunger.color = ("#25b8e4ff");
+        }
         if ((mouseX > (550 - redSize / 2) && mouseX < (550 + redSize / 2)) && (mouseY > (200 - redSize / 2) && mouseY < (200 + redSize / 2))) {
             Hanez = frogRed;
+            hunger.color = ("#db1c1cff");
         }
         if ((mouseX > (350 - greenSize / 2) && mouseX < (350 + greenSize / 2)) && (mouseY > (400 - greenSize / 2) && mouseY < (400 + greenSize / 2))) {
             Hanez = frogGreen;
+            hunger.color = ("#38a725ff");
         }
         if ((mouseX > (550 - yellowSize / 2) && mouseX < (550 + yellowSize / 2)) && (mouseY > (400 - yellowSize / 2) && mouseY < (400 + yellowSize / 2))) {
             Hanez = frogYellow;
+            hunger.color = ("#edf50dff");
         }
-
 
         if (mouseX > (350 - tong1Size / 2) && mouseX < (350 + tong1Size / 2) && mouseY > (60 - tong1Size / 2) && mouseY < (60 + tong1Size / 2)) {
             frog.tongue.color = ("#f03737ff");
@@ -426,19 +457,21 @@ function mousePressed() {
             frog.tongue.color = ("#f153c7ff");
         }
         if (mouseX > (550 - tong3Size / 2) && mouseX < (550 + tong3Size / 2) && mouseY > (60 - tong3Size / 2) && mouseY < (60 + tong3Size / 2)) {
-            frog.tongue.color = ("#ff7a0eff");
+            frog.tongue.color = ("#6890ffff");
         }
     }
 
     if (gameState === "select" || gameState === "end") {
         if (mouseX > 15 && mouseX < 70 && mouseY > 20 && mouseY < 60) {
             gameState = "start";
+            removeWaterFilter();
         }
     }
-
 }
 
-// This function could be skipped, but it makes my brain happy to have all three 'Screen' functions
+/*
+* This function could be skipped, but it makes my brain happy to have all three 'Screen' functions
+*/
 function startScreen() {
     selectButton.color = ("#1487a3ff");
     selectButton.color2 = ("#0b4553ff");
@@ -451,13 +484,10 @@ function startScreen() {
 
     drawLilypad();
     drawFrog();
-
-    debug();
 }
 
 function selectScreen() {
     frog.tongue.x = frog.body.x;
-    frog.tongue.y = 200;
     detectTongue();
     tongueButtonOverlay();
 
@@ -466,14 +496,14 @@ function selectScreen() {
     drawLilypad();
     back();
     drawFrog();
-
-
-    debug();
 }
 
-// This is where the magic happens
-// Just about every other function within the program is used here to make the game
+/*
+* This is where the magic happens
+* Just about every other function within the program is used here to make the game
+*/
 function gameScreen() {
+
     // Movement functions that move Hanez, the tongue and the fly
     moveFrog();
     moveTongue();
@@ -506,8 +536,10 @@ function gameScreen() {
     debug();
 }
 
-// Function which draws the resets many of Hanez's variables so that he's ready for the next game.
-// Calls other functions which reset of aspects of the game
+/*
+* Function which draws the resets many of Hanez's variables so that he's ready for the next game.
+* Calls other functions which reset of aspects of the game
+*/
 function endScreen() {
     missedFlies = 0;
     score = 0;
@@ -519,8 +551,10 @@ function endScreen() {
     drawEndScreen();
 }
 
-// The main function which controls the state the game is in
-// The game can be in the 'start, play, or end' state.
+/*
+* The main function which controls the state the game is in
+* The game can be in the 'start, play, or end' state.
+*/
 function controlState() {
     if (gameState === "start") {
         startScreen();
@@ -553,7 +587,9 @@ function controlState() {
     }
 }
 
-// Function displays the HUD elements for the game, such as score, combo, hunger, mistakes
+/*
+* Function displays the HUD elements for the game, such as score, combo, hunger, mistakes
+*/
 function displayScore() {
     drawHUD();
     drawHunger();
@@ -565,13 +601,17 @@ function displayScore() {
     pop();
 }
 
-// Debug function used during development to check certain variables with console.log
+/*
+* Debug function used during development to check certain variables with console.log
+*/
 function debug() {
-    console.log(mouseX, mouseY);
+    console.log(frog.tongue.x, frog.tongue.y);
 }
 
-// Function that controls Hanez's hunger during the play state
-// delpletes the hunger over time, refills the hunger when Hanez eats a fly, and prevents the hunger from going outside the designated range
+/*
+* Function that controls Hanez's hunger during the play state
+* delpletes the hunger over time, refills the hunger when Hanez eats a fly, and prevents the hunger from going outside the designated range
+*/
 function updateHunger() {
     if (frameCount % hunger.depleteInterval === 0) {
         hunger.current -= hunger.depleteRate;
@@ -594,7 +634,9 @@ function updateHunger() {
     }
 }
 
-// Checks the hunger and slows down the tongue speed if hunger is depleted
+/*
+* Checks the hunger and slows down the tongue speed if hunger is depleted
+*/
 function checkHunger() {
     if (hunger.isHungry === true) {
         frog.tongue.speed = 5;
@@ -603,14 +645,18 @@ function checkHunger() {
     }
 }
 
-// Function to reset the hunger on a new game
+/*
+* Function to reset the hunger on a new game
+*/
 function resetHunger() {
     hunger.current = 50;
     hunger.isHungry = false;
     frog.tongue.speed = 20;
 }
 
-// Function that draws the hunger bar in the HUD
+/*
+* Function that draws the hunger bar in the HUD
+*/
 function drawHunger() {
     push()
     fill(100);
@@ -619,7 +665,7 @@ function drawHunger() {
 
     let barWidth = map(hunger.current, hunger.min, hunger.max, 0, 200);
 
-    fill("#e8f347ff");
+    fill(hunger.color);
     rect(20, 20, barWidth, 20);
 
     fill(255);
@@ -631,7 +677,9 @@ function drawHunger() {
     pop()
 }
 
-// Function that draws the mistake marks in the HUD
+/*
+* Function that draws the mistake marks in the HUD
+*/
 function drawMarks() {
     for (let i = 0; i < marks.length; i++) {
         let currentMark = marks[i];
@@ -642,7 +690,9 @@ function drawMarks() {
     }
 }
 
-// Function that tracks the value of 'combo' and give Hanez a nice buff when the combo is high enough
+/*
+* Function that tracks the value of 'combo' and give Hanez a nice buff when the combo is high enough
+*/
 function comboTracker() {
     if (combo >= 20 && combo <= 49) {
         frog.tongue.size = 35;
@@ -653,7 +703,9 @@ function comboTracker() {
     }
 }
 
-// Function that animates the flies
+/*
+* Function that animates the flies
+*/
 function changeFly() {
     let cycle = (frameCount % 60)
     if (cycle <= 30) {
@@ -663,7 +715,9 @@ function changeFly() {
     }
 }
 
-// Function that draws the Lilypad which protects little Hanez from the water below
+/*
+* Function that draws the Lilypad which protects little Hanez from the water below
+*/
 function drawLilypad() {
     push();
     imageMode(CENTER);
@@ -671,14 +725,18 @@ function drawLilypad() {
     pop();
 }
 
-// Function that allows flies to spawn from either side of the screen
+/*
+* Function that allows flies to spawn from either side of the screen
+*/
 function switchFly() {
     fly.spawn = random(0, 2);
     fly.move.range = random(20, 100);
     fly.move.speed = random(5, 25);
 }
 
-// Function that draws the underlying bar for the HUD
+/*
+* Function that draws the underlying bar for the HUD
+*/
 function drawHUD() {
     push();
     fill("#308f48ff");
@@ -686,7 +744,9 @@ function drawHUD() {
     pop();
 }
 
-// Function that animates the water and thorns
+/*
+* Function that animates the water and thorns
+*/
 function animateWater() {
     let cycle = (frameCount % 120);
     if (cycle >= 0 && cycle < 30) {
@@ -704,26 +764,35 @@ function animateWater() {
     }
 }
 
-// Function which sets the loaded assets as the background and thorns
+/*
+* Function which sets the loaded assets as the background and thorns
+*/
 function drawBackground() {
     imageMode(CENTER)
     image(currentBackground, width / 2, height / 2, width, height);
     image(currentThorns, width / 2, 62, width, 40);
 }
 
-// Function that applies the underwater filter to the music
+/*
+* Function that applies the underwater filter to the music
+*/
 function applyWaterFilter() {
     soundtrack.disconnect();
     soundtrack.connect(waterFilter);
     waterFilter.set(400, 4);
 }
 
-// Function that removes the underwater filter from the music
+/*
+* Function that removes the underwater filter from the music
+*/
 function removeWaterFilter() {
     soundtrack.disconnect();
     soundtrack.connect();
 }
 
+/*
+* Function that increases the counter for missed flies
+*/
 function missedFlyCounter() {
     // The tongue bounces back if it hits the top considering the Heads up Display
     // Also increased the value of missed flies and plays the 'mistake' and 'splash' sound effects
@@ -748,23 +817,33 @@ function missedFlyCounter() {
     }
 }
 
+/*
+* Controls the flow from the start screen
+* Can go to either the play screen or select screen
+*/
 function tongueButtonOverlay() {
     selectButton.state = "null";
     if (frog.tongue.y === 0) {
         if (frog.tongue.x > 50 && frog.tongue.x < 340) {
             selectButton.state = "play";
+            resetTongue();
         } else if (frog.tongue.x > 360 && frog.tongue.x < 650) {
             selectButton.state = "select";
+            resetTongue();
         }
     }
 }
 
-
-
+/*
+* Function which draws the frog selection screen
+*/
 function drawFrogScreen() {
     background("#87ceeb");
     frog.body.x = 100;
     frog.body.y = 550;
+
+    text("Select Tongue Color: ", 200, 60);
+    text("Select Frog Color:", 200, 160,);
 
     push();
     imageMode(CENTER);
@@ -813,6 +892,7 @@ function drawFrogScreen() {
         pop();
     }
     pop();
+
     // Hover effect for blue frog
     if ((mouseX > (350 - blueSize / 2) && mouseX < (350 + blueSize / 2)) && (mouseY > (200 - blueSize / 2) && mouseY < (200 + blueSize / 2))) {
         blueSize = 125;
@@ -839,9 +919,11 @@ function drawFrogScreen() {
     }
 }
 
+/*
+* Function which draws the color options for the tongue colors and adds the hover effect for the tongue colors
+*/
 function tongueColors() {
     push();
-
     rectMode(CENTER)
     noStroke();
     fill("#f03737ff");
@@ -852,9 +934,8 @@ function tongueColors() {
     rect(450, 60, tong2Size, tong2Size);
 
     noStroke();
-    fill("#ff7a0eff");
+    fill("#6890ffff");
     rect(550, 60, tong3Size, tong3Size);
-
     pop();
 
     if (mouseX > (350 - tong1Size / 2) && mouseX < (350 + tong1Size / 2) && mouseY > (60 - tong1Size / 2) && mouseY < (60 + tong1Size / 2)) {
@@ -876,6 +957,9 @@ function tongueColors() {
     }
 }
 
+/*
+* Function that draws the back button
+*/
 function back() {
     push();
     noStroke();
