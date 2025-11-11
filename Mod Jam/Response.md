@@ -1,7 +1,6 @@
 Due to the online nature of the class last week I was unable to speak directly with anyone about their mod jam. So I have no insight on their code.
 
 Norah:
-
     Norah's mod jam is unbelievably charming. She custom made all her art and assets. The frog, the background, the user interface, all of it is gorgeous pixel art.
     She incorporated a minor animation when the frog shoots out its tongue, which alongside the music, sound effects and custom art style, gives the game a lot
     of charm and character. She worked in a new method that operates the tongues movement. I believe Norah used the lerp function to move the frog's tongue to
