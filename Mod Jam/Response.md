@@ -8,9 +8,7 @@ Norah:
     will be unresponsive if the player makes successive clicks far apart. I also noticed that the tongue and the mechanic that catches the flies are not one to one,
     as flies can be caught even when the tongue is retracted. There is also no integrated way to play again when the game terminates internally. whether the player
     wins or loses, the only way to replay the game is to refresh the page. Also, the music suddenly stops when the game ends, which is perfectly fine but for my own
-    personal taste I sure do wish those calm gaming tunes would keep playing and looping as I ready myself to catch even more flies! 
-
-    Despite these minor flaws and bugs, Norah's game is far too cute to not love. The little frog is absolutely adorable... But imagine if the frog wore a hat, now
+    personal taste I sure do wish those calm gaming tunes would keep playing and looping as I ready myself to catch even more flies! Despite these minor flaws and bugs, Norah's game is far too cute to not love. The little frog is absolutely adorable... But imagine if the frog wore a hat, now
     that would be pretty fly! (Norah played around with the idea of giving the frog changeable hats)
     https://norahwilcox.github.io/CART253/topics/mod-jam/
 
