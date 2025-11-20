@@ -56,7 +56,7 @@ function createCelestial(sun) {
         vel: createVector(1, 1),
         acc: createVector(1, 1),
         mass: random(1, 20),
-        radius: random(10, 20),
+        radius: random(10, 50),
         thicc: random(1, 5),
         trail: [],
     }
@@ -158,7 +158,7 @@ function celestialTrail(celestial) {
 
     push();
     noFill();
-    stroke(150);
+    stroke(255, 254, 215, 80);
     strokeWeight(2);
     beginShape();
     for (let v of celestial.trail) {
@@ -172,5 +172,7 @@ function celestialTrail(celestial) {
  * 
 */
 function mousePressed() {
-    celestials.push(createCelestial());
+    let currentSun = createSun();
+
+    celestials.push(createCelestial(currentSun));
 }
