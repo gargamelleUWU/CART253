@@ -130,15 +130,22 @@ function findMagnitudeOfForce(directionVector, sun, celestial) {
 /**
  * 
 */
-function createForceVector() {
-
+function createForceVector(directionVector, force) {
+    directionVector.normalize();
+    let force = directionVector.mult(magnitude);
+    return force;
 }
 
 /**
  * 
 */
-function updateCelestial() {
+function updateCelestial(celestial, force) {
+    let acceleration = p5.Vector.div(force, celestial.mass);
 
+    celestial.acc.add(acceleration);
+    celestial.vel.add(celestial.acc);
+    celestial.pos.add(celestial.vel);
+    celestial.acc.mult(0);
 }
 
 /**
