@@ -51,9 +51,20 @@ function createSun() {
  * 
 */
 function createCelestial(sun) {
+    let startPos = createVector(random((mouseX - sun.radius) - spawnRange, (mouseX + sun.radius) + spawnRange), random((mouseY - sun.radius) - spawnRange, (mouseY + sun.radius) + spawnRange));
+    let toSun = p5.Vector.sub(sun.pos, startPos);
+
+    let rotationDirection = random() < 0.5 ? HALF_PI : -HALF_PI;
+    let initialVel = toSun.copy().rotate(rotationDirection);
+
+    let distance = toSun.mag();
+    let orbitalSpeed = sqrt((gravConstant * sun.mass) / distance);
+
+    initialVel.setMag(orbitalSpeed);
+
     let celestial = {
-        pos: createVector(random((mouseX - sun.radius) - spawnRange, (mouseX + sun.radius) + spawnRange), random((mouseY - sun.radius) - spawnRange, (mouseY + sun.radius) + spawnRange)),
-        vel: createVector(1, 1),
+        pos: startPos,
+        vel: initialVel,
         acc: createVector(1, 1),
         mass: random(1, 20),
         radius: random(10, 50),
@@ -88,6 +99,11 @@ function drawCelestial(celestial) {
     strokeWeight(celestial.thicc);
     stroke("#fffeaeff");
     circle(celestial.pos.x, celestial.pos.y, celestial.radius);
+    pop();
+
+    push();
+    stroke("#FFFFFF");
+    line(celestial.pos.x, celestial.pos.y, celestial.pos.x + celestial.vel.x * 10, celestial.pos.y + celestial.vel.y * 10);
     pop();
 }
 
