@@ -7,32 +7,46 @@
 let celestials = [];
 let gravConstant = 100;
 let spawnRange = 200;
+const massMultiplier = 10;
+
+let sun;
+let net;
 
 /**
  * Creates the canvas so that P5 can do its thing.
 */
 function setup() {
     createCanvas(windowWidth, windowHeight);
+
+    sun = createSun();
+    net = createNet();
 }
 
 /**
  * Draw function which runs all the main functions that allows our code to work.
 */
 function draw() {
-    let sun = createSun();
-    let net = createNet();
-
     background(0);
+
+    net.pos.x = mouseX;
+    net.pos.y = mouseY;
+
+    if (sun.isCaptured) {
+        sun.pos.x = mouseX;
+        sun.pos.y = mouseY;
+    }
+
     drawNet(net);
     drawSun(sun);
 
     for (let celestial of celestials) {
-        captureCelestial(sun, net, celestial);
         celestialTrail(celestial);
         drawCelestial(celestial);
+
         let dirVec = findDirectionVector(sun, celestial);
         let forceMag = findMagnitudeOfForce(dirVec.copy(), sun, celestial);
         let forceVec = createForceVector(dirVec.copy(), forceMag);
+
         updateCelestial(celestial, forceVec);
     }
 }
@@ -58,6 +72,7 @@ function createSun() {
         mass: 100,
         radius: 100,
         thicc: 2,
+        isCaptured: false,
     }
     return sun;
 }
@@ -66,21 +81,22 @@ function createSun() {
  * 
 */
 function createCelestial(sun) {
-    let startPos = createVector(random((mouseX - sun.radius) - spawnRange, (mouseX + sun.radius) + spawnRange), random((mouseY - sun.radius) - spawnRange, (mouseY + sun.radius) + spawnRange));
-    let toSun = p5.Vector.sub(sun.pos, startPos);
+    let startPos = createVector(
+        random((sun.pos.x - sun.radius) - spawnRange, (sun.pos.x + sun.radius) + spawnRange),
+        random((sun.pos.y - sun.radius) - spawnRange, (sun.pos.y + sun.radius) + spawnRange));
 
+    let toSun = p5.Vector.sub(sun.pos, startPos);
     let rotationDirection = random() < 0.5 ? HALF_PI : -HALF_PI;
     let initialVel = toSun.copy().rotate(rotationDirection);
 
     let distance = toSun.mag();
     let orbitalSpeed = sqrt((gravConstant * sun.mass) / distance);
-
     initialVel.setMag(orbitalSpeed);
 
     let celestial = {
         pos: startPos,
         vel: initialVel,
-        acc: createVector(1, 1),
+        acc: createVector(0, 0),
         mass: random(1, 20),
         radius: random(10, 50),
         thicc: random(1, 5),
@@ -95,7 +111,7 @@ function drawNet(net) {
     strokeWeight(2);
     stroke("#FFFFFF");
     setLineDash([2, 10]);
-    circle(mouseX, mouseY, net.radius);
+    circle(net.pos.x, net.pos.y, net.radius);
     pop();
 }
 
@@ -103,8 +119,6 @@ function drawNet(net) {
  * 
 */
 function drawSun(sun) {
-    sun.pos.x = mouseX;
-    sun.pos.y = mouseY;
 
     push();
     noFill();
@@ -213,8 +227,28 @@ function celestialTrail(celestial) {
  * 
 */
 function mousePressed() {
-    let currentSun = createSun();
-    celestials.push(createCelestial(currentSun));
+    let capturedIndex = -1;
+
+    for (let i = 0; i < celestials.length; i++) {
+        if (canCapture(net, celestials[i])) {
+            capturedIndex = i;
+            break;
+        }
+    }
+
+    if (capturedIndex != -1) {
+
+        let captured = celestials[capturedIndex];
+
+        sun.mass = captured.mass * massMultiplier;
+        sun.radius = captured.radius;
+        sun.isCaptured = true;
+
+        celestials.splice(capturedIndex, 1);
+    } else {
+        celestials.push(createCelestial(sun));
+    }
+
 }
 
 /**
@@ -222,12 +256,4 @@ function mousePressed() {
  */
 function canCapture(net, celestial) {
     return dist(net.pos.x, net.pos.y, celestial.pos.x, celestial.pos.y) < (net.radius + celestial.radius) / 2;
-}
-
-function captureCelestial(sun, net, celestial) {
-    let newSun;
-    if (canCapture(net, celestial) && mouseIsPressed) {
-        newSun = celestial;
-    }
-    return newSun;
 }
