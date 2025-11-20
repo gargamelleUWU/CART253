@@ -29,6 +29,7 @@ function setup() {
 function draw() {
     background(0);
 
+
     spawnCelestial(sun, celestials);
 
     updateNet(net);
@@ -65,6 +66,7 @@ function draw() {
             celestials.splice(i, 1);
         }
     }
+    drawHUD(sun, celestials, net);
 }
 
 /**
@@ -338,5 +340,46 @@ function superNova(sun, celestials) {
 function triggerSuperNova(sun, celestials) {
     if (keyIsDown(32)) {
         superNova(sun, celestials);
+    }
+}
+
+function drawHUD(sun, celestials, net) {
+    push();
+    noStroke();
+    fill(255);
+    textSize(14);
+    textFont('Helvetica', 'sans-serif');
+    textAlign(LEFT, TOP);
+
+    text("CURRENT SUN", 20, 20);
+
+    textSize(12);
+    text("Mass:     " + sun.mass.toFixed(2), 20, 40);
+    text("Radius:   " + sun.radius.toFixed(2), 20, 55);
+    pop();
+
+    for (let celestial of celestials) {
+        if (canCapture(net, celestial)) {
+            let celestialMass = celestial.mass * 10;
+            push();
+            translate(mouseX + 15, mouseY);
+
+            fill(0, 0, 0, 200);
+            stroke(255);
+            strokeWeight(1);
+            rect(0, 0, 90, 50);
+
+            noStroke();
+            fill(255);
+            textSize(12);
+            textAlign(LEFT, TOP);
+            textFont('Helvetica', 'sans-serif');
+
+            text("Mass:   " + celestialMass.toFixed(2), 5, 10);
+            text("Radius: " + celestial.radius.toFixed(2), 5, 30);
+            pop();
+
+            break;
+        }
     }
 }
