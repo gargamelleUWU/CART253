@@ -11,6 +11,10 @@ const massMultiplier = 10;
 const autoSpawnRate = 120;
 const fadeSpeed = 3;
 
+let timeScale = 1;
+let targetTimeScale = 1;
+let timeRate = 0.05;
+
 let music;
 
 let state = 'start';
@@ -44,6 +48,9 @@ function setup() {
 */
 function draw() {
     background(0);
+
+    timeDialation();
+
     drawSun(sun);
 
     if (titleAlpha > 0) {
@@ -55,12 +62,15 @@ function draw() {
             titleAlpha -= fadeSpeed;
         }
 
-        spawnCelestial(sun, celestials);
+        if (targetTimeScale === 1) {
+            spawnCelestial(sun, celestials);
+        }
 
         updateNet(net);
         updateSun(sun)
 
         triggerSuperNova(sun, celestials);
+        triggerImplosion(sun, celestials);
 
         drawNet(net);
 
@@ -278,9 +288,14 @@ function createForceVector(directionVector, magnitude) {
 function updateCelestial(celestial, force) {
     let acceleration = p5.Vector.div(force, celestial.mass);
 
+    acceleration.mult(timeScale);
+
     celestial.acc.add(acceleration);
     celestial.vel.add(celestial.acc);
-    celestial.pos.add(celestial.vel);
+
+    let scaledVelocity = p5.Vector.mult(celestial.vel, timeScale);
+
+    celestial.pos.add(scaledVelocity);
     celestial.acc.mult(0);
 }
 
@@ -290,19 +305,23 @@ function updateCelestial(celestial, force) {
 function celestialTrail(celestial) {
     celestial.trail.push(celestial.pos.copy());
 
-    if (celestial.trail.length > 60) {
+    if (celestial.trail.length > 100) {
         celestial.trail.shift();
     }
 
     push();
     noFill();
-    stroke(255, 254, 215, 80);
-    strokeWeight(celestial.mass / 5);
-    beginShape();
-    for (let v of celestial.trail) {
-        vertex(v.x, v.y);
+    strokeCap(ROUND);
+    for (let i = 0; i < celestial.trail.length - 1; i++) {
+        let posCurrent = celestial.trail[i];
+        let posNext = celestial.trail[i + 1];
+        let ratio = i / celestial.trail.length;
+        let currentThicc = ratio * (celestial.mass / 2);
+        let currentAlpha = ratio * 50;
+        strokeWeight(currentThicc);
+        stroke(255, 254, 215, currentAlpha);
+        line(posCurrent.x, posCurrent.y, posNext.x, posNext.y);
     }
-    endShape();
     pop();
 }
 
@@ -386,18 +405,27 @@ function updateSun(sun) {
 }
 
 function superNova(sun, celestials) {
-
     let blastPower = sun.mass * 0.005;
-
     for (let celestial of celestials) {
         let blastDirection = p5.Vector.sub(celestial.pos, sun.pos);
         let distance = blastDirection.mag();
         blastDirection.normalize();
-
         let minBlast = blastPower / 20;
-
         let currentBlast = map(distance, 0, 600, blastPower, minBlast);
+        currentBlast = constrain(currentBlast, minBlast, blastPower);
+        blastDirection.mult(currentBlast);
+        celestial.vel.add(blastDirection);
+    }
+}
 
+function implosion(sun, celestials) {
+    let blastPower = sun.mass * 0.005;
+    for (let celestial of celestials) {
+        let blastDirection = p5.Vector.sub(sun.pos, celestial.pos);
+        let distance = blastDirection.mag();
+        blastDirection.normalize();
+        let minBlast = blastPower / 20;
+        let currentBlast = map(distance, 0, 600, blastPower, minBlast);
         currentBlast = constrain(currentBlast, minBlast, blastPower);
         blastDirection.mult(currentBlast);
         celestial.vel.add(blastDirection);
@@ -405,8 +433,14 @@ function superNova(sun, celestials) {
 }
 
 function triggerSuperNova(sun, celestials) {
-    if (keyIsDown(32)) {
+    if (keyIsDown(81)) {
         superNova(sun, celestials);
+    }
+}
+
+function triggerImplosion(sun, celestials) {
+    if (keyIsDown(87)) {
+        implosion(sun, celestials);
     }
 }
 
@@ -473,5 +507,21 @@ function startScreen() {
         drawCelestial(dotCelestial);
 
         //Add start text
+    }
+}
+
+function keyPressed() {
+    if (key === 'e' || key === 'E') {
+        if (targetTimeScale === 1) {
+            targetTimeScale = 0;
+        } else {
+            targetTimeScale = 1;
+        }
+    }
+}
+function timeDialation() {
+    timeScale = lerp(timeScale, targetTimeScale, timeRate)
+    if (abs(timeScale - targetTimeScale) < 0.001) {
+        timeScale = targetTimeScale;
     }
 }
