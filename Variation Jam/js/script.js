@@ -36,7 +36,7 @@ function createSun() {
     let sun = {
         pos: createVector(mouseX, mouseY),
         mass: 100,
-        radius: 200,
+        radius: 100,
         thicc: 2,
     }
     return sun;
@@ -53,7 +53,7 @@ function createCelestial() {
         mass: random(1, 20),
         radius: random(10, 20),
         thicc: random(1, 5),
-        history: [],
+        trail: [],
     }
     return celestial;
 }
@@ -78,6 +78,12 @@ function drawSun(sun) {
  * 
 */
 function drawCelestial() {
+    push();
+    fill(0);
+    strokeWeight(celestial.thicc);
+    stroke("#fffeaeff");
+    circle(celestial.pos.x, celestial.pos.y, celestial.radius);
+    pop();
 
 }
 
