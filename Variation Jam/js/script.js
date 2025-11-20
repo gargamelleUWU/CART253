@@ -9,10 +9,21 @@ let gravConstant = 10;
 let spawnRange = 200;
 const massMultiplier = 10;
 const autoSpawnRate = 120;
+const fadeSpeed = 3;
+
+let music;
+
 let state = 'start';
+let titleAlpha = 255;
 
 let sun;
 let net;
+let dotCelestial;
+
+function preload() {
+    soundFormats('mp3', 'ogg');
+    music = loadSound('assets/sounds/soundtrack.mp3');
+}
 
 /**
  * Creates the canvas so that P5 can do its thing.
@@ -20,8 +31,12 @@ let net;
 function setup() {
     createCanvas(windowWidth, windowHeight);
 
+    music.setVolume(0.5);
+
     sun = createSun();
     net = createNet();
+
+    createDotCelestial();
 }
 
 /**
@@ -29,9 +44,17 @@ function setup() {
 */
 function draw() {
     background(0);
-    startScreen();
+    drawSun(sun);
 
-    if (state != 'start') {
+    if (titleAlpha > 0) {
+        startScreen();
+    }
+
+    if (state === 'play') {
+        if (titleAlpha > 0) {
+            titleAlpha -= fadeSpeed;
+        }
+
         spawnCelestial(sun, celestials);
 
         updateNet(net);
@@ -39,7 +62,6 @@ function draw() {
 
         triggerSuperNova(sun, celestials);
 
-        drawSun(sun);
         drawNet(net);
 
         for (let i = celestials.length - 1; i >= 0; i--) {
@@ -70,6 +92,23 @@ function draw() {
         }
         drawHUD(sun, celestials, net);
     }
+}
+
+function createDotCelestial() {
+    let xPos = (windowWidth / 2) + 351;
+    let yPos = (windowHeight / 2) - 45;
+
+    dotCelestial = {
+        pos: createVector(xPos, yPos),
+        vel: createVector(0, 0),
+        acc: createVector(0, 0),
+        mass: 15,
+        radius: 30,
+        thicc: 3,
+        trail: [],
+        color: "#FFFFFF",
+        offScreenTimer: 0,
+    };
 }
 
 /**
@@ -119,7 +158,7 @@ function createCelestial(sun) {
         pos: startPos,
         vel: initialVel,
         acc: createVector(0, 0),
-        mass: random(1, 20),
+        mass: random(1, 30),
         radius: random(10, 50),
         thicc: random(1, 5),
         trail: [],
@@ -258,7 +297,7 @@ function celestialTrail(celestial) {
     push();
     noFill();
     stroke(255, 254, 215, 80);
-    strokeWeight(celestial.mass / 4);
+    strokeWeight(celestial.mass / 5);
     beginShape();
     for (let v of celestial.trail) {
         vertex(v.x, v.y);
@@ -271,6 +310,31 @@ function celestialTrail(celestial) {
  * 
 */
 function mousePressed() {
+    //Start screen logic
+    if (state === 'start') {
+        state = 'play';
+
+        userStartAudio();
+        if (!music.isPlaying()) {
+            music.loop();
+        }
+
+        let toSun = p5.Vector.sub(sun.pos, dotCelestial.pos);
+
+        let rotationDirection = HALF_PI;
+        let initialVel = toSun.copy().rotate(rotationDirection);
+
+        let distance = toSun.mag();
+        let orbitalSpeed = sqrt((gravConstant * sun.mass) / distance);
+
+        initialVel.setMag(orbitalSpeed);
+        dotCelestial.vel = initialVel;
+
+        celestials.push(dotCelestial);
+
+        return;
+    }
+
     //Release Logic
     if (sun.isCaptured) {
         sun.isCaptured = false;
@@ -391,22 +455,23 @@ function massMerge(sun, celestial) {
     if (sun.isCaptured && )
 } */
 
-
 function startScreen() {
-    drawSun(sun);
+    push();
+    fill(255, 255, 255, titleAlpha);
+    textSize(150);
+    textFont('Montserrat');
+    text("RBIT", (windowWidth / 2) + 110, (windowHeight / 2) + 90);
+    pop();
+
+    push();
+    stroke(255, 255, 255, titleAlpha);
+    strokeWeight(2);
+    line(0, 600, windowWidth, 600);
+    pop();
 
     if (state === 'start') {
-        push();
-        fill(255);
-        textSize(150);
-        textFont('Montserrat');
-        text("RBIT", 1080, 550);
-        pop();
+        drawCelestial(dotCelestial);
 
-        push();
-        stroke("#FFFFFF");
-        strokeWeight(2);
-        line(0, 600, windowWidth, 600);
-        pop();
+        //Add start text
     }
 }
