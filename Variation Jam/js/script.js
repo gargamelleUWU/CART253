@@ -8,6 +8,7 @@ let celestials = [];
 let gravConstant = 100;
 let spawnRange = 200;
 const massMultiplier = 10;
+const autoSpawnRate = 120;
 
 let sun;
 let net;
@@ -28,13 +29,10 @@ function setup() {
 function draw() {
     background(0);
 
-    net.pos.x = mouseX;
-    net.pos.y = mouseY;
+    spawnCelestial(sun, celestials);
 
-    if (sun.isCaptured) {
-        sun.pos.x = mouseX;
-        sun.pos.y = mouseY;
-    }
+    updateNet(net);
+    updateSun(sun)
 
     drawNet(net);
     drawSun(sun);
@@ -146,6 +144,12 @@ function drawCelestial(celestial) {
     pop();
 }
 
+function updateNet(net) {
+    net.pos.x = mouseX;
+    net.pos.y = mouseY;
+    return net;
+}
+
 /**
  * 
 */
@@ -227,6 +231,25 @@ function celestialTrail(celestial) {
  * 
 */
 function mousePressed() {
+    //Release Logic
+    if (sun.isCaptured) {
+        let releasedCelestial = createCelestial(sun);
+
+        releasedCelestial.mass = sun.mass / massMultiplier;
+        releasedCelestial.radius = sun.radius;
+
+        celestials.push(releasedCelestial);
+
+        sun.mass = 100;
+        sun.radius = 100;
+        sun.isCaptured = false;
+
+        return;
+    }
+
+
+
+    //Capture/Spawn Logic
     let capturedIndex = -1;
 
     for (let i = 0; i < celestials.length; i++) {
@@ -237,18 +260,15 @@ function mousePressed() {
     }
 
     if (capturedIndex != -1) {
-
         let captured = celestials[capturedIndex];
 
+        sun.pos = captured.pos.copy();
         sun.mass = captured.mass * massMultiplier;
         sun.radius = captured.radius;
         sun.isCaptured = true;
 
         celestials.splice(capturedIndex, 1);
-    } else {
-        celestials.push(createCelestial(sun));
     }
-
 }
 
 /**
@@ -256,4 +276,17 @@ function mousePressed() {
  */
 function canCapture(net, celestial) {
     return dist(net.pos.x, net.pos.y, celestial.pos.x, celestial.pos.y) < (net.radius + celestial.radius) / 2;
+}
+
+function spawnCelestial(sun, celestials) {
+    if (frameCount % autoSpawnRate === 0) {
+        celestials.push(createCelestial(sun))
+    }
+}
+
+function updateSun(sun) {
+    if (sun.isCaptured) {
+        sun.pos.x = mouseX;
+        sun.pos.y = mouseY;
+    }
 }
