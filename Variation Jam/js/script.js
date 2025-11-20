@@ -311,15 +311,19 @@ function celestialTrail(celestial) {
 
     push();
     noFill();
-    strokeCap(ROUND);
+    strokeCap(SQUARE);
+
+    let trailColor = color(celestial.color);
     for (let i = 0; i < celestial.trail.length - 1; i++) {
         let posCurrent = celestial.trail[i];
         let posNext = celestial.trail[i + 1];
         let ratio = i / celestial.trail.length;
         let currentThicc = ratio * (celestial.mass / 2);
-        let currentAlpha = ratio * 50;
+        let currentAlpha = ratio * 125;
+
+        trailColor.setAlpha(currentAlpha);
         strokeWeight(currentThicc);
-        stroke(255, 254, 215, currentAlpha);
+        stroke(trailColor);
         line(posCurrent.x, posCurrent.y, posNext.x, posNext.y);
     }
     pop();
