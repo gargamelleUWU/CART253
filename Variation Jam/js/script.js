@@ -9,22 +9,25 @@ let gravConstant = 100;
 let spawnRange = 200;
 
 /**
- * 
+ * Creates the canvas so that P5 can do its thing.
 */
 function setup() {
     createCanvas(windowWidth, windowHeight);
 }
 
 /**
- * 
+ * Draw function which runs all the main functions that allows our code to work.
 */
 function draw() {
     let sun = createSun();
+    let net = createNet();
 
     background(0);
+    drawNet(net);
     drawSun(sun);
 
     for (let celestial of celestials) {
+        captureCelestial(sun, net, celestial);
         celestialTrail(celestial);
         drawCelestial(celestial);
         let dirVec = findDirectionVector(sun, celestial);
@@ -35,11 +38,23 @@ function draw() {
 }
 
 /**
+ * Creates our net object
+ */
+function createNet() {
+    net = {
+        pos: createVector(mouseX, mouseY),
+        radius: 50,
+    }
+    return net;
+}
+
+/**
  * 
 */
 function createSun() {
+
     let sun = {
-        pos: createVector(mouseX, mouseY),
+        pos: createVector(windowWidth / 2, windowHeight / 2),
         mass: 100,
         radius: 100,
         thicc: 2,
@@ -72,6 +87,16 @@ function createCelestial(sun) {
         trail: [],
     }
     return celestial;
+}
+
+function drawNet(net) {
+    push();
+    noFill();
+    strokeWeight(2);
+    stroke("#FFFFFF");
+    setLineDash([2, 10]);
+    circle(mouseX, mouseY, net.radius);
+    pop();
 }
 
 /**
@@ -189,6 +214,20 @@ function celestialTrail(celestial) {
 */
 function mousePressed() {
     let currentSun = createSun();
-
     celestials.push(createCelestial(currentSun));
+}
+
+/**
+ * checks the collision between the net and the celestial.
+ */
+function canCapture(net, celestial) {
+    return dist(net.pos.x, net.pos.y, celestial.pos.x, celestial.pos.y) < (net.radius + celestial.radius) / 2;
+}
+
+function captureCelestial(sun, net, celestial) {
+    let newSun;
+    if (canCapture(net, celestial) && mouseIsPressed) {
+        newSun = celestial;
+    }
+    return newSun;
 }
