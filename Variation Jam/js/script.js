@@ -7,7 +7,6 @@
 let celestials = [];
 let gravConstant = 10;
 let spawnRange = 200;
-let blastPower = 0.00001;
 const massMultiplier = 10;
 const autoSpawnRate = 120;
 
@@ -168,10 +167,10 @@ function drawCelestial(celestial) {
     pop();
 
     //Debug vector for celestials
-    push();
-    stroke("#FFFFFF");
-    line(celestial.pos.x, celestial.pos.y, celestial.pos.x + celestial.vel.x * 10, celestial.pos.y + celestial.vel.y * 10);
-    pop();
+    /*  push();
+     stroke("#FFFFFF");
+     line(celestial.pos.x, celestial.pos.y, celestial.pos.x + celestial.vel.x * 10, celestial.pos.y + celestial.vel.y * 10);
+     pop(); */
 }
 
 function updateNet(net) {
@@ -318,13 +317,19 @@ function updateSun(sun) {
 }
 
 function superNova(sun, celestials) {
+
+    let blastPower = sun.mass * 0.005;
+
     for (let celestial of celestials) {
         let blastDirection = p5.Vector.sub(celestial.pos, sun.pos);
         let distance = blastDirection.mag();
         blastDirection.normalize();
 
-        let currentBlast = map(distance, 0, 600, 5, 0.5);
-        currentBlast = constrain(currentBlast, 1, 20);
+        let minBlast = blastPower / 20;
+
+        let currentBlast = map(distance, 0, 600, blastPower, minBlast);
+
+        currentBlast = constrain(currentBlast, minBlast, blastPower);
         blastDirection.mult(currentBlast);
         celestial.vel.add(blastDirection);
     }
