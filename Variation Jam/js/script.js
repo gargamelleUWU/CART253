@@ -5,8 +5,9 @@
  */
 
 let celestials = [];
-let gravConstant = 100;
+let gravConstant = 10;
 let spawnRange = 200;
+let blastPower = 0.00001;
 const massMultiplier = 10;
 const autoSpawnRate = 120;
 
@@ -34,10 +35,14 @@ function draw() {
     updateNet(net);
     updateSun(sun)
 
-    drawNet(net);
-    drawSun(sun);
+    triggerSuperNova(sun, celestials);
 
-    for (let celestial of celestials) {
+    drawSun(sun);
+    drawNet(net);
+
+    for (let i = celestials.length - 1; i >= 0; i--) {
+        let celestial = celestials[i];
+
         celestialTrail(celestial);
         drawCelestial(celestial);
 
@@ -46,6 +51,20 @@ function draw() {
         let forceVec = createForceVector(dirVec.copy(), forceMag);
 
         updateCelestial(celestial, forceVec);
+
+        //Delete logic
+        let bounds = 2000;
+
+        if (celestial.pos.x < -bounds || celestial.pos.x > width + bounds ||
+            celestial.pos.y < -bounds || celestial.pos.y > height + bounds) {
+            celestial.offScreenTimer++;
+        } else {
+            celestial.offScreenTimer = 0;
+        }
+
+        if (celestial.offScreenTimer > 300) {
+            celestials.splice(i, 1);
+        }
     }
 }
 
@@ -71,6 +90,7 @@ function createSun() {
         radius: 100,
         thicc: 2,
         isCaptured: false,
+        color: "#FFFFFF",
     }
     return sun;
 }
@@ -99,6 +119,8 @@ function createCelestial(sun) {
         radius: random(10, 50),
         thicc: random(1, 5),
         trail: [],
+        color: "#fffeaeff",
+        offScreenTimer: 0,
     }
     return celestial;
 }
@@ -117,14 +139,21 @@ function drawNet(net) {
  * 
 */
 function drawSun(sun) {
-
-    push();
-    noFill();
-    strokeWeight(sun.thicc);
-    stroke("#FFFFFF");
-    setLineDash([2, 11]);
-    circle(sun.pos.x, sun.pos.y, sun.radius);
-    pop();
+    if (sun.isCaptured) {
+        push();
+        fill(0);
+        strokeWeight(sun.thicc);
+        stroke(sun.color);
+        circle(sun.pos.x, sun.pos.y, sun.radius);
+        pop();
+    } else {
+        push();
+        noFill();
+        strokeWeight(sun.thicc);
+        stroke("#FFFFFF");
+        circle(sun.pos.x, sun.pos.y, sun.radius);
+        pop();
+    }
 }
 
 /**
@@ -134,10 +163,11 @@ function drawCelestial(celestial) {
     push();
     fill(0);
     strokeWeight(celestial.thicc);
-    stroke("#fffeaeff");
+    stroke(celestial.color);
     circle(celestial.pos.x, celestial.pos.y, celestial.radius);
     pop();
 
+    //Debug vector for celestials
     push();
     stroke("#FFFFFF");
     line(celestial.pos.x, celestial.pos.y, celestial.pos.x + celestial.vel.x * 10, celestial.pos.y + celestial.vel.y * 10);
@@ -145,6 +175,12 @@ function drawCelestial(celestial) {
 }
 
 function updateNet(net) {
+    if (sun.isCaptured) {
+        net.radius = sun.radius + 10;
+    } else {
+        net.radius = 50;
+    }
+
     net.pos.x = mouseX;
     net.pos.y = mouseY;
     return net;
@@ -233,23 +269,11 @@ function celestialTrail(celestial) {
 function mousePressed() {
     //Release Logic
     if (sun.isCaptured) {
-        let releasedCelestial = createCelestial(sun);
-
-        releasedCelestial.mass = sun.mass / massMultiplier;
-        releasedCelestial.radius = sun.radius;
-
-        celestials.push(releasedCelestial);
-
-        sun.mass = 100;
-        sun.radius = 100;
         sun.isCaptured = false;
-
         return;
     }
 
-
-
-    //Capture/Spawn Logic
+    //Capture logic
     let capturedIndex = -1;
 
     for (let i = 0; i < celestials.length; i++) {
@@ -265,6 +289,8 @@ function mousePressed() {
         sun.pos = captured.pos.copy();
         sun.mass = captured.mass * massMultiplier;
         sun.radius = captured.radius;
+        sun.thicc = captured.thicc;
+        sun.color = captured.color;
         sun.isCaptured = true;
 
         celestials.splice(capturedIndex, 1);
@@ -288,5 +314,24 @@ function updateSun(sun) {
     if (sun.isCaptured) {
         sun.pos.x = mouseX;
         sun.pos.y = mouseY;
+    }
+}
+
+function superNova(sun, celestials) {
+    for (let celestial of celestials) {
+        let blastDirection = p5.Vector.sub(celestial.pos, sun.pos);
+        let distance = blastDirection.mag();
+        blastDirection.normalize();
+
+        let currentBlast = map(distance, 0, 600, 5, 0.5);
+        currentBlast = constrain(currentBlast, 1, 20);
+        blastDirection.mult(currentBlast);
+        celestial.vel.add(blastDirection);
+    }
+}
+
+function triggerSuperNova(sun, celestials) {
+    if (keyIsDown(32)) {
+        superNova(sun, celestials);
     }
 }
