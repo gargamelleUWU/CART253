@@ -38,13 +38,22 @@ function createSun() {
         mass: 100,
         radius: 200,
     }
+    return sun;
 }
 
 /**
  * 
 */
 function createCelestial() {
-
+    let celestial = {
+        pos: createVector(random(mouseX - spawnRange, mouseX + spawnRange), random(mouseY - spawnRange, mouseY + spawnRange)),
+        vel: createVector(mouseX, mouseY),
+        acc: createVectore(1, 1),
+        mass: random(1, 20),
+        radius: random(10, 20),
+        thicc: random(1, 5),
+        history: [],
+    }
 }
 
 /**
