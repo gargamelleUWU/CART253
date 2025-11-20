@@ -31,7 +31,7 @@ function preload() {
 function setup() {
     createCanvas(windowWidth, windowHeight);
 
-    music.setVolume(0.5);
+    music.setVolume(0.3);
 
     sun = createSun();
     net = createNet();
