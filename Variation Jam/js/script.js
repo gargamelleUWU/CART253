@@ -37,6 +37,7 @@ function createSun() {
         pos: createVector(mouseX, mouseY),
         mass: 100,
         radius: 200,
+        thicc: 2,
     }
     return sun;
 }
@@ -54,13 +55,23 @@ function createCelestial() {
         thicc: random(1, 5),
         history: [],
     }
+    return celestial;
 }
 
 /**
  * 
 */
-function drawSun() {
+function drawSun(sun) {
+    sun.pos.x = mouseX;
+    sun.pos.y = mouseY;
 
+    push();
+    noFill();
+    strokeWeight(sun.thicc);
+    stroke("#FFFFFF");
+    setLineDash([2, 12]);
+    circle(sun.pos.x, sun.pos.y, sun.radius);
+    pop();
 }
 
 /**
