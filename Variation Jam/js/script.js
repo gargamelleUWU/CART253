@@ -9,6 +9,7 @@ let gravConstant = 10;
 let spawnRange = 200;
 const massMultiplier = 10;
 const autoSpawnRate = 120;
+let state = 'start';
 
 let sun;
 let net;
@@ -28,45 +29,47 @@ function setup() {
 */
 function draw() {
     background(0);
+    startScreen();
 
+    if (state != 'start') {
+        spawnCelestial(sun, celestials);
 
-    spawnCelestial(sun, celestials);
+        updateNet(net);
+        updateSun(sun)
 
-    updateNet(net);
-    updateSun(sun)
+        triggerSuperNova(sun, celestials);
 
-    triggerSuperNova(sun, celestials);
+        drawSun(sun);
+        drawNet(net);
 
-    drawSun(sun);
-    drawNet(net);
+        for (let i = celestials.length - 1; i >= 0; i--) {
+            let celestial = celestials[i];
 
-    for (let i = celestials.length - 1; i >= 0; i--) {
-        let celestial = celestials[i];
+            celestialTrail(celestial);
+            drawCelestial(celestial);
 
-        celestialTrail(celestial);
-        drawCelestial(celestial);
+            let dirVec = findDirectionVector(sun, celestial);
+            let forceMag = findMagnitudeOfForce(dirVec.copy(), sun, celestial);
+            let forceVec = createForceVector(dirVec.copy(), forceMag);
 
-        let dirVec = findDirectionVector(sun, celestial);
-        let forceMag = findMagnitudeOfForce(dirVec.copy(), sun, celestial);
-        let forceVec = createForceVector(dirVec.copy(), forceMag);
+            updateCelestial(celestial, forceVec);
 
-        updateCelestial(celestial, forceVec);
+            //Delete logic
+            let bounds = 2000;
 
-        //Delete logic
-        let bounds = 2000;
+            if (celestial.pos.x < -bounds || celestial.pos.x > width + bounds ||
+                celestial.pos.y < -bounds || celestial.pos.y > height + bounds) {
+                celestial.offScreenTimer++;
+            } else {
+                celestial.offScreenTimer = 0;
+            }
 
-        if (celestial.pos.x < -bounds || celestial.pos.x > width + bounds ||
-            celestial.pos.y < -bounds || celestial.pos.y > height + bounds) {
-            celestial.offScreenTimer++;
-        } else {
-            celestial.offScreenTimer = 0;
+            if (celestial.offScreenTimer > 300) {
+                celestials.splice(i, 1);
+            }
         }
-
-        if (celestial.offScreenTimer > 300) {
-            celestials.splice(i, 1);
-        }
+        drawHUD(sun, celestials, net);
     }
-    drawHUD(sun, celestials, net);
 }
 
 /**
@@ -88,7 +91,7 @@ function createSun() {
     let sun = {
         pos: createVector(windowWidth / 2, windowHeight / 2),
         mass: 100,
-        radius: 100,
+        radius: 200,
         thicc: 2,
         isCaptured: false,
         color: "#FFFFFF",
@@ -255,7 +258,7 @@ function celestialTrail(celestial) {
     push();
     noFill();
     stroke(255, 254, 215, 80);
-    strokeWeight(2);
+    strokeWeight(celestial.mass / 4);
     beginShape();
     for (let v of celestial.trail) {
         vertex(v.x, v.y);
@@ -348,7 +351,7 @@ function drawHUD(sun, celestials, net) {
     noStroke();
     fill(255);
     textSize(14);
-    textFont('Helvetica', 'sans-serif');
+    textFont('Helvetica');
     textAlign(LEFT, TOP);
 
     text("CURRENT SUN", 20, 20);
@@ -373,7 +376,7 @@ function drawHUD(sun, celestials, net) {
             fill(255);
             textSize(12);
             textAlign(LEFT, TOP);
-            textFont('Helvetica', 'sans-serif');
+            textFont('Helvetica');
 
             text("Mass:   " + celestialMass.toFixed(2), 5, 10);
             text("Radius: " + celestial.radius.toFixed(2), 5, 30);
@@ -381,5 +384,29 @@ function drawHUD(sun, celestials, net) {
 
             break;
         }
+    }
+}
+/* 
+function massMerge(sun, celestial) {
+    if (sun.isCaptured && )
+} */
+
+
+function startScreen() {
+    drawSun(sun);
+
+    if (state === 'start') {
+        push();
+        fill(255);
+        textSize(150);
+        textFont('Montserrat');
+        text("RBIT", 1080, 550);
+        pop();
+
+        push();
+        stroke("#FFFFFF");
+        strokeWeight(2);
+        line(0, 600, windowWidth, 600);
+        pop();
     }
 }
