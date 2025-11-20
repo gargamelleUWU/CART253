@@ -84,7 +84,6 @@ function drawCelestial() {
     stroke("#fffeaeff");
     circle(celestial.pos.x, celestial.pos.y, celestial.radius);
     pop();
-
 }
 
 /**
@@ -105,21 +104,27 @@ function setLineDash(list) {
  * 
 */
 function mousePressed() {
-
+    celestials.push(createCelestial());
 }
 
 /**
- * 
+ * Finds the direction vector between the celestial and the sun.
+ * Tells us which direction the celestial is relative to the sun.
 */
 function findDirectionVector(sun, celestial) {
-
+    let r = p5.vector.sub(sun.pos, celestial.pos);
+    return r;
 }
 
 /**
- * 
+ * Using the direction vector, we find its magnitude to represent the force of attraction between the celestial and the sun.
+ * We apply newton's law of universal gravitation, F = G ((mass1 * mass2) / radius^2)
 */
-function findMagnitudeOfForce() {
-
+function findMagnitudeOfForce(directionVector, sun, celestial) {
+    let distance = directionVector.mag();
+    distance = constrain(distance, 100, 10000) //Trying to prevent the bodies from being too close to the sun.
+    let f = gravConstant * ((sun.mass * celestial.mass) / (distance * distance));
+    return f;
 }
 
 /**
