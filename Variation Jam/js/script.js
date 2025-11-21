@@ -25,8 +25,8 @@ let net;
 let dotCelestial;
 
 function preload() {
-    soundFormats('mp3', 'ogg');
-    music = loadSound('assets/sounds/soundtrack.mp3');
+    soundFormats('wav');
+    music = loadSound('assets/sounds/soundtrack.wav');
 }
 
 /**
@@ -89,7 +89,7 @@ function draw() {
             updateCelestial(celestial, forceVec);
 
             //Delete logic
-            let bounds = 2000;
+            let bounds = 1000;
 
             if (celestial.pos.x < -bounds || celestial.pos.x > width + bounds ||
                 celestial.pos.y < -bounds || celestial.pos.y > height + bounds) {
@@ -115,7 +115,8 @@ function createDotCelestial() {
         vel: createVector(0, 0),
         acc: createVector(0, 0),
         mass: 15,
-        radius: 30,
+        radius: 0,
+        finalRadius: 30,
         thicc: 3,
         trail: [],
         color: "#FFFFFF",
@@ -174,7 +175,8 @@ function createCelestial(sun) {
         vel: initialVel,
         acc: createVector(0, 0),
         mass: random(1, 30),
-        radius: random(10, 50),
+        radius: 0,
+        finalRadius: random(10, 50),
         thicc: random(1, 5),
         trail: [],
         color: random(palette),
@@ -218,6 +220,8 @@ function drawSun(sun) {
  * 
 */
 function drawCelestial(celestial) {
+    celestial.radius = lerp(celestial.radius, celestial.finalRadius, 0.1);
+
     push();
     fill(0);
     strokeWeight(celestial.thicc);
