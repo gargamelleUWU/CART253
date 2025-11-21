@@ -4,8 +4,9 @@
  * 
  */
 let celestials = [];
-//let starPouponerie = [];
 let gravConstant = 10;
+let springConstant = 0.000001;
+const drag = 1;
 let spawnRange = 200;
 const massMultiplier = 10;
 const autoSpawnRate = 120;
@@ -22,6 +23,7 @@ let filter;
 
 let state = 'start';
 let titleAlpha = 255;
+let mode = "Newtown";
 
 let sun;
 let net;
@@ -59,18 +61,15 @@ function draw() {
     drawStarBabies(starPouponerie);
  */
     timeDialation();
-
     drawSun(sun);
 
     if (titleAlpha > 0) {
         startScreen();
     }
-
     if (state === 'play') {
         if (titleAlpha > 0) {
             titleAlpha -= fadeSpeed;
         }
-
         if (targetTimeScale === 1) {
             spawnCelestial(sun, celestials);
         }
@@ -98,14 +97,12 @@ function draw() {
 
             //Delete logic
             let bounds = 1000;
-
             if (celestial.pos.x < -bounds || celestial.pos.x > width + bounds ||
                 celestial.pos.y < -bounds || celestial.pos.y > height + bounds) {
                 celestial.offScreenTimer++;
             } else {
                 celestial.offScreenTimer = 0;
             }
-
             if (celestial.offScreenTimer > 100) {
                 celestials.splice(i, 1);
             }
@@ -193,6 +190,9 @@ function createCelestial(sun) {
     return celestial;
 }
 
+/**
+ * 
+ */
 function drawNet(net) {
     push();
     noFill();
@@ -238,13 +238,15 @@ function drawCelestial(celestial) {
     pop();
 }
 
+/**
+ * 
+ */
 function updateNet(net) {
     if (sun.isCaptured) {
         net.radius = sun.radius + 10;
     } else {
         net.radius = 50;
     }
-
     net.pos.x = mouseX;
     net.pos.y = mouseY;
     return net;
@@ -280,11 +282,12 @@ function findDirectionVector(sun, celestial) {
 function findMagnitudeOfForce(directionVector, sun, celestial) {
     let f;
     let distance = directionVector.mag();
-    distance = constrain(distance, 100, 10000) //Trying to prevent the bodies from being too close to the sun.
     if (doYouBelieveInGravity === 1) {
+    distance = constrain(distance, 100, 10000) //Trying to prevent the bodies from being too close to the sun.
     f = gravConstant * ((sun.mass * celestial.mass) / (distance * distance));
     } else if (doYouBelieveInGravity === 0) {
-    f = gravConstant * ((sun.mass * celestial.mass) * distance);
+    f = springConstant * (sun.mass * celestial.mass * distance);
+    f = constrain(f, 0, 50);
     }
     return f;
 }
@@ -357,49 +360,37 @@ function mousePressed() {
         if (!music.isPlaying()) {
             music.loop();
         }
-
         let toSun = p5.Vector.sub(sun.pos, dotCelestial.pos);
-
         let rotationDirection = HALF_PI;
         let initialVel = toSun.copy().rotate(rotationDirection);
-
         let distance = toSun.mag();
         let orbitalSpeed = sqrt((gravConstant * sun.mass) / distance);
-
         initialVel.setMag(orbitalSpeed);
         dotCelestial.vel = initialVel;
-
         celestials.push(dotCelestial);
-
         return;
     }
-
     //Release Logic
     if (sun.isCaptured) {
         sun.isCaptured = false;
         return;
     }
-
     //Capture logic
     let capturedIndex = -1;
-
     for (let i = 0; i < celestials.length; i++) {
         if (canCapture(net, celestials[i])) {
             capturedIndex = i;
             break;
         }
     }
-
     if (capturedIndex != -1) {
         let captured = celestials[capturedIndex];
-
         sun.pos = captured.pos.copy();
         sun.mass = captured.mass * massMultiplier;
         sun.radius = captured.radius;
         sun.thicc = captured.thicc;
         sun.color = captured.color;
         sun.isCaptured = true;
-
         celestials.splice(capturedIndex, 1);
     }
 }
@@ -411,12 +402,18 @@ function canCapture(net, celestial) {
     return dist(net.pos.x, net.pos.y, celestial.pos.x, celestial.pos.y) < (net.radius + celestial.radius) / 2;
 }
 
+/**
+ * 
+ */
 function spawnCelestial(sun, celestials) {
     if (frameCount % autoSpawnRate === 0) {
         celestials.push(createCelestial(sun))
     }
 }
 
+/**
+ * 
+ */
 function updateSun(sun) {
     if (sun.isCaptured) {
         sun.pos.x = mouseX;
@@ -424,6 +421,9 @@ function updateSun(sun) {
     }
 }
 
+/**
+ * 
+ */
 function superNova(sun, celestials) {
     let blastPower = sun.mass * 0.005;
     for (let celestial of celestials) {
@@ -438,6 +438,9 @@ function superNova(sun, celestials) {
     }
 }
 
+/**
+ * 
+ */
 function implosion(sun, celestials) {
     let blastPower = sun.mass * 0.005;
     for (let celestial of celestials) {
@@ -452,18 +455,27 @@ function implosion(sun, celestials) {
     }
 }
 
+/**
+ * 
+ */
 function triggerSuperNova(sun, celestials) {
     if (keyIsDown(81)) {
         superNova(sun, celestials);
     }
 }
 
+/**
+ * 
+ */
 function triggerImplosion(sun, celestials) {
     if (keyIsDown(87)) {
         implosion(sun, celestials);
     }
 }
 
+/**
+ * 
+ */
 function drawHUD(sun, celestials, net) {
     push();
     noStroke();
@@ -477,10 +489,12 @@ function drawHUD(sun, celestials, net) {
     textSize(12);
     text("Mass:             " + sun.mass.toFixed(2), 20, 40);
     text("Radius:           " + sun.radius.toFixed(2), 20, 55);
-    text("____________________", 20, 60);
-    text("Press 'q' for Supernova", 20, 75);
-    text("Press 'w' for Impulse", 20, 90);
-    text("Press 'e' for Time Dilation",20, 105);
+    text("Mode:             " + mode, 20, 70);
+    text("____________________", 20, 85);
+    text("Press 'q' | Supernova", 20, 100);
+    text("Press 'w' | Impulse", 20, 115);
+    text("Press 'e' | Time Dilation",20, 130);
+    text("Press 'r' | Mode Switch", 20, 145);
     pop();
 
     for (let celestial of celestials) {
@@ -508,11 +522,10 @@ function drawHUD(sun, celestials, net) {
         }
     }
 }
-/* 
-function massMerge(sun, celestial) {
-    if (sun.isCaptured && )
-} */
 
+/**
+ * 
+ */
 function startScreen() {
     push();
     fill(255, 255, 255, titleAlpha);
@@ -529,10 +542,8 @@ function startScreen() {
     let bottomY = windowHeight - 50;
     bezier(0, startY, windowWidth * 0.3, bottomY, windowWidth * 0.7, bottomY, windowWidth, startY);
     pop();
-
     if (state === 'start') {
         drawCelestial(dotCelestial);
-
         //Add start text
     }
 }
@@ -550,12 +561,14 @@ function keyPressed() {
 
     if (key === 'r' || key === 'R') {
         if (doYouBelieveInGravity === 1) {
+            mode = "Hooke";
             doYouBelieveInGravity = 0;
         } else {
+            mode - "Newton";
             doYouBelieveInGravity = 1;
         }
+        convertVeolcities(sun, celestials);
     }
-
 }
 function timeDialation() {
     timeScale = lerp(timeScale, targetTimeScale, timeRate)
@@ -564,49 +577,48 @@ function timeDialation() {
     }
 }
 
+/**
+ * 
+ */
 function applySoundFilter(music, filter) {
     music.disconnect();
     music.connect(filter);
     filter.set(400, 4);
 }
 
+/**
+ * 
+ */
 function removeSoundFilter(music, filter) {
     music.disconnect();
     music.connect();
 }
 
+/**
+ * 
+ */
 function findForceVariety(directionVector, sun, celestial) {
     
 }
-/* 
-function drawStarBabies(stars) {
-    for (let star of stars) {
-        push();
-        noStroke();
-        fill(255, 255, 255, star.alpha);
-        circle(star.x, star.y, star.size);
-        pop();
-    }
-}
 
-function createStarBabies() {
-    let star;
-    let randomGen = random(60);
-    if (randomGen < 1) {
-        star = {
-            x: random(0, width),
-            y: random(0, height),
-            size: random(2,4),
-            alpha: random(200, 255),
-        };
-    }
-    return star;
-}
-
-function spawnStars() {
-    let newStar = createStarBabies();
-    if (newStar) {
-        starPouponerie.push(newStar);
-    }
-}
+/**
+ * 
  */
+function convertVeolcities(sun, celestials) {
+    for (let celestial of celestials) {
+        let toSun = p5.Vector.sub(sun.pos, celestial.pos);
+        let distance = toSun.mag();
+        let currentDir = celestial.vel.copy().normalize();
+        
+        let newSpeed;
+
+        if (doYouBelieveInGravity === 1) {A
+            newSpeed = sqrt((gravConstant * sun.mass) / distance);
+            
+        } else {
+            newSpeed = distance * sqrt(springConstant * sun.mass);
+        }
+        celestial.vel = currentDir.mult(newSpeed);
+        celestial.acc.mult(0); 
+    }
+}
