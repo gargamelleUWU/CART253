@@ -475,8 +475,12 @@ function drawHUD(sun, celestials, net) {
     text("CURRENT SUN", 20, 20);
 
     textSize(12);
-    text("Mass:     " + sun.mass.toFixed(2), 20, 40);
-    text("Radius:   " + sun.radius.toFixed(2), 20, 55);
+    text("Mass:             " + sun.mass.toFixed(2), 20, 40);
+    text("Radius:           " + sun.radius.toFixed(2), 20, 55);
+    text("____________________", 20, 60);
+    text("Press 'q' for Supernova", 20, 75);
+    text("Press 'w' for Impulse", 20, 90);
+    text("Press 'e' for Time Dilation",20, 105);
     pop();
 
     for (let celestial of celestials) {
@@ -518,9 +522,12 @@ function startScreen() {
     pop();
 
     push();
+    noFill();
     stroke(255, 255, 255, titleAlpha);
     strokeWeight(2);
-    line(0, 600, windowWidth, 600);
+    let startY = windowHeight / 2 + 50;
+    let bottomY = windowHeight - 50;
+    bezier(0, startY, windowWidth * 0.3, bottomY, windowWidth * 0.7, bottomY, windowWidth, startY);
     pop();
 
     if (state === 'start') {
