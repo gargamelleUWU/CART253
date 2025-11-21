@@ -14,6 +14,7 @@ const fadeSpeed = 3;    //The speed at which the title fades
 const speedReducer = 0.5;   //Rate at which speed is reduced when triggered
 
 let doYouBelieveInGravity = true;   //Toggle between Newton and Hooke gravity
+let equalizer = false;
 
 let timeScale = 1;          //The current scale of the time
 let targetTimeScale = 1;    //The opposite scale of the time
@@ -81,7 +82,7 @@ function draw() {
 
         triggerSuperNova(sun, celestials);
         triggerImplosion(sun, celestials);
-        //triggerGreatEqualizer(celestials);
+        greatEqualizer(celestials, triggerGreatEqualizer());
 
         drawNet(net);
 
@@ -262,6 +263,7 @@ function updateNet(net) {
  * 
 */
 function updateCelestial(celestial, force) {
+    if (!equalizer) {
     let acceleration = p5.Vector.div(force, celestial.mass);
 
     acceleration.mult(timeScale);
@@ -273,6 +275,7 @@ function updateCelestial(celestial, force) {
 
     celestial.pos.add(scaledVelocity);
     celestial.acc.mult(0);
+    }
 }
 
 /**
@@ -328,7 +331,9 @@ function triggerImplosion(sun, celestials) {
 
 function triggerGreatEqualizer(celestials) {
     if (keyIsDown(84)) {
-        greatEqualizer(celestials)
+        equalizer = true;
+    } else {
+        equalizer = false;
     }
 
 }
@@ -541,10 +546,10 @@ function drawHUD(sun, celestials, net) {
     text("Radius:           " + sun.radius.toFixed(2), 20, 55);
     text("Mode:             " + mode, 20, 70);
     text("____________________", 20, 85);
-    text("Press 'q' | Supernova", 20, 100);
-    text("Press 'w' | Impulse", 20, 115);
-    text("Press 'e' | Time Dilation",20, 130);
-    text("Press 'r' | Mode Switch", 20, 145);
+    text("Press 'Q' | Supernova", 20, 100);
+    text("Press 'W' | Implode", 20, 115);
+    text("Press 'E' | Dilate Time",20, 130);
+    text("Press 'R' | Mode Switch", 20, 145);
     pop();
 
     for (let celestial of celestials) {
@@ -644,8 +649,10 @@ function convertVeolcities(sun, celestials) {
     }
 }
 
-function greatEqualizer(celestials) {
+function greatEqualizer(celestials, equalizer) {
+    if (equalizer) {
     for (let celestial of celestials) {
         celestial.vel -= speedReducer;
     }
+}
 }
