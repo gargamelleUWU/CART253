@@ -11,9 +11,14 @@ let spawnRange = 200;   //How far away from the current sun Celestials can spawn
 const massMultiplier = 10;      //Multipler for the mass when a celestial becomes a sun
 const autoSpawnRate = 120;      //The rate at which celestials spawn in frames
 const fadeSpeed = 3;    //The speed at which the title fades
+let bumpPower = 2;
+let resistance = 1;
 
+let isNova = false;
+let isImplode = false;
 let doYouBelieveInGravity = true;   //Toggle between Newton and Hooke gravity
 let canSpawn = true;
+let canCollide = false;
 
 let timeScale = 1;          //The current scale of the time
 let targetTimeScale = 1;    //The opposite scale of the time
@@ -77,7 +82,10 @@ function draw() {
         noCursor();
 
         updateNet(net);
-        updateSun(sun)
+        updateSun(sun);
+
+        checkSunCollision(sun, celestials);
+        celestialCollision(celestials);
 
         triggerSuperNova(sun, celestials);
         triggerImplosion(sun, celestials);
@@ -312,7 +320,10 @@ function isInField(sun, celestial) {
  */
 function triggerSuperNova(sun, celestials) {
     if (keyIsDown(81)) {
+        isNova = true;
         superNova(sun, celestials);
+    } else {
+        isNova = false;
     }
 }
 
@@ -321,7 +332,10 @@ function triggerSuperNova(sun, celestials) {
  */
 function triggerImplosion(sun, celestials) {
     if (keyIsDown(87)) {
+        isImplode = true;
         implosion(sun, celestials);
+    } else {
+        isImplode = false;
     }
 }
 
@@ -483,6 +497,10 @@ function keyPressed() {
     if (key === 'a' || key === 'A') {
         canSpawn = !canSpawn;
     }
+
+    if (key === 's' || key === 'S') {
+        canCollide = !canCollide;
+    }
 }
 
 /**
@@ -523,6 +541,8 @@ function implosion(sun, celestials) {
  * 
  */
 function drawHUD(sun, celestials, net) {
+    let togX = 160;
+
     push();
     noStroke();
     fill(255);
@@ -539,10 +559,16 @@ function drawHUD(sun, celestials, net) {
     text("Orbiting:         " + celestials.length, 20, 85);
     text("____________________", 20, 90);
     text("Press 'Q' | Supernova", 20, 105);
+    drawActiveToggle(isNova, togX, 111);
     text("Press 'W' | Implode", 20, 120);
+    drawActiveToggle(isImplode, togX, 126);
     text("Press 'E' | Dilate Time",20, 135);
+    drawActiveToggle(targetTimeScale === 0, togX, 141);
     text("Press 'R' | Mode Switch", 20, 150);
     text("Press 'A' | Toggle Spawn", 20, 165);
+    drawActiveToggle(canSpawn, togX, 171);
+    text("Press 'S' | Collission", 20, 180);
+    drawActiveToggle(canCollide, togX, 186);
 
     pop();
 
@@ -640,5 +666,86 @@ function convertVeolcities(sun, celestials) {
         }
         celestial.vel = currentDir.mult(newSpeed);
         celestial.acc.mult(0); 
+    }
+}
+
+function drawActiveToggle(booleanGuy, x, y) {
+    if (booleanGuy) {
+        push();
+        noFill();
+        stroke(255);
+        strokeWeight(2);
+        circle(x, y, 5);
+        pop();
+    }
+}
+
+/**
+ * 
+ */
+function checkSunCollision(sun, celestials) {
+    if (targetTimeScale !== 0 || !sun.isCaptured) {
+        return;
+    }
+
+    for (let celestial of celestials) {
+        let collisionThreshold = (sun.radius / 2) + (celestial.radius / 2);
+        let currentDist = dist(sun.pos.x, sun.pos.y, celestial.pos.x, celestial.pos.y);
+
+        if (currentDist < collisionThreshold) {
+            let pushVector = p5.Vector.sub(celestial.pos, sun.pos).normalize();
+
+            celestial.vel.add(pushVector.copy().mult(bumpPower));
+
+            let overlap = collisionThreshold - currentDist;
+            let displacement = pushVector.copy().mult(overlap + 2);
+            celestial.pos.add(displacement);
+        }
+    }
+}
+
+/**
+ * 
+ */
+function celestialCollision(celestials) {
+    if (!canCollide) return;
+
+    for (let i = 0; i < celestials.length; i++) {
+        for (let j = i +1; j < celestials.length; j++) {
+            let cel1 = celestials[i];
+            let cel2 = celestials[j];
+
+            let radius1 = cel1.radius/2;
+            let radius2 = cel2.radius/2;
+
+            let distVec = p5.Vector.sub(cel1.pos, cel2.pos);
+            let distance = distVec.mag();
+            let minDist = radius1 + radius2;
+
+            if (distance < minDist) {
+                let overlap = minDist - distance;
+                let correction = distVec.copy().normalize().mult(overlap/2);
+
+                cel1.pos.add(correction);
+                cel2.pos.sub(correction);
+
+                let normal = p5.Vector.sub(cel1.pos, cel2.pos).normalize();
+                let relativeVelocity = p5.Vector.sub(cel1.vel, cel2.vel);
+                let velocityNormal = p5.Vector.dot(relativeVelocity, normal);
+
+                if (velocityNormal > 0) continue;
+
+                let impulseMult = -(1 + resistance) * velocityNormal;
+                impulseMult /= (1 / cel1.mass + 1 / cel2.mass);
+
+                let impulse = normal.mult(impulseMult);
+
+                let impulse1 = p5.Vector.div(impulse, cel1.mass);
+                let impulse2 = p5.Vector.div(impulse, cel2.mass);
+
+                cel1.vel.add(impulse1);
+                cel2.vel.sub(impulse2);
+            }
+        }
     }
 }
