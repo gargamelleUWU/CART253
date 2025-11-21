@@ -4,11 +4,14 @@
  * 
  */
 let celestials = [];
+//let starPouponerie = [];
 let gravConstant = 10;
 let spawnRange = 200;
 const massMultiplier = 10;
 const autoSpawnRate = 120;
 const fadeSpeed = 3;
+
+let doYouBelieveInGravity = 1;
 
 let timeScale = 1;
 let targetTimeScale = 1;
@@ -35,6 +38,7 @@ function preload() {
 function setup() {
     createCanvas(windowWidth, windowHeight);
 
+
     music.setVolume(0.3);
     filter = new p5.LowPass();
 
@@ -50,7 +54,10 @@ function setup() {
 function draw() {
     background(0);
     console.log(celestials);
-
+/* 
+    spawnStars();
+    drawStarBabies(starPouponerie);
+ */
     timeDialation();
 
     drawSun(sun);
@@ -67,6 +74,7 @@ function draw() {
         if (targetTimeScale === 1) {
             spawnCelestial(sun, celestials);
         }
+        noCursor();
 
         updateNet(net);
         updateSun(sun)
@@ -270,9 +278,14 @@ function findDirectionVector(sun, celestial) {
  * We apply newton's law of universal gravitation, F = G ((mass1 * mass2) / radius^2)
 */
 function findMagnitudeOfForce(directionVector, sun, celestial) {
+    let f;
     let distance = directionVector.mag();
     distance = constrain(distance, 100, 10000) //Trying to prevent the bodies from being too close to the sun.
-    let f = gravConstant * ((sun.mass * celestial.mass) / (distance * distance));
+    if (doYouBelieveInGravity === 1) {
+    f = gravConstant * ((sun.mass * celestial.mass) / (distance * distance));
+    } else if (doYouBelieveInGravity === 0) {
+    f = gravConstant * ((sun.mass * celestial.mass) * distance);
+    }
     return f;
 }
 
@@ -484,7 +497,7 @@ function drawHUD(sun, celestials, net) {
             textFont('Helvetica');
 
             text("Mass:   " + celestialMass.toFixed(2), 5, 10);
-            text("Radius: " + celestial.radius.toFixed(2), 5, 30);
+            text("Speed:  " + celestial.vel.mag().toFixed(2), 5, 30);
             pop();
 
             break;
@@ -528,6 +541,14 @@ function keyPressed() {
         }
     }
 
+    if (key === 'r' || key === 'R') {
+        if (doYouBelieveInGravity === 1) {
+            doYouBelieveInGravity = 0;
+        } else {
+            doYouBelieveInGravity = 1;
+        }
+    }
+
 }
 function timeDialation() {
     timeScale = lerp(timeScale, targetTimeScale, timeRate)
@@ -546,3 +567,39 @@ function removeSoundFilter(music, filter) {
     music.disconnect();
     music.connect();
 }
+
+function findForceVariety(directionVector, sun, celestial) {
+    
+}
+/* 
+function drawStarBabies(stars) {
+    for (let star of stars) {
+        push();
+        noStroke();
+        fill(255, 255, 255, star.alpha);
+        circle(star.x, star.y, star.size);
+        pop();
+    }
+}
+
+function createStarBabies() {
+    let star;
+    let randomGen = random(60);
+    if (randomGen < 1) {
+        star = {
+            x: random(0, width),
+            y: random(0, height),
+            size: random(2,4),
+            alpha: random(200, 255),
+        };
+    }
+    return star;
+}
+
+function spawnStars() {
+    let newStar = createStarBabies();
+    if (newStar) {
+        starPouponerie.push(newStar);
+    }
+}
+ */
