@@ -11,6 +11,7 @@ let spawnRange = 200;   //How far away from the current sun Celestials can spawn
 const massMultiplier = 10;      //Multipler for the mass when a celestial becomes a sun
 const autoSpawnRate = 120;      //The rate at which celestials spawn in frames
 const fadeSpeed = 3;    //The speed at which the title fades
+const speedReducer = 0.5;   //Rate at which speed is reduced when triggered
 
 let doYouBelieveInGravity = true;   //Toggle between Newton and Hooke gravity
 
@@ -23,7 +24,7 @@ let filter;
 
 let state = 'start';
 let titleAlpha = 255;
-let mode = "Newtown";
+let mode = "Newton";
 
 let sun;
 let net;
@@ -80,6 +81,7 @@ function draw() {
 
         triggerSuperNova(sun, celestials);
         triggerImplosion(sun, celestials);
+        //triggerGreatEqualizer(celestials);
 
         drawNet(net);
 
@@ -324,6 +326,13 @@ function triggerImplosion(sun, celestials) {
     }
 }
 
+function triggerGreatEqualizer(celestials) {
+    if (keyIsDown(84)) {
+        greatEqualizer(celestials)
+    }
+
+}
+
 /**
  * 
 */
@@ -373,7 +382,7 @@ function calculateOrbitalSpeed(distance) {
     if (doYouBelieveInGravity === true) {
         return sqrt((gravConstant * sun.mass) / distance); 
     } else {
-        return sqrt((springConstant * sun.mass) * distance);
+        return distance * sqrt((springConstant * sun.mass));
     }
 }
 
@@ -470,10 +479,10 @@ function keyPressed() {
 
     if (key === 'r' || key === 'R') {
         if (doYouBelieveInGravity === false) {
-            mode = "Hooke";
+            mode = "Newton";
             doYouBelieveInGravity = true;
         } else {
-            mode = "Newton";
+            mode = "Hooke";
             doYouBelieveInGravity = false;
         }
         convertVeolcities(sun, celestials);
@@ -632,5 +641,11 @@ function convertVeolcities(sun, celestials) {
         }
         celestial.vel = currentDir.mult(newSpeed);
         celestial.acc.mult(0); 
+    }
+}
+
+function greatEqualizer(celestials) {
+    for (let celestial of celestials) {
+        celestial.vel -= speedReducer;
     }
 }
