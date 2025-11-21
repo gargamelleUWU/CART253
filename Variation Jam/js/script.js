@@ -3,7 +3,6 @@
  * 
  * 
  */
-
 let celestials = [];
 let gravConstant = 10;
 let spawnRange = 200;
@@ -16,6 +15,7 @@ let targetTimeScale = 1;
 let timeRate = 0.05;
 
 let music;
+let filter;
 
 let state = 'start';
 let titleAlpha = 255;
@@ -36,6 +36,7 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
 
     music.setVolume(0.3);
+    filter = new p5.LowPass();
 
     sun = createSun();
     net = createNet();
@@ -48,6 +49,7 @@ function setup() {
 */
 function draw() {
     background(0);
+    console.log(celestials);
 
     timeDialation();
 
@@ -96,7 +98,7 @@ function draw() {
                 celestial.offScreenTimer = 0;
             }
 
-            if (celestial.offScreenTimer > 300) {
+            if (celestial.offScreenTimer > 100) {
                 celestials.splice(i, 1);
             }
         }
@@ -143,7 +145,7 @@ function createSun() {
         radius: 200,
         thicc: 2,
         isCaptured: false,
-        color: "#FFFFFF",
+        color: "#ffd7d7ff",
     }
     return sun;
 }
@@ -152,6 +154,9 @@ function createSun() {
  * 
 */
 function createCelestial(sun) {
+    let palette = ['#f3c257ff', '#f8cf81ff', "#ffe77eff", '#ffe388ff', '#fffeaeff'];
+    //['#ffb7b7ff', '#b0efffff', "#f0c1ffff", '#a7ffaeff', '#fffeaeff']
+
     let startPos = createVector(
         random((sun.pos.x - sun.radius) - spawnRange, (sun.pos.x + sun.radius) + spawnRange),
         random((sun.pos.y - sun.radius) - spawnRange, (sun.pos.y + sun.radius) + spawnRange));
@@ -172,7 +177,7 @@ function createCelestial(sun) {
         radius: random(10, 50),
         thicc: random(1, 5),
         trail: [],
-        color: "#fffeaeff",
+        color: random(palette),
         offScreenTimer: 0,
     }
     return celestial;
@@ -219,12 +224,6 @@ function drawCelestial(celestial) {
     stroke(celestial.color);
     circle(celestial.pos.x, celestial.pos.y, celestial.radius);
     pop();
-
-    //Debug vector for celestials
-    /*  push();
-     stroke("#FFFFFF");
-     line(celestial.pos.x, celestial.pos.y, celestial.pos.x + celestial.vel.x * 10, celestial.pos.y + celestial.vel.y * 10);
-     pop(); */
 }
 
 function updateNet(net) {
@@ -517,15 +516,29 @@ function startScreen() {
 function keyPressed() {
     if (key === 'e' || key === 'E') {
         if (targetTimeScale === 1) {
+            applySoundFilter(music, filter);
             targetTimeScale = 0;
         } else {
             targetTimeScale = 1;
+            removeSoundFilter(music, filter);
         }
     }
+
 }
 function timeDialation() {
     timeScale = lerp(timeScale, targetTimeScale, timeRate)
     if (abs(timeScale - targetTimeScale) < 0.001) {
         timeScale = targetTimeScale;
     }
+}
+
+function applySoundFilter(music, filter) {
+    music.disconnect();
+    music.connect(filter);
+    filter.set(400, 4);
+}
+
+function removeSoundFilter(music, filter) {
+    music.disconnect();
+    music.connect();
 }
