@@ -11,10 +11,9 @@ let spawnRange = 200;   //How far away from the current sun Celestials can spawn
 const massMultiplier = 10;      //Multipler for the mass when a celestial becomes a sun
 const autoSpawnRate = 120;      //The rate at which celestials spawn in frames
 const fadeSpeed = 3;    //The speed at which the title fades
-const speedReducer = 0.5;   //Rate at which speed is reduced when triggered
 
 let doYouBelieveInGravity = true;   //Toggle between Newton and Hooke gravity
-let equalizer = false;
+let canSpawn = true;
 
 let timeScale = 1;          //The current scale of the time
 let targetTimeScale = 1;    //The opposite scale of the time
@@ -72,7 +71,7 @@ function draw() {
         if (titleAlpha > 0) {
             titleAlpha -= fadeSpeed;
         }
-        if (targetTimeScale === 1) {
+        if (targetTimeScale === 1 && canSpawn) {
             spawnCelestial(sun, celestials);
         }
         noCursor();
@@ -82,7 +81,6 @@ function draw() {
 
         triggerSuperNova(sun, celestials);
         triggerImplosion(sun, celestials);
-        greatEqualizer(celestials, triggerGreatEqualizer());
 
         drawNet(net);
 
@@ -263,7 +261,6 @@ function updateNet(net) {
  * 
 */
 function updateCelestial(celestial, force) {
-    if (!equalizer) {
     let acceleration = p5.Vector.div(force, celestial.mass);
 
     acceleration.mult(timeScale);
@@ -275,7 +272,6 @@ function updateCelestial(celestial, force) {
 
     celestial.pos.add(scaledVelocity);
     celestial.acc.mult(0);
-    }
 }
 
 /**
@@ -327,15 +323,6 @@ function triggerImplosion(sun, celestials) {
     if (keyIsDown(87)) {
         implosion(sun, celestials);
     }
-}
-
-function triggerGreatEqualizer(celestials) {
-    if (keyIsDown(84)) {
-        equalizer = true;
-    } else {
-        equalizer = false;
-    }
-
 }
 
 /**
@@ -492,6 +479,10 @@ function keyPressed() {
         }
         convertVeolcities(sun, celestials);
     }
+
+    if (key === 'a' || key === 'A') {
+        canSpawn = !canSpawn;
+    }
 }
 
 /**
@@ -545,11 +536,14 @@ function drawHUD(sun, celestials, net) {
     text("Mass:             " + sun.mass.toFixed(2), 20, 40);
     text("Radius:           " + sun.radius.toFixed(2), 20, 55);
     text("Mode:             " + mode, 20, 70);
-    text("____________________", 20, 85);
-    text("Press 'Q' | Supernova", 20, 100);
-    text("Press 'W' | Implode", 20, 115);
-    text("Press 'E' | Dilate Time",20, 130);
-    text("Press 'R' | Mode Switch", 20, 145);
+    text("Orbiting:         " + celestials.length, 20, 85);
+    text("____________________", 20, 90);
+    text("Press 'Q' | Supernova", 20, 105);
+    text("Press 'W' | Implode", 20, 120);
+    text("Press 'E' | Dilate Time",20, 135);
+    text("Press 'R' | Mode Switch", 20, 150);
+    text("Press 'A' | Toggle Spawn", 20, 165);
+
     pop();
 
     for (let celestial of celestials) {
@@ -647,12 +641,4 @@ function convertVeolcities(sun, celestials) {
         celestial.vel = currentDir.mult(newSpeed);
         celestial.acc.mult(0); 
     }
-}
-
-function greatEqualizer(celestials, equalizer) {
-    if (equalizer) {
-    for (let celestial of celestials) {
-        celestial.vel -= speedReducer;
-    }
-}
 }
