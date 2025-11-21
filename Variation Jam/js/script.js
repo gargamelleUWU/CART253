@@ -19,6 +19,7 @@ let isImplode = false;
 let doYouBelieveInGravity = true;   //Toggle between Newton and Hooke gravity
 let canSpawn = true;
 let canCollide = false;
+let interGravity = false
 
 let timeScale = 1;          //The current scale of the time
 let targetTimeScale = 1;    //The opposite scale of the time
@@ -86,6 +87,7 @@ function draw() {
 
         checkSunCollision(sun, celestials);
         celestialCollision(celestials);
+        applyInterplanetaryGravity(celestials);
 
         triggerSuperNova(sun, celestials);
         triggerImplosion(sun, celestials);
@@ -501,6 +503,10 @@ function keyPressed() {
     if (key === 's' || key === 'S') {
         canCollide = !canCollide;
     }
+
+    if (key === 'd' || key === 'D') {
+        interGravity = !interGravity;
+    }
 }
 
 /**
@@ -567,8 +573,10 @@ function drawHUD(sun, celestials, net) {
     text("Press 'R' | Mode Switch", 20, 150);
     text("Press 'A' | Toggle Spawn", 20, 165);
     drawActiveToggle(canSpawn, togX, 171);
-    text("Press 'S' | Collission", 20, 180);
+    text("Press 'S' | Collision", 20, 180);
     drawActiveToggle(canCollide, togX, 186);
+    text("Press 'D' | Multi Grav", 20, 195);
+    drawActiveToggle(interGravity, togX, 201);
 
     pop();
 
@@ -746,6 +754,27 @@ function celestialCollision(celestials) {
                 cel1.vel.add(impulse1);
                 cel2.vel.sub(impulse2);
             }
+        }
+    }
+}
+
+function applyInterplanetaryGravity(celestials) {
+    if (!interGravity) return;
+
+    for (let i = 0; i < celestials.length; i++) {
+        for (let j = i + 1; j < celestials.length; j++) {
+            let cel1 = celestials[i];
+            let cel2 = celestials[j];
+
+            let dir = p5.Vector.sub(cel2.pos, cel1.pos);
+            let distance = dir.mag();
+            distance = constrain(distance, 20, 1000);
+            let forceMag = (gravConstant) * ((cel1.mass * cel2.mass) / (distance * distance));
+            let forceVec = dir.normalize().mult(forceMag);
+            let acc1 = p5.Vector.div(forceVec, cel1.mass);
+            cel1.acc.add(acc1);
+            let acc2 = p5.Vector.div(forceVec, cel2.mass).mult(-1);
+            cel2.acc.add(acc2);
         }
     }
 }
