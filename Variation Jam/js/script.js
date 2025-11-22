@@ -4,9 +4,10 @@
  * 
  */
 let celestials = [];    //Array Which holds all our celestials
+let starArray = [];
 let gravConstant = 10;  //The constant force of Newtonian gravity
 let springConstant = 0.000001;  //The spring force of Hooke gravity
-const drag = 1;         //The air resistance in Hook gravity
+let drag = 1;           //The air resistance in Hook gravity
 let spawnRange = 200;   //How far away from the current sun Celestials can spawn
 const massMultiplier = 10;      //Multipler for the mass when a celestial becomes a sun
 const autoSpawnRate = 120;      //The rate at which celestials spawn in frames
@@ -19,8 +20,8 @@ let isImplode = false;
 let doYouBelieveInGravity = true;   //Toggle between Newton and Hooke gravity
 let canSpawn = true;
 let canCollide = false;
-let interGravity = false
-
+let interGravity = false;
+let menuOpen = false;
 let timeScale = 1;          //The current scale of the time
 let targetTimeScale = 1;    //The opposite scale of the time
 let timeRate = 0.05;        //The rate at which time speeds up and slows down
@@ -52,6 +53,7 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     music.setVolume(0.3);
     filter = new p5.LowPass();
+    starArray = createStarBabies(55);
     sun = createSun();
     net = createNet();
     createDotCelestial();
@@ -62,11 +64,8 @@ function setup() {
 */
 function draw() {
     background(0);
-    console.log(celestials);
-/* 
-    spawnStars();
-    drawStarBabies(starPouponerie);
- */
+    drawStarBabies(starArray);
+
     timeDialation();
     drawSun(sun);
 
@@ -177,6 +176,7 @@ function createSun() {
 function createCelestial(sun) {
     let palette = ['#f3c257ff', '#f8cf81ff', "#ffe77eff", '#ffe388ff', '#fffeaeff'];
     //['#ffb7b7ff', '#b0efffff', "#f0c1ffff", '#a7ffaeff', '#fffeaeff']
+    //'#f3c257ff', '#f8cf81ff', "#ffe77eff", '#ffe388ff', '#fffeaeff'
 
     let startPos = createVector(    //Spawns the celestial relatively to our current sun
         random((sun.pos.x - sun.radius) - spawnRange, (sun.pos.x + sun.radius) + spawnRange),
@@ -231,7 +231,7 @@ function drawSun(sun) {
         pop();
     } else {
         push();
-        noFill();
+        fill(0);
         strokeWeight(sun.thicc);
         stroke("#FFFFFF");
         circle(sun.pos.x, sun.pos.y, sun.radius);
@@ -555,9 +555,7 @@ function drawHUD(sun, celestials, net) {
     textSize(14);
     textFont('Helvetica');
     textAlign(LEFT, TOP);
-
     text("CURRENT SUN", 20, 20);
-
     textSize(12);
     text("Mass:             " + sun.mass.toFixed(2), 20, 40);
     text("Radius:           " + sun.radius.toFixed(2), 20, 55);
@@ -577,7 +575,6 @@ function drawHUD(sun, celestials, net) {
     drawActiveToggle(canCollide, togX, 186);
     text("Press 'D' | Multi Grav", 20, 195);
     drawActiveToggle(interGravity, togX, 201);
-
     pop();
 
     for (let celestial of celestials) {
@@ -585,22 +582,18 @@ function drawHUD(sun, celestials, net) {
             let celestialMass = celestial.mass * 10;
             push();
             translate(mouseX + 15, mouseY);
-
             fill(0, 0, 0, 200);
             stroke(255);
             strokeWeight(1);
             rect(0, 0, 90, 50);
-
             noStroke();
             fill(255);
             textSize(12);
             textAlign(LEFT, TOP);
             textFont('Helvetica');
-
             text("Mass:   " + celestialMass.toFixed(2), 5, 10);
             text("Speed:  " + celestial.vel.mag().toFixed(2), 5, 30);
             pop();
-
             break;
         }
     }
@@ -631,6 +624,9 @@ function startScreen() {
     }
 }
 
+/**
+ * 
+ */
 function timeDialation() {
     timeScale = lerp(timeScale, targetTimeScale, timeRate)
     if (abs(timeScale - targetTimeScale) < 0.001) {
@@ -677,6 +673,9 @@ function convertVeolcities(sun, celestials) {
     }
 }
 
+/**
+ * 
+ */
 function drawActiveToggle(booleanGuy, x, y) {
     if (booleanGuy) {
         push();
@@ -758,6 +757,9 @@ function celestialCollision(celestials) {
     }
 }
 
+/**
+ * 
+ */
 function applyInterplanetaryGravity(celestials) {
     if (!interGravity) return;
 
@@ -778,3 +780,45 @@ function applyInterplanetaryGravity(celestials) {
         }
     }
 }
+
+function createStarBabies(numberStars) {
+    let stars = [];
+
+    for (i = 0; i < numberStars; i++) {
+    let starBaby = {
+        x: random(10, windowWidth - 10),
+        y: random(10, windowHeight - 10),
+        radius: random(2,5),
+        startBright: random(10, 255),
+        minBright: random(0,25),
+        maxBright: random(150,255),
+        fadeRate: random(0.1, 1),
+        fadeDirection: random() > 0.5,
+    };
+    stars.push(starBaby);
+}
+return stars;
+}
+
+function drawStarBabies(stars) {
+    for (let star of stars) {
+        push();
+        noStroke();
+        fill(255, 255, 255, star.startBright);
+        circle(star.x, star.y, star.radius);
+        pop();
+    }
+}
+
+/* function updateStarBabies(stars) {
+    for (let star of stars) {
+        if (star.fadeDirection
+    }
+}
+ */
+
+//Destroy Mechanic
+//Frame by Frame
+//Heat mechanic
+//Star Babies
+
