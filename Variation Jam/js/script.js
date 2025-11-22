@@ -14,6 +14,7 @@ const fadeSpeed = 3;    //The speed at which the title fades
 let bumpPower = 2;
 let resistance = 1;
 let numberStars = 70;
+let dissolveRate = 2;
 
 let isNova = false;
 let isImplode = false;
@@ -21,7 +22,7 @@ let doYouBelieveInGravity = true;   //Toggle between Newton and Hooke gravity
 let canSpawn = true;
 let canCollide = false;
 let interGravity = false;
-let menuOpen = false;
+let isDissolving = false;
 let timeScale = 1;          //The current scale of the time
 let targetTimeScale = 1;    //The opposite scale of the time
 let timeRate = 0.05;        //The rate at which time speeds up and slows down
@@ -51,6 +52,10 @@ function preload() {
 */
 function setup() {
     createCanvas(windowWidth, windowHeight);
+    document.oncontextmenu = function () {
+        return false;
+    }
+
     music.setVolume(0.3);
     filter = new p5.LowPass();
 
@@ -95,6 +100,7 @@ function draw() {
         checkSunCollision(sun, celestials);
         celestialCollision(celestials);
         applyInterplanetaryGravity(celestials);
+        dissolveCelstial(celestials);
 
         triggerSuperNova(sun, celestials);
         triggerImplosion(sun, celestials);
@@ -126,6 +132,7 @@ function draw() {
             if (celestial.offScreenTimer > 100) {
                 celestials.splice(i, 1);
             }
+            console.log(celestial.radius);
         }
         drawHUD(sun, celestials, net);
     }
@@ -372,7 +379,7 @@ function findDirectionVector(sun, celestial) {
 function findMagnitudeOfForce(directionVector, sun, celestial) {
     let f;
     let distance = directionVector.mag();
-    
+
     if (doYouBelieveInGravity === true) {
         distance = constrain(distance, 100, 10000) //Trying to prevent the bodies from being too close to the sun.
         f = gravConstant * ((sun.mass * celestial.mass) / (distance * distance));
@@ -396,7 +403,7 @@ function createForceVector(directionVector, magnitude) {
  */
 function calculateOrbitalSpeed(distance) {
     if (doYouBelieveInGravity === true) {
-        return sqrt((gravConstant * sun.mass) / distance); 
+        return sqrt((gravConstant * sun.mass) / distance);
     } else {
         return distance * sqrt((springConstant * sun.mass));
     }
@@ -415,16 +422,20 @@ function celestialTrail(celestial) {
     push();
     noFill();
 
-    strokeCap(ROUND);
-    stroke(celestial.color);
-    strokeWeight(celestial.thicc / 2);
-    beginShape();
-    for (let i = 0; i < celestial.trail.length; i++) {
-        let pos = celestial.trail[i];
-        vertex(pos.x, pos.y);
-    }
-  /*  strokeCap(SQUARE);
-       let trailColor = color(celestial.color);
+    /* 
+        strokeCap(ROUND);
+        stroke(celestial.color);
+        strokeWeight(celestial.thicc);
+        beginShape();
+        for (let i = 0; i < celestial.trail.length; i++) {
+            let pos = celestial.trail[i];
+            vertex(pos.x, pos.y);
+        }
+        endShape();
+     */
+
+    strokeCap(SQUARE);
+    let trailColor = color(celestial.color);
     for (let i = 0; i < celestial.trail.length - 1; i++) {
         let posCurrent = celestial.trail[i];
         let posNext = celestial.trail[i + 1];
@@ -436,9 +447,7 @@ function celestialTrail(celestial) {
         strokeWeight(currentThicc);
         stroke(trailColor);
         line(posCurrent.x, posCurrent.y, posNext.x, posNext.y);
-    } */
-    endShape();
-
+    }
     pop();
 }
 
@@ -446,46 +455,48 @@ function celestialTrail(celestial) {
  * 
 */
 function mousePressed() {
-    //Start screen logic
-    if (state === 'start') {
-        state = 'play';
+    if (mouseButton === LEFT) {
+        //Start screen logic
+        if (state === 'start') {
+            state = 'play';
 
-        userStartAudio();
-        if (!music.isPlaying()) {
-            music.loop();
+            userStartAudio();
+            if (!music.isPlaying()) {
+                music.loop();
+            }
+            let toSun = p5.Vector.sub(sun.pos, dotCelestial.pos);
+            let rotationDirection = HALF_PI;
+            let initialVel = toSun.copy().rotate(rotationDirection);
+            let distance = toSun.mag();
+            let orbitalSpeed = sqrt((gravConstant * sun.mass) / distance);
+            initialVel.setMag(orbitalSpeed);
+            dotCelestial.vel = initialVel;
+            celestials.push(dotCelestial);
+            return;
         }
-        let toSun = p5.Vector.sub(sun.pos, dotCelestial.pos);
-        let rotationDirection = HALF_PI;
-        let initialVel = toSun.copy().rotate(rotationDirection);
-        let distance = toSun.mag();
-        let orbitalSpeed = sqrt((gravConstant * sun.mass) / distance);
-        initialVel.setMag(orbitalSpeed);
-        dotCelestial.vel = initialVel;
-        celestials.push(dotCelestial);
-        return;
-    }
-    //Release Logic
-    if (sun.isCaptured) {
-        sun.isCaptured = false;
-        return;
-    }
-    //Capture logic
-    let capturedIndex = -1;
-    for (let i = 0; i < celestials.length; i++) {
-        if (canCapture(net, celestials[i])) {
-            capturedIndex = i;
-            break;
+        //Release Logic
+        if (sun.isCaptured) {
+            sun.isCaptured = false;
+            return;
         }
-    }
-    if (capturedIndex != -1) {
-        let captured = celestials[capturedIndex];
-        sun.pos = captured.pos.copy();
-        sun.mass = captured.mass * massMultiplier;
-        sun.radius = captured.radius;
-        sun.thicc = captured.thicc;
-        sun.color = captured.color;
-        sun.isCaptured = true;
-        celestials.splice(capturedIndex, 1);
+        //Capture logic
+        let capturedIndex = -1;
+        for (let i = 0; i < celestials.length; i++) {
+            if (canCapture(net, celestials[i])) {
+                capturedIndex = i;
+                break;
+            }
+        }
+        if (capturedIndex != -1) {
+            let captured = celestials[capturedIndex];
+            sun.pos = captured.pos.copy();
+            sun.mass = captured.mass * massMultiplier;
+            sun.radius = captured.radius;
+            sun.thicc = captured.thicc;
+            sun.color = captured.color;
+            sun.isCaptured = true;
+            celestials.splice(capturedIndex, 1);
+        }
     }
 }
 
@@ -524,6 +535,10 @@ function keyPressed() {
 
     if (key === 'd' || key === 'D') {
         interGravity = !interGravity;
+    }
+
+    if (key === 'z' || key === 'Z') {
+        isDissolving = true;
     }
 }
 
@@ -584,7 +599,7 @@ function drawHUD(sun, celestials, net) {
     drawActiveToggle(isNova, togX, 111);
     text("Press 'W' | Implode", 20, 120);
     drawActiveToggle(isImplode, togX, 126);
-    text("Press 'E' | Dilate Time",20, 135);
+    text("Press 'E' | Dilate Time", 20, 135);
     drawActiveToggle(targetTimeScale === 0, togX, 141);
     text("Press 'R' | Mode Switch", 20, 150);
     text("Press 'A' | Toggle Spawn", 20, 165);
@@ -593,6 +608,8 @@ function drawHUD(sun, celestials, net) {
     drawActiveToggle(canCollide, togX, 186);
     text("Press 'D' | Multi Grav", 20, 195);
     drawActiveToggle(interGravity, togX, 201);
+    text("Press 'Z' | Dissolve All", 20, 210);
+    drawActiveToggle(isDissolving, togX, 216);
     pop();
 
     for (let celestial of celestials) {
@@ -676,17 +693,18 @@ function convertVeolcities(sun, celestials) {
         let toSun = p5.Vector.sub(sun.pos, celestial.pos);
         let distance = toSun.mag();
         let currentDir = celestial.vel.copy().normalize();
-        
+
         let newSpeed;
 
-        if (doYouBelieveInGravity === true) {A
+        if (doYouBelieveInGravity === true) {
+            A
             newSpeed = sqrt((gravConstant * sun.mass) / distance);
-            
+
         } else {
             newSpeed = distance * sqrt(springConstant * sun.mass);
         }
         celestial.vel = currentDir.mult(newSpeed);
-        celestial.acc.mult(0); 
+        celestial.acc.mult(0);
     }
 }
 
@@ -735,12 +753,12 @@ function celestialCollision(celestials) {
     if (!canCollide) return;
 
     for (let i = 0; i < celestials.length; i++) {
-        for (let j = i +1; j < celestials.length; j++) {
+        for (let j = i + 1; j < celestials.length; j++) {
             let cel1 = celestials[i];
             let cel2 = celestials[j];
 
-            let radius1 = cel1.radius/2;
-            let radius2 = cel2.radius/2;
+            let radius1 = cel1.radius / 2;
+            let radius2 = cel2.radius / 2;
 
             let distVec = p5.Vector.sub(cel1.pos, cel2.pos);
             let distance = distVec.mag();
@@ -748,7 +766,7 @@ function celestialCollision(celestials) {
 
             if (distance < minDist) {
                 let overlap = minDist - distance;
-                let correction = distVec.copy().normalize().mult(overlap/2);
+                let correction = distVec.copy().normalize().mult(overlap / 2);
 
                 cel1.pos.add(correction);
                 cel2.pos.sub(correction);
@@ -802,38 +820,55 @@ function createStarBabies(numberStars) {
     let stars = [];
 
     for (i = 0; i < numberStars; i++) {
-    let starBaby = {
-        x: random(5, windowWidth - 5),
-        y: random(5, windowHeight - 5),
-        radius: random(2,5),
-        startBright: random(10, 255),
-        minBright: random(0,25),
-        maxBright: random(150,255),
-        fadeRate: random(0.01, 0.1),
-    };
-    stars.push(starBaby);
-}
-return stars;
+        let starBaby = {
+            x: random(5, windowWidth - 5),
+            y: random(5, windowHeight - 5),
+            radius: random(2, 5),
+            startBright: random(10, 255),
+            minBright: random(0, 25),
+            maxBright: random(150, 255),
+            fadeRate: random(0.01, 0.1),
+        };
+        stars.push(starBaby);
+    }
+    return stars;
 }
 
 function drawStarBabies(stars) {
-        push();
-        noStroke();
+    push();
+    noStroke();
     for (let star of stars) {
         fill(255, 255, 255, star.startBright);
         circle(star.x, star.y, star.radius);
     }
-        pop();
+    pop();
 }
 
+//
 function updateStarBabies(stars) {
     for (let star of stars) {
         star.x += star.fadeRate;
-           if (star.x >= windowWidth) {
-        star.x = 0;
+        if (star.x >= windowWidth) {
+            star.x = 0;
         }
     }
 
+}
+
+function dissolveCelstial(celestials) {
+    if (!isDissolving) return;
+    canSpawn = false;
+    for (let i = celestials.length - 1; i >= 0; i--) {
+        let celestial = celestials[i];
+        celestial.finalRadius -= dissolveRate;
+        if (celestial.finalRadius <= 0) {
+            celestials.splice(i, 1);
+        }
+    }
+    if (celestials.length === 0) {
+        isDissolving = false;
+        canSpawn = true;
+    }
 }
 
 
