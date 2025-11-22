@@ -101,6 +101,7 @@ function draw() {
         celestialCollision(celestials);
         applyInterplanetaryGravity(celestials);
         dissolveCelstial(celestials);
+        handleFusion(celestials);
 
         triggerSuperNova(sun, celestials);
         triggerImplosion(sun, celestials);
@@ -132,7 +133,6 @@ function draw() {
             if (celestial.offScreenTimer > 100) {
                 celestials.splice(i, 1);
             }
-            console.log(celestial.radius);
         }
         drawHUD(sun, celestials, net);
     }
@@ -216,6 +216,8 @@ function createCelestial(sun) {
         trail: [],
         color: random(palette),
         offScreenTimer: 0,
+        isMagnetized: false,
+        magnetTarget: null,
     }
     return celestial;
 }
@@ -498,6 +500,33 @@ function mousePressed() {
             celestials.splice(capturedIndex, 1);
         }
     }
+
+    if (mouseButton === RIGHT) {
+        let clickedCelestial = null;
+
+        for (let celestial of celestials) {
+            if (dist(mouseX, mouseY, celestial.pos.x, celestial.pos.y) < celestial.radius + 10) {
+                clickedCelestial = celestial;
+                break;
+            }
+        }
+        if (clickedCelestial) {
+            let alreadySelected = celestials.find(celestial => celestial.isSelected === true);
+
+            if (!alreadySelected) {
+                clickedCelestial.isSelected = true;
+            } else if (alreadySelected !== clickedCelestial) {
+                alreadySelected.isSelected = false;
+                alreadySelected.isMagnetized = true;
+                alreadySelected.magnetTarget = clickedCelestial;
+                clickedCelestial.isMagnetized = true;
+                clickedCelestial.magnetTarget = alreadySelected;
+            }
+        } else {
+            for (let celestial of celestials) calculateOrbitalSpeed.isSelected = false;
+        }
+        return;
+    }
 }
 
 /**
@@ -612,24 +641,26 @@ function drawHUD(sun, celestials, net) {
     drawActiveToggle(isDissolving, togX, 216);
     pop();
 
-    for (let celestial of celestials) {
-        if (canCapture(net, celestial)) {
-            let celestialMass = celestial.mass * 10;
-            push();
-            translate(mouseX + 15, mouseY);
-            fill(0, 0, 0, 200);
-            stroke(255);
-            strokeWeight(1);
-            rect(0, 0, 90, 50);
-            noStroke();
-            fill(255);
-            textSize(12);
-            textAlign(LEFT, TOP);
-            textFont('Helvetica');
-            text("Mass:   " + celestialMass.toFixed(2), 5, 10);
-            text("Speed:  " + celestial.vel.mag().toFixed(2), 5, 30);
-            pop();
-            break;
+    if (!sun.isCaptured) {
+        for (let celestial of celestials) {
+            if (canCapture(net, celestial)) {
+                let celestialMass = celestial.mass * 10;
+                push();
+                translate(mouseX + 15, mouseY);
+                fill(0, 0, 0, 200);
+                stroke(255);
+                strokeWeight(1);
+                rect(0, 0, 90, 50);
+                noStroke();
+                fill(255);
+                textSize(12);
+                textAlign(LEFT, TOP);
+                textFont('Helvetica');
+                text("Mass:   " + celestialMass.toFixed(2), 5, 10);
+                text("Speed:  " + celestial.vel.mag().toFixed(2), 5, 30);
+                pop();
+                break;
+            }
         }
     }
 }
@@ -871,6 +902,50 @@ function dissolveCelstial(celestials) {
     }
 }
 
+function handleFusion(celestials) {
+    for (let i = celestials.length - 1; i >= 0; i--) {
+        let cel1 = celestials[i];
+
+        if (cel1.isSelected) {
+            cel1.color = "#a1bfffff";
+        }
+
+        if (cel1.isMagnetized && cel1.magnetTarget) {
+            let cel2 = cel1.magnetTarget;
+            cel1.magnetTarget.color = "#a1bfffff";
+
+            stroke('#ffa1a1ff');
+            strokeWeight(2);
+            line(cel1.pos.x, cel1.pos.y, cel2.pos.x, cel2.pos.y);
+
+            let dir = p5.Vector.sub(cel2.pos, cel1.pos);
+            let dist = dir.mag();
+            dir.normalize();
+
+            dir.mult(2);
+            cel1.vel.add(dir);
+
+            if (dist < (cel1.radius + cel2.radius) / 1.5) {
+
+
+                let index2 = celestials.indexOf(cel2);
+                if (index2 > -1) {
+                    cel1.trail = [];
+                    cel1.mass += cel2.mass / 2;
+                    cel1.finalRadius = sqrt((cel1.radius * cel1.radius) + (cel2.radius * cel2.radius));
+                    cel1.radius = cel1.finalRadius;
+                    cel1.color = "#f8cf81ff";
+                    cel1.vel.add(cel2.vel).normalize();
+
+                    cel1.isMagnetized = false;
+                    cel1.magnetTarget = null;
+
+                    celestials.splice(index2, 1);
+                }
+            }
+        }
+    }
+}
 
 //Destroy Mechanic
 //Frame by Frame
