@@ -1,7 +1,6 @@
 /**
  * Variation Jam | Orbital Space
  * adadadaddaddad
- * 
  */
 let celestials = [];    //Array Which holds all our celestials
 let starArray = [];
@@ -14,6 +13,7 @@ const autoSpawnRate = 120;      //The rate at which celestials spawn in frames
 const fadeSpeed = 3;    //The speed at which the title fades
 let bumpPower = 2;
 let resistance = 1;
+let numberStars = 70;
 
 let isNova = false;
 let isImplode = false;
@@ -53,7 +53,14 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     music.setVolume(0.3);
     filter = new p5.LowPass();
-    starArray = createStarBabies(55);
+
+    music.disconnect();
+    music.connect(filter);
+
+    filter.freq(22050);
+    filter.res(0);
+
+    starArray = createStarBabies(numberStars);
     sun = createSun();
     net = createNet();
     createDotCelestial();
@@ -65,6 +72,7 @@ function setup() {
 function draw() {
     background(0);
     drawStarBabies(starArray);
+    //updateStarBabies(starArray);
 
     timeDialation();
     drawSun(sun);
@@ -406,9 +414,17 @@ function celestialTrail(celestial) {
 
     push();
     noFill();
-    strokeCap(SQUARE);
 
-    let trailColor = color(celestial.color);
+    strokeCap(ROUND);
+    stroke(celestial.color);
+    strokeWeight(celestial.thicc / 2);
+    beginShape();
+    for (let i = 0; i < celestial.trail.length; i++) {
+        let pos = celestial.trail[i];
+        vertex(pos.x, pos.y);
+    }
+  /*  strokeCap(SQUARE);
+       let trailColor = color(celestial.color);
     for (let i = 0; i < celestial.trail.length - 1; i++) {
         let posCurrent = celestial.trail[i];
         let posNext = celestial.trail[i + 1];
@@ -420,7 +436,9 @@ function celestialTrail(celestial) {
         strokeWeight(currentThicc);
         stroke(trailColor);
         line(posCurrent.x, posCurrent.y, posNext.x, posNext.y);
-    }
+    } */
+    endShape();
+
     pop();
 }
 
@@ -638,17 +656,16 @@ function timeDialation() {
  * 
  */
 function applySoundFilter(music, filter) {
-    music.disconnect();
-    music.connect(filter);
-    filter.set(400, 4);
+    filter.freq(400, 0.5, 0.05);
+    filter.res(4, 0.5, 0.05);
 }
 
 /**
  * 
  */
 function removeSoundFilter(music, filter) {
-    music.disconnect();
-    music.connect();
+    filter.freq(22050, 0.5, 0.05);
+    filter.res(0, 0.5, 0.05);
 }
 
 /**
@@ -786,14 +803,13 @@ function createStarBabies(numberStars) {
 
     for (i = 0; i < numberStars; i++) {
     let starBaby = {
-        x: random(10, windowWidth - 10),
-        y: random(10, windowHeight - 10),
+        x: random(5, windowWidth - 5),
+        y: random(5, windowHeight - 5),
         radius: random(2,5),
         startBright: random(10, 255),
         minBright: random(0,25),
         maxBright: random(150,255),
-        fadeRate: random(0.1, 1),
-        fadeDirection: random() > 0.5,
+        fadeRate: random(0.01, 0.1),
     };
     stars.push(starBaby);
 }
@@ -801,21 +817,25 @@ return stars;
 }
 
 function drawStarBabies(stars) {
-    for (let star of stars) {
         push();
         noStroke();
+    for (let star of stars) {
         fill(255, 255, 255, star.startBright);
         circle(star.x, star.y, star.radius);
-        pop();
     }
+        pop();
 }
 
-/* function updateStarBabies(stars) {
+function updateStarBabies(stars) {
     for (let star of stars) {
-        if (star.fadeDirection
+        star.x += star.fadeRate;
+           if (star.x >= windowWidth) {
+        star.x = 0;
+        }
     }
+
 }
- */
+
 
 //Destroy Mechanic
 //Frame by Frame
