@@ -38,6 +38,7 @@ let sun;
 let net;
 let dotCelestial;
 let ghostSun = null;
+let planetNamesData;
 
 /**
  * Loads assets for the program (only music)
@@ -45,6 +46,7 @@ let ghostSun = null;
 function preload() {
     soundFormats('wav');
     music = loadSound('assets/sounds/soundtrack.wav');
+    planetNamesData = loadJSON('data/planets.JSON');
 }
 
 /**
@@ -79,6 +81,8 @@ function draw() {
     background(0);
     drawStarBabies(starArray);
     //updateStarBabies(starArray);
+
+    drawGhostSun(ghostSun);
 
     timeDialation();
     drawSun(sun);
@@ -482,6 +486,13 @@ function mousePressed() {
             sun.isCaptured = false;
             return;
         }
+
+        //Recapture logic
+        if (captureSun(net, sun)) {
+            return;
+        }
+
+
         //Capture logic
         let capturedIndex = -1;
         for (let i = 0; i < celestials.length; i++) {
@@ -491,6 +502,9 @@ function mousePressed() {
             }
         }
         if (capturedIndex != -1) {
+
+            ghostSun = createGhostSun(sun)
+
             let captured = celestials[capturedIndex];
             sun.pos = captured.pos.copy();
             sun.mass = captured.mass * massMultiplier;
@@ -946,6 +960,44 @@ function handleFusion(celestials) {
             }
         }
     }
+}
+
+function createGhostSun(sun){
+     ghostSun =  {
+                pos: sun.pos.copy(),
+                radius: sun.radius,
+                thicc: sun.thicc,
+                color: "#FFFFFF",
+                dissolveRate: sun.mass/10,
+            };
+        return ghostSun;
+}
+
+function drawGhostSun(ghost) {
+    if (ghost !==null) {
+        push();
+        fill(0);
+        stroke(ghost.color);
+        strokeWeight(ghost.thicc);
+        circle(ghost.pos.x, ghost.pos.y, ghost.radius);
+        pop();
+
+        ghost.radius -= ghostSun.dissolveRate;
+
+        if (ghost.radius < 0) {
+            ghostSun = null;
+        }
+    }
+}
+
+function captureSun(net ,sun) {
+    let sunCanBeCaptured = canCapture(net, sun);
+
+    if (sun.isCaptured === false && sunCanBeCaptured) {
+        sun.isCaptured = true;
+        return true;
+    }
+    return false;
 }
 
 function windowResized() {
