@@ -37,6 +37,7 @@ let mode = "Newton";
 let sun;
 let net;
 let dotCelestial;
+let ghostSun = null;
 
 /**
  * Loads assets for the program (only music)
@@ -505,7 +506,7 @@ function mousePressed() {
         let clickedCelestial = null;
 
         for (let celestial of celestials) {
-            if (dist(mouseX, mouseY, celestial.pos.x, celestial.pos.y) < celestial.radius + 10) {
+            if (dist(mouseX, mouseY, celestial.pos.x, celestial.pos.y) < celestial.radius) {
                 clickedCelestial = celestial;
                 break;
             }
@@ -907,25 +908,25 @@ function handleFusion(celestials) {
         let cel1 = celestials[i];
 
         if (cel1.isSelected) {
-            cel1.color = "#a1bfffff";
+            cel1.color = "#4c85ffff";
         }
 
         if (cel1.isMagnetized && cel1.magnetTarget) {
             let cel2 = cel1.magnetTarget;
-            cel1.magnetTarget.color = "#a1bfffff";
+            cel1.magnetTarget.color = "#4c85ffff";
 
-            stroke('#ffa1a1ff');
+            stroke('#62a8ffff');
             strokeWeight(2);
             line(cel1.pos.x, cel1.pos.y, cel2.pos.x, cel2.pos.y);
 
             let dir = p5.Vector.sub(cel2.pos, cel1.pos);
-            let dist = dir.mag();
+            let distance = dir.mag();
             dir.normalize();
 
-            dir.mult(2);
+            dir.mult( 100/ dist(cel1.pos.x, cel1.pos.y, cel2.pos.x, cel2.pos.y));
             cel1.vel.add(dir);
 
-            if (dist < (cel1.radius + cel2.radius) / 1.5) {
+            if (distance < ((cel1.radius + cel2.radius) / 2) + 1) {
 
 
                 let index2 = celestials.indexOf(cel2);
@@ -945,6 +946,12 @@ function handleFusion(celestials) {
             }
         }
     }
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+
+   // starArray = createStarBabies(numberStars);
 }
 
 //Destroy Mechanic
