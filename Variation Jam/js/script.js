@@ -38,7 +38,7 @@ let sun;
 let net;
 let dotCelestial;
 let ghostSun = null;
-let planetNamesData;
+let planetData;
 
 /**
  * Loads assets for the program (only music)
@@ -46,7 +46,7 @@ let planetNamesData;
 function preload() {
     soundFormats('wav');
     music = loadSound('assets/sounds/soundtrack.wav');
-    planetNamesData = loadJSON('data/planets.JSON');
+    planetData = loadJSON('data/planets.json');
 }
 
 /**
@@ -72,6 +72,8 @@ function setup() {
     sun = createSun();
     net = createNet();
     createDotCelestial();
+
+    console.log(planetData);
 }
 
 /**
@@ -155,6 +157,7 @@ function createDotCelestial() {
         vel: createVector(0, 0),
         acc: createVector(0, 0),
         mass: 15,
+        name: "Xirnus",
         radius: 0,
         finalRadius: 30,
         thicc: 3,
@@ -184,6 +187,7 @@ function createSun() {
         mass: 100,
         radius: 200,
         thicc: 2,
+        name: "Sol",
         isCaptured: false,
         color: "#ffd7d7ff",
     }
@@ -215,6 +219,7 @@ function createCelestial(sun) {
         vel: initialVel,
         acc: createVector(0, 0),
         mass: random(1, 30),
+        name: random(planetData.names),
         radius: 0,
         finalRadius: random(10, 50),
         thicc: random(1, 5),
@@ -511,6 +516,7 @@ function mousePressed() {
             sun.radius = captured.radius;
             sun.thicc = captured.thicc;
             sun.color = captured.color;
+            sun.name = captured.name;
             sun.isCaptured = true;
             celestials.splice(capturedIndex, 1);
         }
@@ -630,9 +636,12 @@ function drawHUD(sun, celestials, net) {
     noStroke();
     fill(255);
     textSize(14);
+    textStyle(BOLD);
     textFont('Helvetica');
     textAlign(LEFT, TOP);
-    text("CURRENT SUN", 20, 20);
+    text(sun.name.toUpperCase(), 20, 20);
+    textAlign(LEFT, TOP);
+    textStyle(NORMAL);
     textSize(12);
     text("Mass:             " + sun.mass.toFixed(2), 20, 40);
     text("Radius:           " + sun.radius.toFixed(2), 20, 55);
@@ -662,17 +671,30 @@ function drawHUD(sun, celestials, net) {
                 let celestialMass = celestial.mass * 10;
                 push();
                 translate(mouseX + 15, mouseY);
+                textSize(14);
+                textStyle(BOLD);
+                let safeName = celestial.name || "Unknown";
+                let nameWidth = textWidth(safeName.toUpperCase());
+                
+                let boxWidth = max(100, nameWidth + 20);
+                
                 fill(0, 0, 0, 200);
                 stroke(255);
                 strokeWeight(1);
-                rect(0, 0, 90, 50);
+                rect(0, 0, boxWidth, 55);
+
                 noStroke();
                 fill(255);
-                textSize(12);
                 textAlign(LEFT, TOP);
                 textFont('Helvetica');
-                text("Mass:   " + celestialMass.toFixed(2), 5, 10);
-                text("Speed:  " + celestial.vel.mag().toFixed(2), 5, 30);
+
+                text(safeName.toUpperCase(), 5, 5);
+                
+                textSize(12);
+                textStyle(NORMAL);
+                text("Mass:   " + celestialMass.toFixed(2), 5, 25);
+                text("Speed:  " + celestial.vel.mag().toFixed(2), 5, 40);
+                
                 pop();
                 break;
             }
@@ -951,6 +973,7 @@ function handleFusion(celestials) {
                     cel1.radius = cel1.finalRadius;
                     cel1.color = "#f8cf81ff";
                     cel1.vel.add(cel2.vel).normalize();
+                    cel1.name = random(planetData.names);
 
                     cel1.isMagnetized = false;
                     cel1.magnetTarget = null;
