@@ -547,7 +547,7 @@ function mousePressed() {
             for (let celestial of celestials) calculateOrbitalSpeed.isSelected = false;
         }
         return;
-    }
+    } 
 }
 
 /**
@@ -700,6 +700,7 @@ function drawHUD(sun, celestials, net) {
             }
         }
     }
+    infoScreen();
 }
 
 /**
@@ -1025,8 +1026,95 @@ function captureSun(net ,sun) {
 
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
-
    // starArray = createStarBabies(numberStars);
+}
+
+function infoScreen() {
+    let icon = {
+        x: width - 40,
+        y: 40,
+        radius: 30,
+    };
+
+    drawIcon(icon);
+
+    let isHovering = dist(mouseX, mouseY, icon.x, icon.y) < icon.radius / 2;
+    if (isHovering) {
+        drawInfoOverlay();
+    }
+}
+
+function drawIcon(icon) {
+    push();
+    stroke(255);
+    fill(0);
+    circle(icon.x, icon.y, icon.radius);
+
+    noStroke();
+    fill(255);
+    rectMode(CENTER);
+    rect(icon.x, icon.y + 3, 4, 12);
+    circle(icon.x, icon.y - 7, 4);
+    pop();
+}
+
+function drawInfoOverlay() {
+    let boxX = width * 0.65;
+    let boxY = 85;
+    let margin = 20;
+    let boxW = (width - boxX) - margin;
+    let boxH = height - 170;
+
+    push();
+
+    stroke(255);
+    strokeWeight(1);
+    fill(0, 0, 0, 230);
+    rectMode(CORNER);
+    rect(boxX, boxY, boxW, boxH,);
+
+    fill(255);
+    noStroke();
+    textSize(14);
+    textLeading(16);
+    textFont('Helvetica');
+    textAlign(LEFT, TOP);
+
+    let textX = boxX + margin;
+    let textY = boxY + margin;
+    let textW = boxW - (margin * 1.5);
+    let textH = boxH - (margin * 2);
+
+    let content = getInfoText();
+
+    text(content, textX, textY, textW, textH);
+    pop();
+}
+
+function getInfoText() {
+    return `WELCOME TO ORBIT
+    A physics based gravitational sandbox, where you can experiment
+    with the gravitational laws of the universe!
+
+    Every 2 seconds, a new 'Celestial' spawns in orbit around the Sun (white ring).
+
+    MOUSE CONTROLS
+        • Left Click: Move the Sun, or click a Celestial to make it the new Sun. Notice how mass/size affects the orbits of others.
+
+        • Right Click: Select two Celestials to magnetize them. If they touch, they fuse into a larger Celestial.
+
+    KEYBOARD SHORTCUTS
+    [Q] Supernova (Hold) | Exerts massive force on all Celestials.
+    [W] Implosion (Hold) | Forcefully pulls Celestials tightly inward.
+    [E] Time Dilation | Pauses time. You can push Celestials while paused; velocity builds up and releases when time resumes.
+    [R] Gravity Mode Toggle:
+        • Newton: Gravity gets stronger the closer you are.
+        • Hooke: Gravity gets stronger the further you are.
+
+    [A] Spawn Toggle | Turn natural spawning on/off.
+    [S] Collision | Toggle bounce physics.
+    [D] Multi-Gravity | ALL Celestials exert their own gravity.
+    [Z] Dissolve | Destroy all Celestials.`;
 }
 
 //Destroy Mechanic
