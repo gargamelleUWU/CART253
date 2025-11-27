@@ -545,9 +545,11 @@ function mousePressed() {
         let clickedCelestial = null;
 
         for (let celestial of celestials) {
-            if (dist(mouseX, mouseY, celestial.pos.x, celestial.pos.y) < (celestial.radius + net.radius) / 2) {
-                if (celestial.heat < celestial.maxHeat)
-                    clickedCelestial = celestial;
+            let d = dist(mouseX, mouseY, celestial.pos.x, celestial.pos.y);
+            let hitBox = (celestial.radius + net.radius) / 2;
+
+            if (d < hitBox && celestial.heat < celestial.maxHeat) {
+                clickedCelestial = celestial;
                 break;
             }
         }
@@ -568,6 +570,11 @@ function mousePressed() {
         }
         return;
     }
+
+    if (mouseButton === CENTER) {
+        celestials.push(createCelestial(sun));
+    }
+    return false;
 }
 
 /**
@@ -663,10 +670,10 @@ function drawHUD(sun, celestials, net) {
     textAlign(LEFT, TOP);
     textStyle(NORMAL);
     textSize(12);
-    text("Mass:             " + sun.mass.toFixed(2), 20, 40);
-    text("Radius:           " + sun.radius.toFixed(2), 20, 55);
-    text("Mode:             " + mode, 20, 70);
-    text("Orbiting:         " + celestials.length, 20, 85);
+    text("Mass:           " + sun.mass.toFixed(2) + " Gton", 20, 40);
+    text("Radius:         " + sun.radius.toFixed(2) + " Mm", 20, 55);
+    text("Mode:           " + mode, 20, 70);
+    text("Orbiting:       " + celestials.length, 20, 85);
     text("____________________", 20, 90);
     text("Press 'Q' | Supernova", 20, 105);
     drawActiveToggle(isNova, togX, 111);
@@ -711,7 +718,7 @@ function drawHUD(sun, celestials, net) {
                 fill(0, 0, 0, 200);
                 stroke(255);
                 strokeWeight(1);
-                rect(0, 0, boxWidth, 100);
+                rect(0, 0, boxWidth + 15, 85);
 
                 noStroke();
                 fill(255);
@@ -720,13 +727,15 @@ function drawHUD(sun, celestials, net) {
 
                 text(safeName.toUpperCase(), 5, 5);
 
+                let entropy = (celestial.heat / celestial.maxHeat) * 100;
+
                 textSize(12);
                 textStyle(NORMAL);
-                text("Mass:   " + celestialMass.toFixed(2), 5, 25);
-                text("Speed:  " + celestial.vel.mag().toFixed(2), 5, 40);
-                text("Radius: " + celestial.radius.toFixed(2), 5, 55)
-                text("Heat:   " + celestial.heat.toFixed(0), 5, 70);
-                text("Max Heat: " + celestial.maxHeat.toFixed(0), 5, 85);
+                text("Mass:  " + celestialMass.toFixed(2) + " Gton", 5, 25);
+                text("Speed:    " + celestial.vel.mag().toFixed(2) + " Δv", 5, 40);
+                text("Size:     " + celestial.radius.toFixed(2) + " Mm", 5, 55)
+                fill(celestial.displayColor);
+                text("Entropy:  " + entropy.toFixed(2) + " %", 5, 70);
 
                 pop();
                 break;
@@ -983,11 +992,11 @@ function handleFusion(celestials) {
         if (cel1.isMagnetized && cel1.magnetTarget) {
             let cel2 = cel1.magnetTarget;
             cel1.magnetTarget.color = "#4c85ffff";
-
-            stroke('#62a8ffff');
-            strokeWeight(2);
-            line(cel1.pos.x, cel1.pos.y, cel2.pos.x, cel2.pos.y);
-
+            /* 
+                        stroke('#62a8ffff');
+                        strokeWeight(2);
+                        line(cel1.pos.x, cel1.pos.y, cel2.pos.x, cel2.pos.y);
+             */
             let dir = p5.Vector.sub(cel2.pos, cel1.pos);
             let distance = dir.mag();
             dir.normalize();
@@ -1135,6 +1144,8 @@ function getInfoText() {
 
         • Right Click: Select two Celestials to magnetize them. If they touch, they fuse into a larger Celestial.
 
+        • Middle Click: Force a new Celestial to Spawn around the current Sun.
+
     KEYBOARD SHORTCUTS
     [Q] Supernova (Hold) | Exerts massive force on all Celestials.
     [W] Implosion (Hold) | Forcefully pulls Celestials tightly inward.
@@ -1146,7 +1157,12 @@ function getInfoText() {
     [A] Spawn Toggle | Turn natural spawning on/off.
     [S] Collision | Toggle bounce physics.
     [D] Multi-Gravity | ALL Celestials exert their own gravity.
-    [Z] Dissolve | Destroy all Celestials.`;
+    [Z] Dissolve | Destroy all Celestials.
+    
+    ENTROPY: All Celestials generate intense amounts of heat as they orbit the sun.
+    When a Celestial turns red, it means it is about to explode into a Supernova.
+    Merging Celestials, stoppin time, or turning it into a Sun can delay the Supernova.
+    `;
 }
 
 function applyHeat(celestials) {
