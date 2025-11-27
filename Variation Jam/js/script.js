@@ -16,7 +16,6 @@ let resistance = 1;
 let numberStars = 70;
 let dissolveRate = 2;
 let heatMultiplier = 0.1;
-let maxHeat = 100;
 
 let isNova = false;
 let isImplode = false;
@@ -168,6 +167,7 @@ function createDotCelestial() {
         offScreenTimer: 0,
         heat: 0,
         fillOpacity: 255,
+        maxHeat: random(150, 500),
     };
 }
 
@@ -202,7 +202,11 @@ function createSun() {
  * Factory that produces our celestials
 */
 function createCelestial(sun) {
-    let palette = ['#f3c257ff', '#f8cf81ff', "#ffe77eff", '#ffe388ff', '#fffeaeff'];
+    let palette = [color(243, 194, 87, 255),
+    color(248, 207, 129, 255),
+    color(255, 231, 126, 255),
+    color(255, 227, 136, 255),
+    color(255, 254, 174, 255),];
     //['#ffb7b7ff', '#b0efffff', "#f0c1ffff", '#a7ffaeff', '#fffeaeff']
     //'#f3c257ff', '#f8cf81ff', "#ffe77eff", '#ffe388ff', '#fffeaeff'
 
@@ -234,6 +238,7 @@ function createCelestial(sun) {
         magnetTarget: null,
         heat: 0,
         fillOpacity: 255,
+        maxHeat: random(150, 500),
     };
     return celestial;
 }
@@ -278,10 +283,21 @@ function drawSun(sun) {
 function drawCelestial(celestial) {
     celestial.radius = lerp(celestial.radius, celestial.finalRadius, 0.1);
 
+    let heatRatio = map(celestial.heat, celestial.maxHeat * 0.5, celestial.maxHeat, 0, 1);
+    heatRatio = constrain(heatRatio, 0, 1);
+    let baseColor = color(celestial.color);
+    let hotColor = color(255, 50, 50);
+
+    let calculatedColor = lerpColor(baseColor, hotColor, heatRatio);
+
+    celestial.displayColor = calculatedColor;
+
+    calculatedColor.setAlpha(celestial.fillOpacity);
+
     push();
     fill(0, 0, 0, celestial.fillOpacity);
     strokeWeight(celestial.thicc);
-    stroke(celestial.color);
+    stroke(calculatedColor);
     circle(celestial.pos.x, celestial.pos.y, celestial.radius);
     pop();
 }
@@ -436,29 +452,24 @@ function celestialTrail(celestial) {
     if (celestial.trail.length > 100) {
         celestial.trail.shift();
     }
-
     push();
     noFill();
-
-    /* 
-        strokeCap(ROUND);
-        stroke(celestial.color);
-        strokeWeight(celestial.thicc);
-        beginShape();
-        for (let i = 0; i < celestial.trail.length; i++) {
-            let pos = celestial.trail[i];
-            vertex(pos.x, pos.y);
-        }
-        endShape();
-     */
-
     strokeCap(SQUARE);
-    let trailColor = color(celestial.color);
+
+    let trailColor;
+
+    if (celestial.displayColor) {
+        trailColor = color(celestial.displayColor);
+    } else {
+        trailColor = color(celestial.color);
+    }
+
     for (let i = 0; i < celestial.trail.length - 1; i++) {
         let posCurrent = celestial.trail[i];
         let posNext = celestial.trail[i + 1];
         let ratio = i / celestial.trail.length;
         let currentThicc = ratio * (celestial.mass / 2);
+
         let currentAlpha = ratio * 125;
 
         trailColor.setAlpha(currentAlpha);
@@ -507,7 +518,7 @@ function mousePressed() {
         //Capture logic
         let capturedIndex = -1;
         for (let i = 0; i < celestials.length; i++) {
-            if (canCapture(net, celestials[i])) {
+            if (canCapture(net, celestials[i]) && celestials[i].heat < celestials[i].maxHeat) {
                 capturedIndex = i;
                 break;
             }
@@ -521,7 +532,9 @@ function mousePressed() {
             sun.mass = captured.mass * massMultiplier;
             sun.radius = captured.radius;
             sun.thicc = captured.thicc;
+
             sun.color = captured.color;
+
             sun.name = captured.name;
             sun.isCaptured = true;
             celestials.splice(capturedIndex, 1);
@@ -533,7 +546,8 @@ function mousePressed() {
 
         for (let celestial of celestials) {
             if (dist(mouseX, mouseY, celestial.pos.x, celestial.pos.y) < (celestial.radius + net.radius) / 2) {
-                clickedCelestial = celestial;
+                if (celestial.heat < celestial.maxHeat)
+                    clickedCelestial = celestial;
                 break;
             }
         }
@@ -673,7 +687,7 @@ function drawHUD(sun, celestials, net) {
 
     if (!sun.isCaptured) {
         for (let celestial of celestials) {
-            if (canCapture(net, celestial)) {
+            if (canCapture(net, celestial) && celestial.heat < celestial.maxHeat) {
                 let celestialMass = celestial.mass * 10;
                 push();
                 if (mouseY > windowHeight - 90 && mouseX > windowWidth - 100) {
@@ -697,7 +711,7 @@ function drawHUD(sun, celestials, net) {
                 fill(0, 0, 0, 200);
                 stroke(255);
                 strokeWeight(1);
-                rect(0, 0, boxWidth, 85);
+                rect(0, 0, boxWidth, 100);
 
                 noStroke();
                 fill(255);
@@ -711,7 +725,8 @@ function drawHUD(sun, celestials, net) {
                 text("Mass:   " + celestialMass.toFixed(2), 5, 25);
                 text("Speed:  " + celestial.vel.mag().toFixed(2), 5, 40);
                 text("Radius: " + celestial.radius.toFixed(2), 5, 55)
-                text("Heat:   " + celestial.heat.toFixed(2), 4, 70);
+                text("Heat:   " + celestial.heat.toFixed(0), 5, 70);
+                text("Max Heat: " + celestial.maxHeat.toFixed(0), 5, 85);
 
                 pop();
                 break;
@@ -784,7 +799,6 @@ function convertVeolcities(sun, celestials) {
         let newSpeed;
 
         if (doYouBelieveInGravity === true) {
-            A
             newSpeed = sqrt((gravConstant * sun.mass) / distance);
 
         } else {
@@ -1150,8 +1164,17 @@ function calculateHeat(celestial) {
 
 function celestialIsTooHot(celestials) {
     for (let i = 0; i < celestials.length; i++) {
-        if (celestials[i].heat > maxHeat) {
-            celestials.splice(i, 1);
+        if (celestials[i].heat > celestials[i].maxHeat) {
+            superNova(celestials[i], celestials);
+            celestials[i].fillOpacity -= calculateExplosionRate(celestials[i]);
+            celestials[i].vel.mult(0);
+            celestials[i].finalRadius += 15;
+            if (celestials[i].fillOpacity <= 0)
+                celestials.splice(i, 1);
         }
     }
+}
+
+function calculateExplosionRate(celestial) {
+    return celestial.thicc * 1.2;
 }
