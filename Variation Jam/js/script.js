@@ -202,6 +202,8 @@ function createSun() {
  * Factory that produces our celestials
 */
 function createCelestial(sun) {
+    let hotOrCold = random() > 0.5;
+    let type = hotOrCold ? "HOT" : "COLD";
     let palette = [color(243, 194, 87, 255),
     color(248, 207, 129, 255),
     color(255, 231, 126, 255),
@@ -239,6 +241,7 @@ function createCelestial(sun) {
         heat: 0,
         fillOpacity: 255,
         maxHeat: random(150, 500),
+        type: type,
     };
     return celestial;
 }
@@ -283,11 +286,15 @@ function drawSun(sun) {
 function drawCelestial(celestial) {
     celestial.radius = lerp(celestial.radius, celestial.finalRadius, 0.1);
 
+    let hotColor = color(255, 255, 255);
     let heatRatio = map(celestial.heat, celestial.maxHeat * 0.5, celestial.maxHeat, 0, 1);
     heatRatio = constrain(heatRatio, 0, 1);
     let baseColor = color(celestial.color);
-    let hotColor = color(255, 50, 50);
-
+    if (celestial.type === "HOT") {
+        hotColor = color(255, 50, 50);
+    } else {
+        hotColor = color(0, 175, 255);
+    }
     let calculatedColor = lerpColor(baseColor, hotColor, heatRatio);
 
     celestial.displayColor = calculatedColor;
@@ -735,8 +742,11 @@ function drawHUD(sun, celestials, net) {
                 text("Speed:    " + celestial.vel.mag().toFixed(2) + " Δv", 5, 40);
                 text("Size:     " + celestial.radius.toFixed(2) + " Mm", 5, 55)
                 fill(celestial.displayColor);
-                text("Entropy:  " + entropy.toFixed(2) + " %", 5, 70);
-
+                if (celestial.type === "HOT") {
+                    text("Entropy:  " + entropy.toFixed(2) + " %", 5, 70);
+                } else {
+                    text("Entropy: -" + entropy.toFixed(2) + " %", 5, 70);
+                }
                 pop();
                 break;
             }
@@ -986,12 +996,21 @@ function handleFusion(celestials) {
         let cel1 = celestials[i];
 
         if (cel1.isSelected) {
-            cel1.color = "#4c85ffff";
+            cel1.color = "#2bbe4bff";
         }
 
         if (cel1.isMagnetized && cel1.magnetTarget) {
             let cel2 = cel1.magnetTarget;
-            cel1.magnetTarget.color = "#4c85ffff";
+
+            if (cel1.heat > cel1.maxHeat || cel2.heat > cel2.maxHeat) {
+                cel1.isMagnetized = false;
+                cel1.magnetTarget = null;
+                cel2.isMagnetized = false;
+                cel2.magnetTarget = null;
+                continue;
+            }
+
+            cel1.magnetTarget.color = "#2bbe4bff";
             /* 
                         stroke('#62a8ffff');
                         strokeWeight(2);
@@ -1016,6 +1035,7 @@ function handleFusion(celestials) {
                     cel1.color = "#f8cf81ff";
                     cel1.vel.add(cel2.vel).normalize();
                     cel1.name = random(planetData.names);
+                    cel1.heat = (cel1.heat + cel2.heat) / 3;
 
                     cel1.isMagnetized = false;
                     cel1.magnetTarget = null;
@@ -1181,12 +1201,22 @@ function calculateHeat(celestial) {
 function celestialIsTooHot(celestials) {
     for (let i = 0; i < celestials.length; i++) {
         if (celestials[i].heat > celestials[i].maxHeat) {
-            superNova(celestials[i], celestials);
-            celestials[i].fillOpacity -= calculateExplosionRate(celestials[i]);
-            celestials[i].vel.mult(0);
-            celestials[i].finalRadius += 15;
-            if (celestials[i].fillOpacity <= 0)
-                celestials.splice(i, 1);
+            if (celestials[i].type === "HOT") {
+                celestials[i].vel.mult(0);
+                superNova(celestials[i], celestials);
+                celestials[i].fillOpacity -= calculateExplosionRate(celestials[i]);
+                celestials[i].finalRadius += 15;
+                if (celestials[i].fillOpacity <= 0)
+                    celestials.splice(i, 1);
+            } else {
+                celestials[i].vel.mult(0);
+                implosion(celestials[i], celestials);
+                celestials[i].fillOpacity -= calculateExplosionRate(celestials[i]);
+                celestials[i].finalRadius += 15;
+                if (celestials[i].fillOpacity <= 0)
+                    celestials.splice(i, 1);
+
+            }
         }
     }
 }
@@ -1194,3 +1224,4 @@ function celestialIsTooHot(celestials) {
 function calculateExplosionRate(celestial) {
     return celestial.thicc * 1.2;
 }
+
