@@ -15,6 +15,8 @@ let bumpPower = 2;
 let resistance = 1;
 let numberStars = 70;
 let dissolveRate = 2;
+let heatMultiplier = 0.1;
+let maxHeat = 100;
 
 let isNova = false;
 let isImplode = false;
@@ -72,8 +74,6 @@ function setup() {
     sun = createSun();
     net = createNet();
     createDotCelestial();
-
-    console.log(planetData);
 }
 
 /**
@@ -109,6 +109,8 @@ function draw() {
         applyInterplanetaryGravity(celestials);
         dissolveCelstial(celestials);
         handleFusion(celestials);
+        applyHeat(celestials);
+        celestialIsTooHot(celestials);
 
         triggerSuperNova(sun, celestials);
         triggerImplosion(sun, celestials);
@@ -164,6 +166,8 @@ function createDotCelestial() {
         trail: [],
         color: "#FFFFFF",
         offScreenTimer: 0,
+        heat: 0,
+        fillOpacity: 255,
     };
 }
 
@@ -228,7 +232,9 @@ function createCelestial(sun) {
         offScreenTimer: 0,
         isMagnetized: false,
         magnetTarget: null,
-    }
+        heat: 0,
+        fillOpacity: 255,
+    };
     return celestial;
 }
 
@@ -273,7 +279,7 @@ function drawCelestial(celestial) {
     celestial.radius = lerp(celestial.radius, celestial.finalRadius, 0.1);
 
     push();
-    fill(0);
+    fill(0, 0, 0, celestial.fillOpacity);
     strokeWeight(celestial.thicc);
     stroke(celestial.color);
     circle(celestial.pos.x, celestial.pos.y, celestial.radius);
@@ -681,7 +687,7 @@ function drawHUD(sun, celestials, net) {
                 fill(0, 0, 0, 200);
                 stroke(255);
                 strokeWeight(1);
-                rect(0, 0, boxWidth, 55);
+                rect(0, 0, boxWidth, 80);
 
                 noStroke();
                 fill(255);
@@ -694,6 +700,8 @@ function drawHUD(sun, celestials, net) {
                 textStyle(NORMAL);
                 text("Mass:   " + celestialMass.toFixed(2), 5, 25);
                 text("Speed:  " + celestial.vel.mag().toFixed(2), 5, 40);
+                text("Radius: " + celestial.radius.toFixed(2), 5, 55)
+                text("Heat:   " + celestial.heat.toFixed(2), 4, 70);
                 
                 pop();
                 break;
@@ -1117,8 +1125,26 @@ function getInfoText() {
     [Z] Dissolve | Destroy all Celestials.`;
 }
 
-//Destroy Mechanic
-//Frame by Frame
-//Heat mechanic
-//Star Babies
+function applyHeat(celestials) {
+    if (targetTimeScale === 1) {
+        for (let i = 0; i < celestials.length; i++) {
+            calculateHeat(celestials[i]);
+        }
+    }
+}
 
+function calculateHeat(celestial) {
+    celestial.heat += heatMultiplier * ((celestial.mass * celestial.vel.mag()) / celestial.finalRadius);
+    console.log(celestial.mass, celestial.vel.mag(), celestial.radius);
+    return celestial.heat;
+}
+
+function celestialIsTooHot(celestials) {
+    for (let i = 0; i < celestials.length; i++) {
+        if (celestials[i].heat > maxHeat) {
+            celestials.splice(i, 1);
+        }
+    }
+}
+
+// Something Something
