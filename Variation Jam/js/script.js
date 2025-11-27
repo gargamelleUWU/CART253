@@ -676,7 +676,17 @@ function drawHUD(sun, celestials, net) {
             if (canCapture(net, celestial)) {
                 let celestialMass = celestial.mass * 10;
                 push();
-                translate(mouseX + 15, mouseY);
+                if (mouseY > windowHeight - 90 && mouseX > windowWidth - 100) {
+                    translate(mouseX + -100, mouseY - 85);
+                }
+                else if (mouseY > windowHeight - 90) {
+                    translate(mouseX + 15, mouseY - 85);
+                }
+                else if (mouseX > windowWidth - 100) {
+                    translate(mouseX - 100, mouseY);
+                } else {
+                    translate(mouseX + 15, mouseY);
+                }
                 textSize(14);
                 textStyle(BOLD);
                 let safeName = celestial.name || "Unknown";
@@ -687,7 +697,7 @@ function drawHUD(sun, celestials, net) {
                 fill(0, 0, 0, 200);
                 stroke(255);
                 strokeWeight(1);
-                rect(0, 0, boxWidth, 80);
+                rect(0, 0, boxWidth, 85);
 
                 noStroke();
                 fill(255);
@@ -700,13 +710,9 @@ function drawHUD(sun, celestials, net) {
                 textStyle(NORMAL);
                 text("Mass:   " + celestialMass.toFixed(2), 5, 25);
                 text("Speed:  " + celestial.vel.mag().toFixed(2), 5, 40);
-<<<<<<< HEAD
                 text("Radius: " + celestial.radius.toFixed(2), 5, 55)
                 text("Heat:   " + celestial.heat.toFixed(2), 4, 70);
-                
-=======
 
->>>>>>> 94a82f31ac10467b7b3cf0b35765ead7631f1982
                 pop();
                 break;
             }
@@ -1139,7 +1145,6 @@ function applyHeat(celestials) {
 
 function calculateHeat(celestial) {
     celestial.heat += heatMultiplier * ((celestial.mass * celestial.vel.mag()) / celestial.finalRadius);
-    console.log(celestial.mass, celestial.vel.mag(), celestial.radius);
     return celestial.heat;
 }
 
@@ -1150,7 +1155,3 @@ function celestialIsTooHot(celestials) {
         }
     }
 }
-
-// Something Something
-
-//Something something
