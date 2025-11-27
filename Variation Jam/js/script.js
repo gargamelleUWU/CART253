@@ -168,6 +168,7 @@ function createDotCelestial() {
         heat: 0,
         fillOpacity: 255,
         maxHeat: random(150, 500),
+        type: "COLD",
     };
 }
 
@@ -193,7 +194,8 @@ function createSun() {
         thicc: 2,
         name: "Sol",
         isCaptured: false,
-        color: "#ffd7d7ff",
+        color: "#ffffffff",
+        type: "NEUTRAL",
     }
     return sun;
 }
@@ -274,7 +276,13 @@ function drawSun(sun) {
         push();
         fill(0);
         strokeWeight(sun.thicc);
-        stroke("#FFFFFF");
+        if (sun.type === "HOT") {
+            stroke("#ffd390ff");
+        } else if (sun.type === "COLD") {
+            stroke("#90fff0ff");
+        } else {
+            stroke("#FFFFFF");
+        }
         circle(sun.pos.x, sun.pos.y, sun.radius);
         pop();
     }
@@ -539,6 +547,7 @@ function mousePressed() {
             sun.mass = captured.mass * massMultiplier;
             sun.radius = captured.radius;
             sun.thicc = captured.thicc;
+            sun.type = captured.type;
 
             sun.color = captured.color;
 
@@ -665,6 +674,12 @@ function implosion(sun, celestials) {
  */
 function drawHUD(sun, celestials, net) {
     let togX = 160;
+    let sunType = "NEXUS";
+    if (sun.type === "HOT") {
+        sunType = "IGNIS"
+    } else if (sun.type === "COLD") {
+        sunType = "BOREAS"
+    }
 
     push();
     noStroke();
@@ -679,8 +694,8 @@ function drawHUD(sun, celestials, net) {
     textSize(12);
     text("Mass:           " + sun.mass.toFixed(2) + " Gton", 20, 40);
     text("Radius:         " + sun.radius.toFixed(2) + " Mm", 20, 55);
-    text("Mode:           " + mode, 20, 70);
-    text("Orbiting:       " + celestials.length, 20, 85);
+    text("Type:            " + sunType, 20, 85);
+    text("Orbiting:       " + celestials.length, 20, 70);
     text("____________________", 20, 90);
     text("Press 'Q' | Supernova", 20, 105);
     drawActiveToggle(isNova, togX, 111);
@@ -689,6 +704,7 @@ function drawHUD(sun, celestials, net) {
     text("Press 'E' | Dilate Time", 20, 135);
     drawActiveToggle(targetTimeScale === 0, togX, 141);
     text("Press 'R' | Mode Switch", 20, 150);
+    text(printMode(), togX - 5, 150);
     text("Press 'A' | Toggle Spawn", 20, 165);
     drawActiveToggle(canSpawn, togX, 171);
     text("Press 'S' | Collision", 20, 180);
@@ -1179,8 +1195,9 @@ function getInfoText() {
     [D] Multi-Gravity | ALL Celestials exert their own gravity.
     [Z] Dissolve | Destroy all Celestials.
     
-    ENTROPY: All Celestials generate intense amounts of heat as they orbit the sun.
-    When a Celestial turns red, it means it is about to explode into a Supernova.
+    ENTROPY: All Celestials either generate or draw intense amounts of heat as they orbit the sun.
+    As a Celestial take thermic effect, it will change colors.
+    When a Celestial gets too hot or too cold it will explode or implode, respectively.
     Merging Celestials, stoppin time, or turning it into a Sun can delay the Supernova.
     `;
 }
@@ -1225,3 +1242,10 @@ function calculateExplosionRate(celestial) {
     return celestial.thicc * 1.2;
 }
 
+function printMode() {
+    let modeChar = 'N';
+    if (mode === "Hooke") {
+        modeChar = 'H';
+    }
+    return modeChar;
+}
