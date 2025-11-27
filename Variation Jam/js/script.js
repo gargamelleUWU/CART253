@@ -532,7 +532,7 @@ function mousePressed() {
         let clickedCelestial = null;
 
         for (let celestial of celestials) {
-            if (dist(mouseX, mouseY, celestial.pos.x, celestial.pos.y) < celestial.radius) {
+            if (dist(mouseX, mouseY, celestial.pos.x, celestial.pos.y) < (celestial.radius + net.radius) / 2) {
                 clickedCelestial = celestial;
                 break;
             }
@@ -553,7 +553,7 @@ function mousePressed() {
             for (let celestial of celestials) calculateOrbitalSpeed.isSelected = false;
         }
         return;
-    } 
+    }
 }
 
 /**
@@ -681,9 +681,9 @@ function drawHUD(sun, celestials, net) {
                 textStyle(BOLD);
                 let safeName = celestial.name || "Unknown";
                 let nameWidth = textWidth(safeName.toUpperCase());
-                
+
                 let boxWidth = max(100, nameWidth + 20);
-                
+
                 fill(0, 0, 0, 200);
                 stroke(255);
                 strokeWeight(1);
@@ -695,14 +695,18 @@ function drawHUD(sun, celestials, net) {
                 textFont('Helvetica');
 
                 text(safeName.toUpperCase(), 5, 5);
-                
+
                 textSize(12);
                 textStyle(NORMAL);
                 text("Mass:   " + celestialMass.toFixed(2), 5, 25);
                 text("Speed:  " + celestial.vel.mag().toFixed(2), 5, 40);
+<<<<<<< HEAD
                 text("Radius: " + celestial.radius.toFixed(2), 5, 55)
                 text("Heat:   " + celestial.heat.toFixed(2), 4, 70);
                 
+=======
+
+>>>>>>> 94a82f31ac10467b7b3cf0b35765ead7631f1982
                 pop();
                 break;
             }
@@ -968,7 +972,7 @@ function handleFusion(celestials) {
             let distance = dir.mag();
             dir.normalize();
 
-            dir.mult( 100/ dist(cel1.pos.x, cel1.pos.y, cel2.pos.x, cel2.pos.y));
+            dir.mult(100 / dist(cel1.pos.x, cel1.pos.y, cel2.pos.x, cel2.pos.y));
             cel1.vel.add(dir);
 
             if (distance < ((cel1.radius + cel2.radius) / 2) + 1) {
@@ -994,19 +998,19 @@ function handleFusion(celestials) {
     }
 }
 
-function createGhostSun(sun){
-     ghostSun =  {
-                pos: sun.pos.copy(),
-                radius: sun.radius,
-                thicc: sun.thicc,
-                color: "#FFFFFF",
-                dissolveRate: sun.mass/10,
-            };
-        return ghostSun;
+function createGhostSun(sun) {
+    ghostSun = {
+        pos: sun.pos.copy(),
+        radius: sun.radius,
+        thicc: sun.thicc,
+        color: "#FFFFFF",
+        dissolveRate: sun.mass / 10,
+    };
+    return ghostSun;
 }
 
 function drawGhostSun(ghost) {
-    if (ghost !==null) {
+    if (ghost !== null) {
         push();
         fill(0);
         stroke(ghost.color);
@@ -1022,7 +1026,7 @@ function drawGhostSun(ghost) {
     }
 }
 
-function captureSun(net ,sun) {
+function captureSun(net, sun) {
     let sunCanBeCaptured = canCapture(net, sun);
 
     if (sun.isCaptured === false && sunCanBeCaptured) {
@@ -1034,7 +1038,7 @@ function captureSun(net ,sun) {
 
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
-   // starArray = createStarBabies(numberStars);
+    // starArray = createStarBabies(numberStars);
 }
 
 function infoScreen() {
