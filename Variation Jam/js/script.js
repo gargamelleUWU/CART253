@@ -1,17 +1,17 @@
 /**
- * Variation Jam | Orbital Space
- * adadadaddaddad
+ * Variation Jam | Orbit
+ * Felix Dionne, 40316928
  */
-let celestials = [];    //Array Which holds all our celestials
-let starArray = [];
-let gravConstant = 10;  //The constant force of Newtonian gravity
-let springConstant = 0.000001;  //The spring force of Hooke gravity
-let drag = 1;           //The air resistance in Hook gravity
-let spawnRange = 200;   //How far away from the current sun Celestials can spawn
-const massMultiplier = 10;      //Multipler for the mass when a celestial becomes a sun
-const autoSpawnRate = 120;      //The rate at which celestials spawn in frames
-const fadeSpeed = 3;    //The speed at which the title fades
-let bumpPower = 2;
+let celestials = [];        //Array Which holds all our celestials
+let starArray = [];         // Array that draws the starry background
+let gravConstant = 10;      // The constant force of Newtonian gravity
+let springConstant = 0.000001;  // The spring force of Hooke gravity
+let drag = 1;               // The air resistance in Hook gravity
+let spawnRange = 200;       // How far away from the current sun Celestials can spawn
+const massMultiplier = 10;      // Multipler for the mass when a celestial becomes a sun
+const autoSpawnRate = 120;      // The rate at which celestials spawn in frames
+const fadeSpeed = 3;        //The speed at which the title fades
+let bumpPower = 2;      // The force
 let resistance = 1;
 let numberStars = 70;
 let dissolveRate = 2;
@@ -158,7 +158,7 @@ function createDotCelestial() {
         vel: createVector(0, 0),
         acc: createVector(0, 0),
         mass: 15,
-        name: "Xirnus",
+        name: "Eva",
         radius: 0,
         finalRadius: 30,
         thicc: 3,
